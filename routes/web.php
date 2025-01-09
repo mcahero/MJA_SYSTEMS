@@ -22,5 +22,5 @@ Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 
-Route::view('/pages/stock_room', 'pages.stock_room');
+Route::view('/pages/receiving', 'pages.receiving');
 Route::view('/pages/product_lists', 'pages.product_lists');

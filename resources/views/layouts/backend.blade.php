@@ -239,17 +239,17 @@
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a class="nav-main-link{{ request()->is('pages/stock_room') ? ' active' : '' }}"
-                                href="/pages/stock_room">
+                            <a class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}"
+                                href="/pages/product_lists">
                                 <i class="nav-main-link-icon si si-cursor"></i>
                                 <span class="nav-main-link-name">Product Lists</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}"
-                                href="/pages/product_lists">
+                            <a class="nav-main-link{{ request()->is('pages/receiving') ? ' active' : '' }}"
+                                href="/pages/receiving">
                                 <i class="nav-main-link-icon si si-cursor"></i>
-                                <span class="nav-main-link-name">Stock Room</span>
+                                <span class="nav-main-link-name">Receiving</span>
                             </a>
                         </li>
                         <li class="nav-main-heading">Various</li>
