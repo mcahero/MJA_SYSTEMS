@@ -182,54 +182,43 @@
                 <table style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
                         <tr>
-                            <th> </th>
-                            <th>SKU #</th>
-                            <th>BARCODE</th>
-                            <th>NAME</th>
-                            <th>TYPE</th>
-                            <th>WAREHOUSE</th>
-                            <th>ENTRY PERSON</th>
-                            <th>DATE ENTRY</th>
-                            <th>LAST DATE MODIFIED</th>
-                            <th>REMARKS</th>
+                            <th style="font-size: 12px;"> </th>
+                            <th style="font-size: 12px;">SKU #</th>
+                            <th style="font-size: 12px;">BARCODE</th>
+                            <th style="font-size: 12px;">NAME</th>
+                            <th style="font-size: 12px;">TYPE</th>
+                            <th style="font-size: 12px;">WAREHOUSE</th>
+                            <th style="font-size: 12px;">ENTRY PERSON</th>
+                            <th style="font-size: 12px;">DATE ENTRY</th>
+                            <th style="font-size: 12px;">LAST DATE MODIFIED</th>
+                            <th style="font-size: 12px;">REMARKS</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td>000000001</td>
-                            <td>000000001</td>
-                            <td style="width: 15%;">
-                                <span>Shampoo</span>
-                                <small class="text-muted mb-0 d-block">JDA Shampoo</small>
-                            </td>
-                            <td>
-                                <span class="badge badge-pill badge-success">Returnable</span>
-                            </td>
-                            <td>WAREHOUSE 1</td>
-                            <td>Mark Smith</td>
-                            <td>12/1/2025</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td>000000002</td>
-                            <td>000000002</td>
-                            <td style="width: 15%;">
-                                <span>Shampoo</span>
-                                <small class="text-muted mb-0 d-block">JDA Shampoo</small>
-                            </td>
-                            <td>
-                                <span class="badge badge-pill badge-danger">Non Returnable</span>
-                            </td>
-                            <td>WAREHOUSE 1</td>
-                            <td>Mark Smith</td>
-                            <td>12/1/2025</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
+                        @foreach($products as $product)
+                    <tr>
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td>{{ $product->product_sku }}</td>
+                        <td>{{ $product->product_barcode }}</td>
+                        <td style="width: 15%;">
+                            <span>{{ $product->product_fullname }}</span>
+                            <span>{{ $product->jda_systemname }}</span>
+                            <small class="text-muted mb-0 d-block">{{ $product->product_shortname }}</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-pill {{ $product->product_type == 'Returnable' ? 'badge-success' : 'badge-danger' }}">
+                                {{ $product->product_type }}
+                            </span>
+                        </td>
+                        <td>{{ $product->product_warehouse }}</td>
+                        <td>{{ $product->product_entryperson}}</td>
+                        <td>{{ \Carbon\Carbon::parse($product->created_at)->format('m/d/Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($product->updated_at)->format('m/d/Y') }}</td>
+                        <td>{{ $product->product_remarks }}</td>
+                    </tr>
+                @endforeach
                     </tbody>
+
                 </table>
             </div>
         </div>
@@ -249,7 +238,8 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="be_pages_dashboard.php" method="POST">
+                            <form id="product-form" action="{{ route('products.store') }}" method="POST">
+                                @csrf
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
                                     <div class="progress">
@@ -268,9 +258,9 @@
                                     <!-- Step 1: Name -->
                                     <div class="step-content active" data-step="1">
                                         <div class="form-group">
-                                            <label for="product-full-name">Name of Product</label>
-                                            <input type="text" class="form-control" id="product-full-name"
-                                                name="product-full-name" placeholder="Enter the full product name" required>
+                                            <label for="product-sku-name">Name of Product</label>
+                                            <input type="text" class="form-control" id="product-sku-name"
+                                                name="product-sku-name" placeholder="Enter the full product name" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="product-short-name">Shortcut Name (optional)</label>
@@ -320,7 +310,12 @@
                                         <div class="form-group">
                                             <label for="product-warehouse">WAREHOUSE</label>
                                             <input type="text" class="form-control" id="product-warehouse"
-                                                name="product-warehouse" placeholder="Enter warehouse name" required>
+                                                name="product-warehouse" placeholder="Enter warehouse name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="product-entryperson">Entry Person</label>
+                                            <input type="text" class="form-control" id="product-entryperson"
+                                                name="product-entryperson" placeholder="Enter entry person name">
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back

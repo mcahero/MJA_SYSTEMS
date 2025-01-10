@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductsList;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,4 +25,6 @@ Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 
 Route::view('/pages/receiving', 'pages.receiving');
-Route::view('/pages/product_lists', 'pages.product_lists');
+
+Route::get('/pages/product_lists',[ProductsList::class, 'index']);
+Route::post('/products', [ProductsList::class, 'store'])->name('products.store');

@@ -4,6 +4,7 @@
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
 @endsection
 
 @section('js_after')
@@ -15,9 +16,11 @@
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
 
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+
     <style>
         .stepper-progress {
             margin-bottom: 20px;
@@ -53,6 +56,17 @@
         .step-content.active {
             display: block;
         }
+     /* For Chrome, Edge, Safari */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* For Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
     </style>
 
     <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
@@ -63,6 +77,7 @@
             const progressBar = document.getElementById("step-progress");
             const nextButtons = document.querySelectorAll(".step-next");
             const prevButtons = document.querySelectorAll(".step-prev");
+            const dateInput = document.getElementById('date-input');
 
             let currentStep = 1;
 
@@ -71,7 +86,7 @@
                 stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
 
                 // Update progress bar
-                progressBar.style.width = `${(step / steps.length) * 100}%`;
+                progressBar.style.width = `${(step / 3) * 100}%`;
             }
 
             function validateStep(step) {
@@ -93,7 +108,7 @@
 
             nextButtons.forEach(button => {
                 button.addEventListener("click", () => {
-                    if (validateStep(currentStep) && currentStep < steps.length) {
+                    if (validateStep(currentStep) && currentStep < 3) {
                         currentStep++;
                         showStep(currentStep);
                     }
@@ -118,7 +133,7 @@
                     $('#product-modal').modal('show');
                 } else if (event.key === "ArrowRight") {
                     // Right Arrow to go to next step
-                    if (validateStep(currentStep) && currentStep < steps.length) {
+                    if (validateStep(currentStep) && currentStep < 3) {
                         currentStep++;
                         showStep(currentStep);
                     }
@@ -130,7 +145,7 @@
                     }
                 } else if (event.key === "Enter") {
                     // Enter to submit the form only if on the final step
-                    if (currentStep === steps.length) {
+                    if (currentStep === 3) {
                         event.preventDefault();
                         document.getElementById("product-form").submit();
                     } else {
@@ -158,8 +173,175 @@
                     }
                 }
             });
+
+            // Initialize Select2
+            $('.select2').select2();
+
+            // Focus on date input when reaching the step
+            dateInput.addEventListener('focus', () => {
+                activateSegment('month');
+            });
+
+            // Handle keydown events for input
+            dateInput.addEventListener('keydown', (e) => {
+                let value = dateInput.value;
+
+                if (activeSegment === 'month') {
+                    if (e.key.toUpperCase() in monthMap) {
+                        const month = monthMap[e.key.toUpperCase()];
+                        value = month + value.slice(2);
+                        dateInput.value = value;
+                        setCaretPosition(dateInput, 3); // Move to year segment
+                        activateSegment('year');
+                        e.preventDefault();
+                    }
+                } else if (activeSegment === 'year') {
+                    if (!isNaN(e.key) && e.key >= '0' && e.key <= '9') {
+                        const year = yearBase + parseInt(e.key);
+                        value = value.slice(0, 3) + year;
+                        dateInput.value = value;
+                        setCaretPosition(dateInput, 7); // End of input
+                        deactivateSegment();
+                        e.preventDefault();
+                    }
+                }
+
+                // Prevent invalid input
+                if (!/[A-Za-z0-9]/.test(e.key)) {
+                    e.preventDefault();
+                }
+
+                // Handle Enter key to save and go back to main navigation
+                if (e.key === "Enter") {
+                    deactivateSegment();
+                    document.activeElement.blur(); // Remove focus from date input
+                    e.preventDefault();
+                }
+            });
+
+            // Function to activate a specific segment
+            function activateSegment(segment) {
+                activeSegment = segment;
+
+                if (segment === 'month') {
+                    setCaretPosition(dateInput, 0, 2);
+                } else if (segment === 'year') {
+                    setCaretPosition(dateInput, 3, 7);
+                }
+            }
+
+            // Function to deactivate the active segment
+            function deactivateSegment() {
+                activeSegment = null;
+            }
+
+            // Move caret to the appropriate segment
+            function moveCaretToSegment(caretPos) {
+                if (caretPos >= 0 && caretPos <= 2) {
+                    activateSegment('month');
+                } else if (caretPos >= 3 && caretPos <= 7) {
+                    activateSegment('year');
+                }
+            }
+
+            // Helper function to get the caret position
+            function getCaretPosition(input) {
+                return input.selectionStart;
+            }
+
+            // Helper function to set the caret position
+            function setCaretPosition(input, start, end = start) {
+                input.setSelectionRange(start, end);
+            }
+
+            // Initialize by activating the first segment (month)
+            activateSegment('month');
         });
     </script>
+    <script>
+        const dateInput = document.getElementById('date-input');
+
+        // Mapping for month and year shortcuts
+        const monthMap = { A: '01', B: '02', C: '03', D: '04', E: '05', F: '06', G: '07', H: '08', I: '09', J: '10', K: '11', L: '12' };
+        const yearBase = 2020;
+
+        let activeSegment = null; // Keeps track of the selected segment
+
+        // Add click event to isolate segments
+        dateInput.addEventListener('click', () => {
+            const caretPos = getCaretPosition(dateInput);
+            moveCaretToSegment(caretPos);
+        });
+
+        // Handle keydown events for input
+        dateInput.addEventListener('keydown', (e) => {
+            let value = dateInput.value;
+
+            if (activeSegment === 'month') {
+                if (e.key.toUpperCase() in monthMap) {
+                    const month = monthMap[e.key.toUpperCase()];
+                    value = month + value.slice(2);
+                    dateInput.value = value;
+                    setCaretPosition(dateInput, 3); // Move to year segment
+                    activateSegment('year');
+                    e.preventDefault();
+                }
+            } else if (activeSegment === 'year') {
+                if (!isNaN(e.key) && e.key >= '0' && e.key <= '9') {
+                    const year = yearBase + parseInt(e.key);
+                    value = value.slice(0, 3) + year;
+                    dateInput.value = value;
+                    setCaretPosition(dateInput, 7); // End of input
+                    deactivateSegment();
+                    e.preventDefault();
+                }
+            }
+
+            // Prevent invalid input
+            if (!/[A-Za-z0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // Function to activate a specific segment
+        function activateSegment(segment) {
+            activeSegment = segment;
+
+            if (segment === 'month') {
+                setCaretPosition(dateInput, 0, 2);
+            } else if (segment === 'year') {
+                setCaretPosition(dateInput, 3, 7);
+            }
+        }
+
+        // Function to deactivate the active segment
+        function deactivateSegment() {
+            activeSegment = null;
+        }
+
+        // Move caret to the appropriate segment
+        function moveCaretToSegment(caretPos) {
+            if (caretPos >= 0 && caretPos <= 2) {
+                activateSegment('month');
+            } else if (caretPos >= 3 && caretPos <= 7) {
+                activateSegment('year');
+            }
+        }
+
+        // Helper function to get the caret position
+        function getCaretPosition(input) {
+            return input.selectionStart;
+        }
+
+        // Helper function to set the caret position
+        function setCaretPosition(input, start, end = start) {
+            input.setSelectionRange(start, end);
+        }
+
+        // Initialize by activating the first segment (month)
+        activateSegment('month');
+    </script>
+
 @endsection
 
 @section('content')
@@ -190,23 +372,23 @@
                 <table style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
                         <tr>
-                            <th> </th>
-                            <th>Transaction #</th>
-                            <th>ARRIVAL DATE</th>
-                            <th>SKU #</th>
-                            <th>NAME</th>
-                            <th>PCS</th>
-                            <th>COLOR CODE</th>
-                            <th>CHECKER</th>
-                            <th>REMARKS</th>
+                            <th style="font-size: 12px;"> </th>
+                            <th style="font-size: 12px;">Transaction #</th>
+                            <th style="font-size: 12px;">SKU #</th>
+                            <th style="font-size: 12px;">ARRIVAL DATE</th>
+                            <th style="font-size: 12px;">NAME</th>
+                            <th style="font-size: 12px;">PCS</th>
+                            <th style="font-size: 12px;">COLOR CODE</th>
+                            <th style="font-size: 12px;">CHECKER</th>
+                            <th style="font-size: 12px;">REMARKS</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="text-center">1</td>
                             <td>000000001</td>
-                            <td>12/1/2025</td>
                             <td>000000001</td>
+                            <td>12/1/2025</td>
                             <td style="width: 15%;">
                                 <span>Shampoo</span>
                                 <small class="text-muted mb-0 d-block">JDA Shampoo</small>
@@ -246,7 +428,6 @@
                                     <ul class="stepper-steps">
                                         <li class="step active" data-step="1">Transaction Details</li>
                                         <li class="step" data-step="2">Product Details</li>
-                                        <li class="step" data-step="3">Additional Info</li>
                                         <li class="step" data-step="4">Finalize</li>
                                     </ul>
                                 </div>
@@ -256,36 +437,75 @@
                                     <!-- Step 1: Transaction Details -->
                                     <div class="step-content active" data-step="1">
                                         <div class="form-group">
-                                            <label for="transaction-number">Transaction #</label>
-                                            <input type="text" class="form-control" id="transaction-number"
-                                                name="transaction-number" placeholder="Enter transaction number" required>
+                                            <label for="product-sku-step1">SKU #</label>
+                                            <select class="form-control select2" style="width: 100%;" id="product-sku-step1" name="product-sku-step1" required>
+                                                <option value="">Select SKU</option>
+                                                <option value="000000001">000000001</option>
+                                                <option value="000000002">000000002</option>
+                                                <option value="000000003">000000003</option>
+                                            </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="arrival-date">Arrival Date</label>
-                                            <input type="date" class="form-control" id="arrival-date" name="arrival-date"
-                                                required>
+                                            <div class="row" id="product-details">
+                                                    <div class="form-group col-12">
+                                                        <label for="product-name">Product Name</label>
+                                                        <input type="text" class="form-control" id="product-name" name="product-name" readonly>
+                                                    </div>
+                                                    <div class="form-group col-6">
+                                                        <label for="product-barcode">Barcode</label>
+                                                        <input type="text" class="form-control" id="product-barcode" name="product-barcode" readonly>
+                                                    </div>
+                                                    <div class="form-group col-6 ">
+                                                        <label for="product-type">Type</label>
+                                                        <input type="text" class="form-control" id="product-type" name="product-type" readonly>
+                                                    </div>
+                                            </div>
+                                            <div class="row">
+                                            <div class="col-12">
+                                                <button type="button" class="btn btn-alt-primary step-next">
+                                                    Next <i class="fa fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <button type="button" class="btn btn-alt-primary step-next">
-                                            Next <i class="fa fa-arrow-right ml-1"></i>
-                                        </button>
                                     </div>
 
                                     <!-- Step 2: Product Details -->
                                     <div class="step-content" data-step="2">
                                         <div class="form-group">
-                                            <label for="product-sku">SKU #</label>
-                                            <input type="text" class="form-control" id="product-sku" name="product-sku"
-                                                placeholder="000000001" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="product-name">Name</label>
-                                            <input type="text" class="form-control" id="product-name" name="product-name"
-                                                placeholder="Enter product name" required>
+                                            <label for="transaction-number">TRANSACTION #</label>
+                                            <input type="text" class="form-control" id="transaction-number" name="transaction-number"
+                                                placeholder="Enter transaction number" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="product-pcs">PCS</label>
                                             <input type="number" class="form-control" id="product-pcs" name="product-pcs"
-                                                placeholder="Enter number of pieces" required>
+                                                placeholder="Enter number of pieces" required min="0" step="1" onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
+                                          </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div style="margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                    <h3>EXPIRY DATE</h3>
+                                                    <p>Click a segment to edit. Use shortcuts for Month (A-L) and Year (0-9).</p>
+
+                                                    <!-- Date Input Field -->
+                                                    <input
+                                                        type="text"
+                                                        id="date-input"
+                                                        style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
+                                                        value="MM/YYYY"
+                                                        maxlength="7"
+                                                        readonly
+                                                    >
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div style=" margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                    <h3>Checker</h3>
+                                                    <p>EXIPRY COLOR CODE</p>
+
+                                                    <!-- Checker Input Field -->
+                                                    <h1 style="font-size: 30px; display: inline-block; background-color: #ccc; padding: 10px; border-radius: 10px;">CHECKER</h1>
+                                                </div>
+                                            </div>
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
@@ -295,28 +515,13 @@
                                         </button>
                                     </div>
 
-                                    <!-- Step 3: Additional Info -->
+                                    <!-- Step 3: Finalize -->
                                     <div class="step-content" data-step="3">
-                                        <div class="form-group">
-                                            <label for="color-code">Color Code</label>
-                                            <input type="text" class="form-control" id="color-code" name="color-code"
-                                                placeholder="Enter color code" required>
-                                        </div>
                                         <div class="form-group">
                                             <label for="checker">Checker</label>
                                             <input type="text" class="form-control" id="checker" name="checker"
                                                 placeholder="Enter checker name" required>
                                         </div>
-                                        <button type="button" class="btn btn-alt-secondary step-prev">
-                                            <i class="fa fa-arrow-left mr-1"></i> Back
-                                        </button>
-                                        <button type="button" class="btn btn-alt-primary step-next">
-                                            Next <i class="fa fa-arrow-right ml-1"></i>
-                                        </button>
-                                    </div>
-
-                                    <!-- Step 4: Finalize -->
-                                    <div class="step-content" data-step="4">
                                         <div class="form-group">
                                             <label for="remarks">Remarks</label>
                                             <textarea class="form-control" id="remarks" name="remarks" placeholder="Enter remarks"></textarea>
