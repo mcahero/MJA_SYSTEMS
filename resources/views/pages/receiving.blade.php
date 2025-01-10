@@ -56,17 +56,18 @@
         .step-content.active {
             display: block;
         }
-     /* For Chrome, Edge, Safari */
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
 
-  /* For Firefox */
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
+        /* For Chrome, Edge, Safari */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
@@ -262,7 +263,20 @@
         const dateInput = document.getElementById('date-input');
 
         // Mapping for month and year shortcuts
-        const monthMap = { A: '01', B: '02', C: '03', D: '04', E: '05', F: '06', G: '07', H: '08', I: '09', J: '10', K: '11', L: '12' };
+        const monthMap = {
+            A: '01',
+            B: '02',
+            C: '03',
+            D: '04',
+            E: '05',
+            F: '06',
+            G: '07',
+            H: '08',
+            I: '09',
+            J: '10',
+            K: '11',
+            L: '12'
+        };
         const yearBase = 2020;
 
         let activeSegment = null; // Keeps track of the selected segment
@@ -341,7 +355,6 @@
         // Initialize by activating the first segment (month)
         activateSegment('month');
     </script>
-
 @endsection
 
 @section('content')
@@ -438,28 +451,32 @@
                                     <div class="step-content active" data-step="1">
                                         <div class="form-group">
                                             <label for="product-sku-step1">SKU #</label>
-                                            <select class="form-control select2" style="width: 100%;" id="product-sku-step1" name="product-sku-step1" required>
+                                            <select class="form-control select2" style="width: 100%;" id="product-sku-step1"
+                                                name="product-sku-step1" required>
                                                 <option value="">Select SKU</option>
                                                 <option value="000000001">000000001</option>
                                                 <option value="000000002">000000002</option>
                                                 <option value="000000003">000000003</option>
                                             </select>
                                         </div>
-                                            <div class="row" id="product-details">
-                                                    <div class="form-group col-12">
-                                                        <label for="product-name">Product Name</label>
-                                                        <input type="text" class="form-control" id="product-name" name="product-name" readonly>
-                                                    </div>
-                                                    <div class="form-group col-6">
-                                                        <label for="product-barcode">Barcode</label>
-                                                        <input type="text" class="form-control" id="product-barcode" name="product-barcode" readonly>
-                                                    </div>
-                                                    <div class="form-group col-6 ">
-                                                        <label for="product-type">Type</label>
-                                                        <input type="text" class="form-control" id="product-type" name="product-type" readonly>
-                                                    </div>
+                                        <div class="row" id="product-details">
+                                            <div class="form-group col-12">
+                                                <label for="product-name">Product Name</label>
+                                                <input type="text" class="form-control" id="product-name"
+                                                    name="product-name" readonly>
                                             </div>
-                                            <div class="row">
+                                            <div class="form-group col-6">
+                                                <label for="product-barcode">Barcode</label>
+                                                <input type="text" class="form-control" id="product-barcode"
+                                                    name="product-barcode" readonly>
+                                            </div>
+                                            <div class="form-group col-6 ">
+                                                <label for="product-type">Type</label>
+                                                <input type="text" class="form-control" id="product-type"
+                                                    name="product-type" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row">
                                             <div class="col-12">
                                                 <button type="button" class="btn btn-alt-primary step-next">
                                                     Next <i class="fa fa-arrow-right ml-1"></i>
@@ -472,38 +489,40 @@
                                     <div class="step-content" data-step="2">
                                         <div class="form-group">
                                             <label for="transaction-number">TRANSACTION #</label>
-                                            <input type="text" class="form-control" id="transaction-number" name="transaction-number"
-                                                placeholder="Enter transaction number" required>
+                                            <input type="text" class="form-control" id="transaction-number"
+                                                name="transaction-number" placeholder="Enter transaction number" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="product-pcs">PCS</label>
-                                            <input type="number" class="form-control" id="product-pcs" name="product-pcs"
-                                                placeholder="Enter number of pieces" required min="0" step="1" onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
-                                          </div>
+                                            <input type="number" class="form-control" id="product-pcs"
+                                                name="product-pcs" placeholder="Enter number of pieces" required
+                                                min="0" step="1"
+                                                onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
+                                        </div>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div style="margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                <div
+                                                    style="margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
                                                     <h3>EXPIRY DATE</h3>
-                                                    <p>Click a segment to edit. Use shortcuts for Month (A-L) and Year (0-9).</p>
+                                                    <p>Click a segment to edit. Use shortcuts for Month (A-L) and Year
+                                                        (0-9).</p>
 
                                                     <!-- Date Input Field -->
-                                                    <input
-                                                        type="text"
-                                                        id="date-input"
+                                                    <input type="text" id="expiry-date" name="expiry-date"
                                                         style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
-                                                        value="MM/YYYY"
-                                                        maxlength="7"
-                                                        readonly
-                                                    >
+                                                        value="MM/YYYY" maxlength="7" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <div style=" margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                <div
+                                                    style=" margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
                                                     <h3>Checker</h3>
                                                     <p>EXIPRY COLOR CODE</p>
 
                                                     <!-- Checker Input Field -->
-                                                    <h1 style="font-size: 30px; display: inline-block; background-color: #ccc; padding: 10px; border-radius: 10px;">CHECKER</h1>
+                                                    <h1
+                                                        style="font-size: 30px; display: inline-block; background-color: #ccc; padding: 10px; border-radius: 10px;">
+                                                        CHECKER</h1>
                                                 </div>
                                             </div>
                                         </div>

@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
-
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -18,9 +16,6 @@ class ProductsList extends Controller
         });
         return view('pages.product_lists', compact('products'));
     }
-
-
-
 
     public function store(Request $request)
     {

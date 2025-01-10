@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductsList;
+use App\Http\Controllers\ReceivingController;
 
 
 /*
@@ -25,6 +26,7 @@ Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 
 Route::view('/pages/receiving', 'pages.receiving');
+Route::post('/receiving/store', [ReceivingController::class, 'store'])->name('receiving.store');
 
 Route::get('/pages/product_lists',[ProductsList::class, 'index']);
 Route::post('/products', [ProductsList::class, 'store'])->name('products.store');

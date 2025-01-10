@@ -15,6 +15,12 @@ class CreateReceivinglistTable extends Migration
     {
         Schema::create('receivinglist', function (Blueprint $table) {
             $table->id();
+            $table->string('sku');
+            $table->string('transaction_number');
+            $table->integer('pcs');
+            $table->string('checker');
+            $table->date('expiry_date');
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
