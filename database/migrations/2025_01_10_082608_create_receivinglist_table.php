@@ -15,13 +15,16 @@ class CreateReceivinglistTable extends Migration
     {
         Schema::create('receivinglist', function (Blueprint $table) {
             $table->id();
-            $table->string('sku');
+            $table->unsignedBigInteger('sku_id');
             $table->string('transaction_number');
             $table->integer('pcs');
             $table->string('checker');
-            $table->date('expiry_date');
+            $table->string('expiry_date');
             $table->text('remarks')->nullable();
             $table->timestamps();
+
+            $table->foreign('sku_id')->references('id')->on('productlist')->onDelete('cascade');
+
         });
     }
 
@@ -34,4 +37,5 @@ class CreateReceivinglistTable extends Migration
     {
         Schema::dropIfExists('receivinglist');
     }
+
 }

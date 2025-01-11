@@ -24,4 +24,11 @@ class Product extends Model
         'created_at' => 'datetime:m/d/Y',
         'updated_at' => 'datetime:m/d/Y',
     ];
+    public function receiving()
+{
+    return $this->hasMany(Receiving::class, 'sku_id', 'id');
 }
+}
+
+
+

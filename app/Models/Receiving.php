@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Receiving extends Model
@@ -12,11 +10,16 @@ class Receiving extends Model
     protected $table = 'receivinglist';
 
     protected $fillable = [
-        'sku',
+        'sku_id',
         'transaction_number',
         'pcs',
         'checker',
         'expiry_date',
         'remarks',
     ];
+    public function sku()
+    {
+        return $this->hasMany(Product::class, 'sku_id', 'product_sku');
+    }
+    
 }

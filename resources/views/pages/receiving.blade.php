@@ -397,20 +397,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td>000000001</td>
-                            <td>000000001</td>
-                            <td>12/1/2025</td>
-                            <td style="width: 15%;">
-                                <span>Shampoo</span>
-                                <small class="text-muted mb-0 d-block">JDA Shampoo</small>
-                            </td>
-                            <td>1</td>
-                            <td><span class="badge badge-pill badge-success">AE</span></td>
-                            <td>Mark Smith</td>
-                            <td>-</td>
-                        </tr>
+                        @foreach ($receivings as $receiving)
+                    <tr>
+                        <td>{{ $receiving->product->product_sku }}</td>
+                        <td>{{ $receiving->transaction_number }}</td>
+                        <td>{{ $receiving->pcs }}</td>
+                        <td>{{ $receiving->checker }}</td>
+                        <td>{{ $receiving->expiry_date }}</td>
+                        <td>{{ $receiving->remarks }}</td>
+                    </tr>
+                @endforeach
                     </tbody>
                 </table>
             </div>
