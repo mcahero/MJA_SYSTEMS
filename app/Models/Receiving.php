@@ -19,7 +19,7 @@ class Receiving extends Model
     ];
     public function sku()
     {
-        return $this->hasMany(Product::class, 'sku_id', 'product_sku');
+        return $this->belongsTo(Product::class, 'sku_id', 'id');
     }
     
 }

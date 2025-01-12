@@ -3,33 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Receiving;
-use App\Models\Product;
 
-class ReceivingController extends Controller
+class Receiving extends Controller
 {
-    public function index()
-    {
-        $receivings = Receiving::with('sku')->get();
-        return view('receivings.index', compact('receivings'));
-    }
-
     public function store(Request $request)
     {
         // Validate the request data
         $request->validate([
-            'sku_id' => 'required|exists:products,id',
-            'transaction_number' => 'required|string|max:255',
-            'pcs' => 'required|integer',
-            'checker' => 'required|string|max:255',
-            'expiry_date' => 'required|regex:/^(0[1-9]|1[0-2])\/\d{4}$/', // MM/YYYY format
+            'product-sku-step1' => 'required',
+            'transaction-number' => 'required',
+            'product-pcs' => 'required|integer|min:0',
+            'checker' => 'required',
+            'expiry-date' => 'required|date',
             'remarks' => 'nullable|string',
         ]);
 
-        // Store the receiving data
-        Receiving::create($request->all());
+        // Store the data in the database
+        // Assuming you have a Receiving model
+        $receiving = new Receiving();
+        $receiving->sku = $request->input('product-sku-step1');
+        $receiving->transaction_number = $request->input('transaction-number');
+        $receiving->pcs = $request->input('product-pcs');
+        $receiving->checker = $request->input('checker');
+        $receiving->expiry_date = $request->input('expiry-date');
+        $receiving->remarks = $request->input('remarks');
+        $receiving->save();
 
         // Redirect back with a success message
-        return redirect()->back()->with('success', 'Receiving added successfully!');
+        return redirect()->back()->with('success', 'Receiving added successfully.');
     }
 }
