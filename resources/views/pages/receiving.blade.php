@@ -78,9 +78,9 @@
             const progressBar = document.getElementById("step-progress");
             const nextButtons = document.querySelectorAll(".step-next");
             const prevButtons = document.querySelectorAll(".step-prev");
-            const dateInput = document.getElementById('date-input');
+            const dateInput = document.getElementById('date_input');
             const colorCodeDiv = document.getElementById('color-code-div');
-            const colorCodeH1 = document.getElementById('color-code-h1');
+            const colorCodeH1 = document.getElementById('color_code_h1');
 
             let currentStep = 1;
             let activeSegment = null;
@@ -299,6 +299,21 @@
 
             activateSegment('month');
         });
+
+        $(document).ready(function() {
+        $('#product_sku_step1').select2();
+
+        $(document).on('change', '#product_sku_step1', function() {
+            const products = @json($products);
+            console.log('product_sku_step1');
+            const productId = $(this).val();
+            const product = products.find(p => p.id == productId);
+            $('#product_name').val(product.product_fullname);
+            $('#product_barcode').val(product.product_barcode);
+            $('#product_type').val(product.product_type);
+        });
+    });
+
     </script>
 @endsection
 
@@ -342,20 +357,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td>000000001</td>
-                            <td>000000001</td>
-                            <td>12/1/2025</td>
-                            <td style="width: 15%;">
-                                <span>Shampoo</span>
-                                <small class="text-muted mb-0 d-block">JDA Shampoo</small>
-                            </td>
-                            <td>1</td>
-                            <td><span class="badge badge-pill badge-success">AE</span></td>
-                            <td>Mark Smith</td>
-                            <td>-</td>
-                        </tr>
+                        @if ($receivings->isEmpty())
+                            <tr>
+                                <td colspan="9" class="text-center">No receivings found.</td>
+                            </tr>
+                        @else
+                            @foreach ($receivings as $receiving)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td>{{ $receiving->transaction_number }}</td>
+                                    <td>{{ $receiving->product->product_sku }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($receiving->created_at)->format('m/d/Y') }}</td>
+                                    <td style="width: 15%;">
+                                        <span>{{ $receiving->product->product_fullname }}</span>
+                                        <small class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
+                                    </td>
+                                    <td>{{ $receiving->pcs }}</td>
+                                    <td><span class="badge badge-pill badge-success">{{ $receiving->expiry_date }}</span></td>
+                                    <td>{{ $receiving->checker }}</td>
+                                    <td>{{ $receiving->remarks }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -377,7 +400,8 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="be_pages_dashboard.php" method="POST">
+                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST">
+                                @csrf
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
                                     <div class="progress">
@@ -395,30 +419,30 @@
                                     <!-- Step 1: Transaction Details -->
                                     <div class="step-content active" data-step="1">
                                         <div class="form-group">
-                                            <label for="product-sku-step1">SKU #</label>
-                                            <select class="form-control select2" style="width: 100%;" id="product-sku-step1"
-                                                name="product-sku-step1" required>
+                                            <label for="product_sku_step1">SKU #</label>
+                                            <select class="form-control select2" style="width: 100%;" id="product_sku_step1"
+                                                name="product_sku_step1" required>
                                                 <option value="">Select SKU</option>
-                                                <option value="000000001">000000001</option>
-                                                <option value="000000002">000000002</option>
-                                                <option value="000000003">000000003</option>
+                                                @foreach ($products as $product)
+                                                    <option value="{{ $product->id }}">{{ $product->product_sku }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="row" id="product-details">
                                             <div class="form-group col-12">
-                                                <label for="product-name">Product Name</label>
-                                                <input type="text" class="form-control" id="product-name"
-                                                    name="product-name" readonly>
+                                                <label for="product_name">Product Name</label>
+                                                <input type="text" class="form-control" id="product_name"
+                                                    name="product_name" readonly>
                                             </div>
                                             <div class="form-group col-6">
-                                                <label for="product-barcode">Barcode</label>
-                                                <input type="text" class="form-control" id="product-barcode"
-                                                    name="product-barcode" readonly>
+                                                <label for="product_barcode">Barcode</label>
+                                                <input type="text" class="form-control" id="product_barcode"
+                                                    name="product_barcode" readonly>
                                             </div>
                                             <div class="form-group col-6 ">
-                                                <label for="product-type">Type</label>
-                                                <input type="text" class="form-control" id="product-type"
-                                                    name="product-type" readonly>
+                                                <label for="product_type">Type</label>
+                                                <input type="text" class="form-control" id="product_type"
+                                                    name="product_type" readonly>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -433,14 +457,14 @@
                                     <!-- Step 2: Product Details -->
                                     <div class="step-content" data-step="2">
                                         <div class="form-group">
-                                            <label for="transaction-number">TRANSACTION #</label>
-                                            <input type="text" class="form-control" id="transaction-number"
-                                                name="transaction-number" placeholder="Enter transaction number" required>
+                                            <label for="transaction_number">TRANSACTION #</label>
+                                            <input type="text" class="form-control" id="transaction_number"
+                                                name="transaction_number" placeholder="Enter transaction number" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="product-pcs">PCS</label>
-                                            <input type="number" class="form-control" id="product-pcs"
-                                                name="product-pcs" placeholder="Enter number of pieces" required
+                                            <label for="product_pcs">PCS</label>
+                                            <input type="number" class="form-control" id="product_pcs"
+                                                name="product_pcs" placeholder="Enter number of pieces" required
                                                 min="0" step="1"
                                                 onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
                                         </div>
@@ -453,7 +477,7 @@
                                                         (A-J).</p>
 
                                                     <!-- Date Input Field -->
-                                                    <input type="text" id="date-input"
+                                                    <input type="text" id="date_input"
                                                         style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
                                                         value="MM/YYYY" maxlength="7" readonly>
                                                 </div>
@@ -465,7 +489,7 @@
                                                     <p>EXIPRY COLOR CODE</p>
 
                                                     <!-- Checker Input Field -->
-                                                    <h1 id="color-code-h1"
+                                                    <h1 id="color_code_h1"
                                                         style="font-size: 30px; display: inline-block; color: #fff; background-color: #ccc; padding: 10px; border-radius: 10px;">
                                                         AE
                                                     </h1>

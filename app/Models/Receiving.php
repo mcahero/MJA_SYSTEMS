@@ -5,8 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Receiving extends Model
 {
-    use HasFactory;
-
     protected $table = 'receivinglist';
 
     protected $fillable = [
@@ -21,5 +19,5 @@ class Receiving extends Model
     {
         return $this->belongsTo(Product::class, 'sku_id', 'id');
     }
-    
+
 }

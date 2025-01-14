@@ -22,7 +22,6 @@ class CreateReceivinglistTable extends Migration
             $table->string('expiry_date');
             $table->text('remarks')->nullable();
             $table->timestamps();
-
             $table->foreign('sku_id')->references('id')->on('productlist')->onDelete('cascade');
 
         });

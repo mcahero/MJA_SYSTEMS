@@ -5,7 +5,6 @@ use App\Http\Controllers\ProductsList;
 use App\Http\Controllers\ReceivingController;
 
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,10 +25,9 @@ Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 
-Route::view('/pages/receiving', 'pages.receiving');
-Route::get('/receivings', [ReceivingController::class, 'index'])->name('receivings.index');
-Route::post('/receivings', [ReceivingController::class, 'store'])->name('receivings.store');
 
+Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');
+Route::post('pages/receivings', [ReceivingController::class, 'store'])->name('receivings.store');
 
 Route::get('/pages/product_lists',[ProductsList::class, 'index']);
 Route::post('/products', [ProductsList::class, 'store'])->name('products.store');
