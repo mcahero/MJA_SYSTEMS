@@ -72,18 +72,20 @@
 
     <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const steps = document.querySelectorAll(".step");
-            const stepContents = document.querySelectorAll(".step-content");
-            const progressBar = document.getElementById("step-progress");
-            const nextButtons = document.querySelectorAll(".step-next");
-            const prevButtons = document.querySelectorAll(".step-prev");
-            const dateInput = document.getElementById('date_input');
-            const colorCodeDiv = document.getElementById('color-code-div');
-            const colorCodeH1 = document.getElementById('color_code_h1');
+        $(document).ready(function() {
+            const steps = $(".step");
+            const stepContents = $(".step-content");
+            const progressBar = $("#step-progress");
+            const nextButtons = $(".step-next");
+            const prevButtons = $(".step-prev");
+            const dateInput = $('#date_input');
+            const colorCodeDiv = $('#color-code-div');
+            const colorCodeH1 = $('#color_code_h1');
 
             let currentStep = 1;
             let activeSegment = null;
+            let enteredMonthLetter = '';
+            let enteredYearLetter = '';
 
             const monthMap = {
                 A: '01',
@@ -99,6 +101,7 @@
                 K: '11',
                 L: '12'
             };
+
             const yearMap = {
                 A: '2021',
                 B: '2022',
@@ -113,6 +116,7 @@
                 K: '2031',
                 L: '2032'
             };
+
             const colorMap = {
                 A: '#007f00',
                 B: '#002f99',
@@ -128,89 +132,85 @@
                 L: '#228b22'
             };
 
+            // Utility Functions
             function showStep(step) {
-                steps.forEach(s => s.classList.toggle("active", s.dataset.step == step));
-                stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
-                progressBar.style.width = `${(step / 3) * 100}%`;
+                steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                progressBar.css("width", `${(step / 3) * 100}%`);
             }
 
             function validateStep(step) {
-                const activeStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
-                const inputs = activeStepContent.querySelectorAll("[required]");
+                const activeStepContent = $(`.step-content[data-step="${step}"]`);
+                const inputs = activeStepContent.find("[required]");
                 let isValid = true;
 
-                inputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        input.classList.add("is-invalid");
+                inputs.each(function() {
+                    const input = $(this);
+                    if (!input.val().trim()) {
+                        input.addClass("is-invalid");
                         isValid = false;
                     } else {
-                        input.classList.remove("is-invalid");
+                        input.removeClass("is-invalid");
                     }
                 });
 
                 return isValid;
             }
 
+            function updateProgress(step) {
+                if (validateStep(currentStep)) {
+                    currentStep = step;
+                    showStep(currentStep);
+                }
+            }
+
             function activateSegment(segment) {
                 activeSegment = segment;
-                dateInput.style.caretColor = segment === 'month' ? 'blue' : 'green';
-                setCaretPosition(dateInput, segment === 'month' ? 0 : 3, segment === 'month' ? 2 : 7);
+                dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
+                setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ? 2 : 7);
             }
 
             function deactivateSegment() {
                 activeSegment = null;
-                dateInput.style.caretColor = 'black';
+                dateInput.css("caretColor", 'black');
             }
-
-            function moveCaretToSegment(caretPos) {
-                if (caretPos >= 0 && caretPos <= 2) {
-                    activateSegment('month');
-                } else if (caretPos >= 3 && caretPos <= 7) {
-                    activateSegment('year');
-                }
-            }
-            let enteredMonthLetter = '';
-            let enteredYearLetter = '';
-
 
             function handleKeydown(e) {
-                let value = dateInput.value;
+                let value = dateInput.val();
 
                 if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
                     const month = monthMap[e.key.toUpperCase()];
                     value = month + value.slice(2);
-                    dateInput.value = value;
-                    setCaretPosition(dateInput, 3); // Move to year segment
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 3);
                     activateSegment('year');
-                    enteredMonthLetter = e.key.toUpperCase(); // Store the entered month letter
+                    enteredMonthLetter = e.key.toUpperCase();
                     updateColorCode(enteredMonthLetter, enteredYearLetter);
                     e.preventDefault();
-                } else if (activeSegment === 'year' & e.key.toUpperCase() in yearMap) {
+                } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
                     const year = yearMap[e.key.toUpperCase()];
                     value = value.slice(0, 3) + year;
-                    dateInput.value = value;
-                    setCaretPosition(dateInput, 7); // End of input
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 7);
                     deactivateSegment();
-                    enteredYearLetter = e.key.toUpperCase(); // Store the entered year letter
+                    enteredYearLetter = e.key.toUpperCase();
                     updateColorCode(enteredMonthLetter, enteredYearLetter);
                     e.preventDefault();
                 }
 
-                if (!/[A-Za-z0-9]/.test(e.key)) {
-                    e.preventDefault();
-                }
+                if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
 
                 if (e.key === "Enter") {
                     deactivateSegment();
-                    document.activeElement.blur(); // Remove focus from date input
+                    $(document.activeElement).blur();
                     e.preventDefault();
                 }
             }
 
             function updateColorCode(monthKey, yearKey) {
                 if (monthKey in colorMap) {
-                    colorCodeH1.style.backgroundColor = colorMap[monthKey];
-                    colorCodeH1.textContent = `${monthKey}${yearKey}`; // Display both monthKey and yearKey
+                    colorCodeH1.css("backgroundColor", colorMap[monthKey]);
+                    colorCodeH1.text(`${monthKey}${yearKey}`);
                 }
             }
 
@@ -222,51 +222,31 @@
                 input.setSelectionRange(start, end);
             }
 
-            nextButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    if (validateStep(currentStep) && currentStep < 3) {
-                        currentStep++;
-                        showStep(currentStep);
-                    }
-                });
+            // Event Handlers
+            nextButtons.on("click", function() {
+                updateProgress(currentStep + 1);
             });
 
-            prevButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    if (currentStep > 1) {
-                        currentStep--;
-                        showStep(currentStep);
-                    }
-                });
+            prevButtons.on("click", function() {
+                if (currentStep > 1) {
+                    updateProgress(currentStep - 1);
+                }
             });
 
-            showStep(currentStep);
-
-            document.addEventListener("keydown", (event) => {
+            $(document).on("keydown", function(event) {
                 if (event.key === "F1") {
                     event.preventDefault();
                     $('#product-modal').modal('show');
                 } else if (event.key === "ArrowRight") {
-                    if (validateStep(currentStep) && currentStep < 3) {
-                        currentStep++;
-                        showStep(currentStep);
-                    }
+                    updateProgress(currentStep + 1);
                 } else if (event.key === "ArrowLeft") {
-                    if (currentStep > 1) {
-                        currentStep--;
-                        showStep(currentStep);
-                    }
-                } else if (event.key === "Enter") {
-                    if (currentStep === 3) {
-                        event.preventDefault();
-                        document.getElementById("product-form").submit();
-                    } else {
-                        event.preventDefault();
-                    }
+                    if (currentStep > 1) updateProgress(currentStep - 1);
+                } else if (event.key === "Enter" && currentStep === 3) {
+                    event.preventDefault();
+                    $("#product-form").submit();
                 } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    const activeStepContent = document.querySelector(`.step-content.active`);
-                    const inputs = Array.from(activeStepContent.querySelectorAll(
-                        "input, select, textarea"));
+                    const activeStepContent = $(".step-content.active");
+                    const inputs = activeStepContent.find("input, select, textarea").toArray();
                     const currentIndex = inputs.indexOf(document.activeElement);
 
                     if (event.key === "ArrowUp" && currentIndex > 0) {
@@ -275,45 +255,43 @@
                         inputs[currentIndex + 1].focus();
                     }
                 } else if (event.key === "t") {
-                    const productTypeSelect = document.getElementById("product-type");
-                    if (productTypeSelect) {
-                        const currentValue = productTypeSelect.value;
-                        productTypeSelect.value = currentValue === "Returnable" ? "Non Returnable" :
-                            "Returnable";
+                    const productTypeSelect = $("#product-type");
+                    if (productTypeSelect.length) {
+                        const currentValue = productTypeSelect.val();
+                        productTypeSelect.val(currentValue === "Returnable" ? "Non Returnable" :
+                            "Returnable");
                     }
                 }
             });
 
-            $('.select2').select2();
-
-            dateInput.addEventListener('focus', () => {
+            dateInput.on('focus', function() {
                 activateSegment('month');
             });
 
-            dateInput.addEventListener('click', () => {
-                const caretPos = getCaretPosition(dateInput);
-                moveCaretToSegment(caretPos);
+            dateInput.on('click', function() {
+                const caretPos = getCaretPosition(dateInput[0]);
+                if (caretPos <= 2) activateSegment('month');
+                else activateSegment('year');
             });
 
-            dateInput.addEventListener('keydown', handleKeydown);
+            dateInput.on('keydown', handleKeydown);
 
+            $('.select2').select2();
+
+            $('#product_sku_step1').on('change', function() {
+                const products = @json($products);
+                const productId = $(this).val();
+                const product = products.find(p => p.id == productId);
+
+                $('#product_name').val(product?.product_fullname || '');
+                $('#product_barcode').val(product?.product_barcode || '');
+                $('#product_type').val(product?.product_type || '');
+            });
+
+            // Initial State
+            showStep(currentStep);
             activateSegment('month');
         });
-
-        $(document).ready(function() {
-        $('#product_sku_step1').select2();
-
-        $(document).on('change', '#product_sku_step1', function() {
-            const products = @json($products);
-            console.log('product_sku_step1');
-            const productId = $(this).val();
-            const product = products.find(p => p.id == productId);
-            $('#product_name').val(product.product_fullname);
-            $('#product_barcode').val(product.product_barcode);
-            $('#product_type').val(product.product_type);
-        });
-    });
-
     </script>
 @endsection
 
@@ -370,10 +348,12 @@
                                     <td>{{ \Carbon\Carbon::parse($receiving->created_at)->format('m/d/Y') }}</td>
                                     <td style="width: 15%;">
                                         <span>{{ $receiving->product->product_fullname }}</span>
-                                        <small class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
+                                        <small
+                                            class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
                                     </td>
                                     <td>{{ $receiving->pcs }}</td>
-                                    <td><span class="badge badge-pill badge-success">{{ $receiving->expiry_date }}</span></td>
+                                    <td><span class="badge badge-pill badge-success">{{ $receiving->expiry_date }}</span>
+                                    </td>
                                     <td>{{ $receiving->checker }}</td>
                                     <td>{{ $receiving->remarks }}</td>
                                 </tr>
@@ -424,7 +404,8 @@
                                                 name="product_sku_step1" required>
                                                 <option value="">Select SKU</option>
                                                 @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}">{{ $product->product_sku }}</option>
+                                                    <option value="{{ $product->id }}">{{ $product->product_sku }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
