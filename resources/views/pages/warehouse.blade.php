@@ -6,18 +6,10 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Main Title <small class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted">Subtitle</small>
+                    Warehouse
                 </h1>
-                <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-alt">
-                        <li class="breadcrumb-item">Examples</li>
-                        <li class="breadcrumb-item" aria-current="page">
-                            <a class="link-fx" href="">Blank</a>
-                        </li>
-                    </ol>
-                </nav>
             </div>
-       </div>
+        </div>
     </div>
     <!-- END Hero -->
 
@@ -29,9 +21,35 @@
                 <h3 class="block-title">Block Title</h3>
             </div>
             <div class="block-content">
-                <p class="font-size-sm text-muted">
-                    Your content..
-                </p>
+                <table class="table table-bordered table-striped table-vcenter">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">#</th>
+                            <th>Name</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td>
+                                <a href="javascript:void(0)">Product 1</a>
+                            </td>
+                            <td>
+                                10
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td>
+                                <a href="javascript:void(0)">Product 2</a>
+                            </td>
+                            <td>
+                                5
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
         <!-- END Your Block -->
