@@ -5,8 +5,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Receiving extends Model
 {
+    // Table associated with this model
     protected $table = 'receivinglist';
 
+    // Mass assignable fields
     protected $fillable = [
         'sku_id',
         'transaction_number',
@@ -15,9 +17,10 @@ class Receiving extends Model
         'expiry_date',
         'remarks',
     ];
-    public function sku()
+
+    // Define the relationship with the Product model
+    public function product()
     {
         return $this->belongsTo(Product::class, 'sku_id', 'id');
     }
-
 }

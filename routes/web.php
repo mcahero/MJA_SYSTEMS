@@ -24,6 +24,10 @@ Route::match(['get', 'post'], '/dashboard', function(){
 Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
+Route::view('/pages/Warehouse', 'pages.Warehouse');
+Route::view('/pages/Selling', 'pages.Selling');
+Route::view('/pages/Display', 'pages.Display');
+
 
 
 Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');

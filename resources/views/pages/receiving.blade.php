@@ -68,10 +68,45 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
+
+        /* .swal2-container {
+            z-index: 999999 !important;
+        } */
     </style>
 
     <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
     <script>
+//         document.addEventListener('DOMContentLoaded', function () {
+//     const form = document.getElementById('product-form');
+
+//     form.addEventListener('submit', function (e) {
+//         e.preventDefault(); // Prevent the form from submitting
+
+//         // Collect form data
+//         const formData = new FormData(form);
+//         const data = {};
+//         formData.forEach((value, key) => {
+//             data[key] = value;
+//         });
+
+//         // Log data to the console
+//         console.log('Form Data:', data);
+
+//         // Optional: Display a SweetAlert to show the collected data
+//         Swal.fire({
+//             icon: 'info',
+//             title: 'Form Data Collected',
+//             text: JSON.stringify(data, null, 2),
+//             confirmButtonText: 'OK'
+//         }).then((result) => {
+//             if (result.isConfirmed) {
+//                 form.submit(); // Submit the form
+//             }
+//         });
+//     });
+// });
+
+
         $(document).ready(function() {
             const steps = $(".step");
             const stepContents = $(".step-content");
@@ -288,6 +323,8 @@
                 $('#product_type').val(product?.product_type || '');
             });
 
+
+
             // Initial State
             showStep(currentStep);
             activateSegment('month');
@@ -337,7 +374,7 @@
                     <tbody>
                         @if ($receivings->isEmpty())
                             <tr>
-                                <td colspan="9" class="text-center">No receivings found.</td>
+                                <td colspan="9" class="text-center">No received transactions found .</td>
                             </tr>
                         @else
                             @foreach ($receivings as $receiving)
@@ -352,7 +389,9 @@
                                             class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
                                     </td>
                                     <td>{{ $receiving->pcs }}</td>
-                                    <td><span class="badge badge-pill badge-success">{{ $receiving->expiry_date }}</span>
+                                    <td> <span class="badge badge-pill" style="background-color: {{ $receiving->color }}; color: #fff; font-size: 12px; border-radius: 5px;">
+                                        {{ $receiving->color_code }}
+                                    </span>
                                     </td>
                                     <td>{{ $receiving->checker }}</td>
                                     <td>{{ $receiving->remarks }}</td>
@@ -380,7 +419,7 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST">
+                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
@@ -460,7 +499,7 @@
                                                     <!-- Date Input Field -->
                                                     <input type="text" id="date_input"
                                                         style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
-                                                        value="MM/YYYY" maxlength="7" readonly>
+                                                        value="MM/YYYY" maxlength="7" name="date_input" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -515,3 +554,8 @@
         </div>
         <!-- END Page Content -->
     @endsection
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+

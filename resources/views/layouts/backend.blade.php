@@ -32,6 +32,27 @@
     <!-- Scripts -->
     <script>
         window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
+
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey) {
+            const navKeys = {
+                'F1': 'nav-dashboard',
+                'F2': 'nav-product-lists',
+                'F3': 'nav-receiving',
+                'F4': 'nav-warehouse',
+                'F5': 'nav-selling',
+                'F6': 'nav-display',
+                'F7': 'nav-datatables',
+                'F8': 'nav-slick',
+                'F9': 'nav-blank',
+                'F10': 'nav-landing'
+            };
+
+            if (navKeys[event.key]) {
+                document.getElementById(navKeys[event.key]).click();
+            }
+        }
+    });
     </script>
 </head>
 
@@ -232,59 +253,39 @@
                 <div class="content-side">
                     <ul class="nav-main">
                         <li class="nav-main-item">
-                            <a class="nav-main-link{{ request()->is('dashboard') ? ' active' : '' }}"
-                                href="/dashboard">
+                            <a id="nav-dashboard" class="nav-main-link{{ request()->is('dashboard') ? ' active' : '' }}" href="/dashboard">
                                 <i class="nav-main-link-icon si si-cursor"></i>
-                                <span class="nav-main-link-name">Dashboard</span>
+                                <span class="nav-main-link-name">[ 1 ] Dashboard</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}"
-                                href="/pages/product_lists">
-                                <i class="nav-main-link-icon si si-cursor"></i>
-                                <span class="nav-main-link-name">Product Lists</span>
+                            <a id="nav-product-lists" class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}" href="/pages/product_lists">
+                                <i class="nav-main-link-icon si si-list"></i>
+                                <span class="nav-main-link-name">[ 2 ] Product Lists</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a class="nav-main-link{{ request()->is('pages/receiving') ? ' active' : '' }}"
-                                href="/pages/receiving">
-                                <i class="nav-main-link-icon si si-cursor"></i>
-                                <span class="nav-main-link-name">Receiving</span>
+                            <a id="nav-receiving" class="nav-main-link{{ request()->is('pages/receiving') ? ' active' : '' }}" href="/pages/receiving">
+                                <i class="nav-main-link-icon fas fa-boxes"></i>
+                                <span class="nav-main-link-name">[ 3 ] Receiving</span>
                             </a>
                         </li>
-                        <li class="nav-main-heading">Various</li>
-                        <li class="nav-main-item{{ request()->is('pages/*') ? ' open' : '' }}">
-                            <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true"
-                                aria-expanded="true" href="#">
-                                <i class="nav-main-link-icon si si-bulb"></i>
-                                <span class="nav-main-link-name">Examples</span>
+                        <li class="nav-main-item">
+                            <a id="nav-warehouse" class="nav-main-link{{ request()->is('pages/Warehouse') ? ' active' : '' }}" href="/pages/Warehouse">
+                                <i class="nav-main-link-icon si si-home"></i>
+                                <span class="nav-main-link-name">[ 4 ] Warehouse</span>
                             </a>
-                            <ul class="nav-main-submenu">
-                                <li class="nav-main-item">
-                                    <a class="nav-main-link{{ request()->is('pages/datatables') ? ' active' : '' }}"
-                                        href="/pages/datatables">
-                                        <span class="nav-main-link-name">DataTables</span>
-                                    </a>
-                                </li>
-                                <li class="nav-main-item">
-                                    <a class="nav-main-link{{ request()->is('pages/slick') ? ' active' : '' }}"
-                                        href="/pages/slick">
-                                        <span class="nav-main-link-name">Slick Slider</span>
-                                    </a>
-                                </li>
-                                <li class="nav-main-item">
-                                    <a class="nav-main-link{{ request()->is('pages/blank') ? ' active' : '' }}"
-                                        href="/pages/blank">
-                                        <span class="nav-main-link-name">Blank</span>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
-                        <li class="nav-main-heading">More</li>
-                        <li class="nav-main-item open">
-                            <a class="nav-main-link" href="/">
-                                <i class="nav-main-link-icon si si-globe"></i>
-                                <span class="nav-main-link-name">Landing</span>
+                        <li class="nav-main-item">
+                            <a id="nav-selling" class="nav-main-link{{ request()->is('pages/Selling') ? ' active' : '' }}" href="/pages/Selling">
+                                <i class="nav-main-link-icon si si-basket"></i>
+                                <span class="nav-main-link-name">[ 5 ] Selling</span>
+                            </a>
+                        </li>
+                        <li class="nav-main-item">
+                            <a id="nav-display" class="nav-main-link{{ request()->is('pages/Display') ? ' active' : '' }}" href="/pages/Display">
+                                <i class="nav-main-link-icon fas fa-store"></i>
+                                <span class="nav-main-link-name">[ 6 ] Display</span>
                             </a>
                         </li>
                     </ul>
