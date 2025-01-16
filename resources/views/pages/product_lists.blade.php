@@ -315,7 +315,7 @@
                                         <div class="form-group">
                                             <label for="product-entryperson">Entry Person</label>
                                             <input type="text" class="form-control" id="product-entryperson"
-                                                name="product-entryperson" placeholder="Enter entry person name">
+                                                name="product-entryperson" placeholder="Enter entry person name" required>
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back

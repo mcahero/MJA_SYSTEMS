@@ -22,8 +22,8 @@ class ProductsList extends Controller
         // Validate the request data
         $request->validate([
             'product-sku-name' => 'required|string|max:255',
-            'product-short-name' => 'string|max:255',
-            'jda-system-name' => 'string|max:255',
+            'product-short-name' => 'nullable|string|max:255',
+            'jda-system-name' => 'nullable|string|max:255',
             'product-sku' => 'required|string|max:255',
             'product-barcode' => 'required|string|max:255',
             'product-type' => 'required|string',
