@@ -70,41 +70,41 @@
         }
 
         /* .swal2-container {
-            z-index: 999999 !important;
-        } */
+                                                            z-index: 999999 !important;
+                                                        } */
     </style>
 
     <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
     <script>
-//         document.addEventListener('DOMContentLoaded', function () {
-//     const form = document.getElementById('product-form');
+        //         document.addEventListener('DOMContentLoaded', function () {
+        //     const form = document.getElementById('product-form');
 
-//     form.addEventListener('submit', function (e) {
-//         e.preventDefault(); // Prevent the form from submitting
+        //     form.addEventListener('submit', function (e) {
+        //         e.preventDefault(); // Prevent the form from submitting
 
-//         // Collect form data
-//         const formData = new FormData(form);
-//         const data = {};
-//         formData.forEach((value, key) => {
-//             data[key] = value;
-//         });
+        //         // Collect form data
+        //         const formData = new FormData(form);
+        //         const data = {};
+        //         formData.forEach((value, key) => {
+        //             data[key] = value;
+        //         });
 
-//         // Log data to the console
-//         console.log('Form Data:', data);
+        //         // Log data to the console
+        //         console.log('Form Data:', data);
 
-//         // Optional: Display a SweetAlert to show the collected data
-//         Swal.fire({
-//             icon: 'info',
-//             title: 'Form Data Collected',
-//             text: JSON.stringify(data, null, 2),
-//             confirmButtonText: 'OK'
-//         }).then((result) => {
-//             if (result.isConfirmed) {
-//                 form.submit(); // Submit the form
-//             }
-//         });
-//     });
-// });
+        //         // Optional: Display a SweetAlert to show the collected data
+        //         Swal.fire({
+        //             icon: 'info',
+        //             title: 'Form Data Collected',
+        //             text: JSON.stringify(data, null, 2),
+        //             confirmButtonText: 'OK'
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 form.submit(); // Submit the form
+        //             }
+        //         });
+        //     });
+        // });
 
 
         $(document).ready(function() {
@@ -389,9 +389,10 @@
                                             class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
                                     </td>
                                     <td>{{ $receiving->pcs }}</td>
-                                    <td> <span class="badge badge-pill" style="background-color: {{ $receiving->color }}; color: #fff; font-size: 12px; border-radius: 5px;">
-                                        {{ $receiving->color_code }}
-                                    </span>
+                                    <td> <span class="badge badge-pill"
+                                            style="background-color: {{ $receiving->color }}; color: #fff; font-size: 12px; border-radius: 5px;">
+                                            {{ $receiving->color_code }}
+                                        </span>
                                     </td>
                                     <td>{{ $receiving->checker }}</td>
                                     <td>{{ $receiving->remarks }}</td>
@@ -419,7 +420,8 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST" enctype="multipart/form-data">
+                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
@@ -441,7 +443,7 @@
                                             <label for="product_sku_step1">SKU #</label>
                                             <select class="form-control select2" style="width: 100%;" id="product_sku_step1"
                                                 name="product_sku_step1" required>
-                                                <option value="">Select SKU</option>
+                                                <option value="">Search SKU #</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}">{{ $product->product_sku }}
                                                     </option>
@@ -489,6 +491,50 @@
                                                 onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
                                         </div>
                                         <div class="row">
+                                            <div style="text-align: center; font-family: Arial, sans-serif; margin: 20px;">
+                                                <h3>Month Legend</h3>
+
+                                                <div
+                                                    style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                                                    <!-- Month Badges -->
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #007f00; color: white; text-align: center; font-size: 14px;">A
+                                                        = Jan</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #002f99; color: white; text-align: center; font-size: 14px;">B
+                                                        = Feb</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #00bfff; color: white; text-align: center; font-size: 14px;">C
+                                                        = Mar</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #8b4513; color: white; text-align: center; font-size: 14px;">D
+                                                        = Apr</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #555555; color: white; text-align: center; font-size: 14px;">E
+                                                        = May</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #cccccc; color: black; text-align: center; font-size: 14px;">F
+                                                        = June</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ff4500; color: white; text-align: center; font-size: 14px;">G
+                                                        = July</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ffa500; color: white; text-align: center; font-size: 14px;">H
+                                                        = Aug</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #d87093; color: white; text-align: center; font-size: 14px;">I
+                                                        = Sept</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ff6347; color: white; text-align: center; font-size: 14px;">J
+                                                        = Oct</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #4b0082; color: white; text-align: center; font-size: 14px;">K
+                                                        = Nov</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #228b22; color: white; text-align: center; font-size: 14px;">L
+                                                        = Dec</span>
+                                                </div>
+                                            </div>
                                             <div class="col-md-6">
                                                 <div
                                                     style="margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
@@ -556,6 +602,5 @@
     @endsection
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

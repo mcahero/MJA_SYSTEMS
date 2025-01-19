@@ -33,27 +33,34 @@
     <script>
         window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
 
-    document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey) {
-            const navKeys = {
-                'F1': 'nav-dashboard',
-                'F2': 'nav-product-lists',
-                'F3': 'nav-receiving',
-                'F4': 'nav-warehouse',
-                'F5': 'nav-selling',
-                'F6': 'nav-display',
-                'F7': 'nav-datatables',
-                'F8': 'nav-slick',
-                'F9': 'nav-blank',
-                'F10': 'nav-landing'
-            };
+        document.addEventListener('keydown', function(event) {
+            // Check if the modal is active
+            const activeModal = document.querySelector(
+                '.modal.show'); // Adjust selector based on your modal's active class
 
-            if (navKeys[event.key]) {
-                document.getElementById(navKeys[event.key]).click();
+            if (!activeModal) { // Proceed only if no modal is active
+                const navKeys = {
+                    '1': 'nav-dashboard',
+                    '2': 'nav-product-lists',
+                    '3': 'nav-receiving',
+                    '4': 'nav-warehouse',
+                    '5': 'nav-selling',
+                    '6': 'nav-display',
+                };
+
+                if (navKeys[event.key]) {
+                    const targetElement = document.getElementById(navKeys[event.key]);
+                    if (targetElement) {
+                        targetElement.click();
+                    }
+                }
             }
-        }
-    });
+        });
     </script>
+
+
+
+
 </head>
 
 <body>
@@ -253,37 +260,49 @@
                 <div class="content-side">
                     <ul class="nav-main">
                         <li class="nav-main-item">
-                            <a id="nav-dashboard" class="nav-main-link{{ request()->is('dashboard') ? ' active' : '' }}" href="/dashboard">
+                            <a id="nav-dashboard"
+                                class="nav-main-link{{ request()->is('dashboard') ? ' active' : '' }}"
+                                href="/dashboard">
                                 <i class="nav-main-link-icon si si-cursor"></i>
                                 <span class="nav-main-link-name">[ 1 ] Dashboard</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a id="nav-product-lists" class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}" href="/pages/product_lists">
+                            <a id="nav-product-lists"
+                                class="nav-main-link{{ request()->is('pages/product_lists') ? ' active' : '' }}"
+                                href="/pages/product_lists">
                                 <i class="nav-main-link-icon si si-list"></i>
                                 <span class="nav-main-link-name">[ 2 ] Product Lists</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a id="nav-receiving" class="nav-main-link{{ request()->is('pages/receiving') ? ' active' : '' }}" href="/pages/receiving">
+                            <a id="nav-receiving"
+                                class="nav-main-link{{ request()->is('pages/receiving') ? ' active' : '' }}"
+                                href="/pages/receiving">
                                 <i class="nav-main-link-icon fas fa-boxes"></i>
                                 <span class="nav-main-link-name">[ 3 ] Receiving</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a id="nav-warehouse" class="nav-main-link{{ request()->is('pages/Warehouse') ? ' active' : '' }}" href="/pages/Warehouse">
+                            <a id="nav-warehouse"
+                                class="nav-main-link{{ request()->is('pages/Warehouse') ? ' active' : '' }}"
+                                href="/pages/Warehouse">
                                 <i class="nav-main-link-icon si si-home"></i>
                                 <span class="nav-main-link-name">[ 4 ] Warehouse</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a id="nav-selling" class="nav-main-link{{ request()->is('pages/Selling') ? ' active' : '' }}" href="/pages/Selling">
+                            <a id="nav-selling"
+                                class="nav-main-link{{ request()->is('pages/Selling') ? ' active' : '' }}"
+                                href="/pages/Selling">
                                 <i class="nav-main-link-icon si si-basket"></i>
                                 <span class="nav-main-link-name">[ 5 ] Selling</span>
                             </a>
                         </li>
                         <li class="nav-main-item">
-                            <a id="nav-display" class="nav-main-link{{ request()->is('pages/Display') ? ' active' : '' }}" href="/pages/Display">
+                            <a id="nav-display"
+                                class="nav-main-link{{ request()->is('pages/Display') ? ' active' : '' }}"
+                                href="/pages/Display">
                                 <i class="nav-main-link-icon fas fa-store"></i>
                                 <span class="nav-main-link-name">[ 6 ] Display</span>
                             </a>

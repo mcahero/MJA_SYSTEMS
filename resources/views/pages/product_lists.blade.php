@@ -109,6 +109,24 @@
                 });
             });
 
+            // Handle selection change
+            const dropdown = document.getElementById('product-type');
+            dropdown.addEventListener('change', function() {
+                const selectedValue = dropdown.value;
+            });
+
+            // Allow selection using R and N keys
+            document.addEventListener('keydown', function(event) {
+                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                    if (event.key.toUpperCase() === 'R') {
+                        dropdown.value = 'Returnable';
+                        dropdown.dispatchEvent(new Event('change'));
+                    } else if (event.key.toUpperCase() === 'N') {
+                        dropdown.value = 'Non Returnable';
+                        dropdown.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
             showStep(currentStep);
 
             // Add event listener for keyboard shortcuts
@@ -195,28 +213,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($products as $product)
-                    <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td>{{ $product->product_sku }}</td>
-                        <td>{{ $product->product_barcode }}</td>
-                        <td style="width: 15%;">
-                            <span>{{ $product->product_fullname }}</span>
-                            <span>{{ $product->jda_systemname }}</span>
-                            <small class="text-muted mb-0 d-block">{{ $product->product_shortname }}</small>
-                        </td>
-                        <td>
-                            <span class="badge badge-pill {{ $product->product_type == 'Returnable' ? 'badge-success' : 'badge-danger' }}">
-                                {{ $product->product_type }}
-                            </span>
-                        </td>
-                        <td>{{ $product->product_warehouse }}</td>
-                        <td>{{ $product->product_entryperson}}</td>
-                        <td>{{ \Carbon\Carbon::parse($product->created_at)->format('m/d/Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($product->updated_at)->format('m/d/Y') }}</td>
-                        <td>{{ $product->product_remarks }}</td>
-                    </tr>
-                @endforeach
+                        @foreach ($products as $product)
+                            <tr>
+                                <td class="text-center">{{ $loop->iteration }}</td>
+                                <td>{{ $product->product_sku }}</td>
+                                <td>{{ $product->product_barcode }}</td>
+                                <td style="width: 15%;">
+                                    <span>{{ $product->product_fullname }}</span>
+                                    <span>{{ $product->jda_systemname }}</span>
+                                    <small class="text-muted mb-0 d-block">{{ $product->product_shortname }}</small>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge badge-pill {{ $product->product_type == 'Returnable' ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $product->product_type }}
+                                    </span>
+                                </td>
+                                <td>{{ $product->product_warehouse }}</td>
+                                <td>{{ $product->product_entryperson }}</td>
+                                <td>{{ \Carbon\Carbon::parse($product->created_at)->format('m/d/Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($product->updated_at)->format('m/d/Y') }}</td>
+                                <td>{{ $product->product_remarks }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
 
                 </table>
@@ -225,7 +244,7 @@
         <!-- END Your Block -->
         <!-- Add New Product Modal -->
         <div class="modal fade" id="product-modal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
-            aria-hidden="true">
+            aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="block block-themed block-transparent mb-0">
@@ -281,8 +300,8 @@
                                     <div class="step-content" data-step="2">
                                         <div class="form-group">
                                             <label for="product-sku">SKU #</label>
-                                            <input type="text" class="form-control" id="product-sku" name="product-sku"
-                                                placeholder="000000001" required>
+                                            <input type="text" class="form-control" id="product-sku"
+                                                name="product-sku" placeholder="000000001" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="product-barcode">BARCODE</label>
@@ -300,12 +319,17 @@
                                     <!-- Step 3: Additional Info -->
                                     <div class="step-content" data-step="3">
                                         <div class="form-group">
-                                            <label for="product-type">TYPE</label>
-                                            <select class="form-control" id="product-type" name="product-type" required>
+                                            <label class="form-label d-flex align-items-center" for="product-type">TYPE
+                                                <small class="form-text text-muted ml-2 mt-1">(R) Returnable / (N)
+                                                    Non-Returnable / (Tab) Confirm</small>
+                                            </label>
+                                            <select class="form-control select2" id="product-type" name="product-type"
+                                                required>
                                                 <option value="">Select Type</option>
                                                 <option value="Returnable" class="text-success">Returnable</option>
                                                 <option value="Non Returnable" class="text-danger">Non Returnable</option>
                                             </select>
+
                                         </div>
                                         <div class="form-group">
                                             <label for="product-warehouse">WAREHOUSE</label>
