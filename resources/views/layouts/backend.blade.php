@@ -285,8 +285,8 @@
                         </li>
                         <li class="nav-main-item">
                             <a id="nav-warehouse"
-                                class="nav-main-link{{ request()->is('pages/Warehouse') ? ' active' : '' }}"
-                                href="/pages/Warehouse">
+                                class="nav-main-link{{ request()->is('pages/warehouse') ? ' active' : '' }}"
+                                href="/pages/warehouse">
                                 <i class="nav-main-link-icon si si-home"></i>
                                 <span class="nav-main-link-name">[ 4 ] Warehouse</span>
                             </a>
@@ -561,7 +561,7 @@
         <!-- END Main Container -->
 
         <!-- Footer -->
-        <footer id="page-footer" class="bg-body-light">
+        {{-- <footer id="page-footer" class="bg-body-light">
             <div class="content py-3">
                 <div class="row font-size-sm">
                     <div class="col-sm-6 order-sm-2 py-1 text-center text-sm-right">
@@ -574,7 +574,7 @@
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer> --}}
         <!-- END Footer -->
 
         <!-- Apps Modal -->

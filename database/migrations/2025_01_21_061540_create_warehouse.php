@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReceivinglistTable extends Migration
+class CreateWarehouse extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateReceivinglistTable extends Migration
      */
     public function up()
     {
-        Schema::create('receivinglist', function (Blueprint $table) {
+        Schema::create('warehouse', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sku_id');
             $table->string('transaction_number');
@@ -22,7 +22,6 @@ class CreateReceivinglistTable extends Migration
             $table->string('expiry_date');
             $table->text('remarks')->nullable();
             $table->timestamps();
-            $table->foreign('sku_id')->references('id')->on('productlist')->onDelete('cascade');
 
         });
     }
@@ -34,7 +33,6 @@ class CreateReceivinglistTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('receivinglist');
+        Schema::dropIfExists('warehouse');
     }
-
 }

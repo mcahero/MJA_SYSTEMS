@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductsList;
 use App\Http\Controllers\ReceivingController;
+use App\Http\Controllers\WarehouseController;
 
 
 /*
@@ -24,11 +25,13 @@ Route::match(['get', 'post'], '/dashboard', function(){
 Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
-Route::view('/pages/Warehouse', 'pages.Warehouse');
+Route::view('/pages/Warehouselogs', 'pages.Warehouselogs');
 Route::view('/pages/Selling', 'pages.Selling');
 Route::view('/pages/Display', 'pages.Display');
 
 
+Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
+Route::post('pages/warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
 
 Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');
 Route::post('pages/receivings', [ReceivingController::class, 'store'])->name('receivings.store');

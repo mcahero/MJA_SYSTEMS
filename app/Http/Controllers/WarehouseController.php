@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Receiving;
+use App\Models\warehouse;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ReceivingController extends Controller
+class WarehouseController extends Controller
 {
     public function index()
     {
@@ -29,9 +30,9 @@ class ReceivingController extends Controller
         ];
 
         // Fetch receivings and calculate color code for each
-        $receivings = Receiving::with('product')->get()->map(function($receiving) use ($monthMap, $yearMap, $colorMap) {
+        $warehouses = warehouse::with('product')->get()->map(function($warehouse) use ($monthMap, $yearMap, $colorMap) {
             // Assuming expiry_date is in MM/YYYY format (e.g., 12/2023)
-            $expiryDate = $receiving->expiry_date;
+            $expiryDate = $warehouse->expiry_date;
             $month = substr($expiryDate, 0, 2); // Extract month (e.g., '12')
             $year = substr($expiryDate, 3, 4); // Extract year (e.g., '2023')
 
@@ -47,16 +48,20 @@ class ReceivingController extends Controller
             $receiving->color_code = $colorCode;
             $receiving->color = $color;
 
-            return $receiving;
+            return $warehouse;
         });
 
-        // Fetch products
         $products = Product::all()->map(function ($product) {
             $product->created_at = Carbon::parse($product->created_at)->format('m/d/Y');
             $product->updated_at = Carbon::parse($product->updated_at)->format('m/d/Y');
             return $product;
         });
-        return view('pages.receiving', compact('receivings', 'products'));
+
+        // Fetch products
+        $markhouse = DB::table('receivinglist')
+        ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id')
+        ->get();
+        return view('pages.warehouse', compact('warehouses', 'products', 'markhouse'));
     }
 
     // Store method remains the same as before
@@ -71,28 +76,17 @@ class ReceivingController extends Controller
                 'checker' => 'required|string|max:255',
                 'date_input' => 'required',
                 'remarks' => 'nullable|string',
-
             ]);
 
             // Store the data in the database
-            $receiving = new Receiving();
-            $receiving->sku_id = $request->input('product_sku_step1');
-            $receiving->transaction_number = $request->input('transaction_number');
-            $receiving->pcs = $request->input('product_pcs');
-            $receiving->checker = $request->input('checker');
-            $receiving->expiry_date = $request->input('date_input');
-            $receiving->remarks = $request->input('remarks');
-            $receiving->save();
-
-
-
-            $warehouse = DB::table('warehouse')->where('sku_id', $receiving->sku_id)->first();
-            if ($warehouse) {
-                $receiving->pcs -= $warehouse->pcs;
-                $warehouse->pcs += $receiving->pcs;
-                $warehouse->save();
-                $receiving->save();
-            }
+            $warehouse = new warehouse();
+            $warehouse->sku_id = $request->input('product_sku_step1');
+            $warehouse->transaction_number = $request->input('transaction_number');
+            $warehouse->pcs = $request->input('product_pcs');
+            $warehouse->checker = $request->input('checker');
+            $warehouse->expiry_date = $request->input('date_input');
+            $warehouse->remarks = $request->input('remarks');
+            $warehouse->save();
 
             // Redirect back with a success message
             return redirect()->back()->with('success', 'Receiving added successfully.');

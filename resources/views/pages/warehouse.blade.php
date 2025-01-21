@@ -20,17 +20,316 @@
 
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+
+    <style>
+        .stepper-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 5px;
+            margin-bottom: 15px;
+        }
+
+        .stepper-steps {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+        }
+
+        .stepper-steps .step {
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .stepper-steps .step.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        /* For Chrome, Edge, Safari */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* .swal2-container {
+                                                            z-index: 999999 !important;
+                                                        } */
+    </style>
+
+    <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
     <script>
-        $('#addPcsModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget);
-            var sku = button.data('sku');
-            var modal = $(this);
-            modal.find('.modal-body #modalSku').val(sku);
+        //         document.addEventListener('DOMContentLoaded', function () {
+        //     const form = document.getElementById('product-form');
+
+        //     form.addEventListener('submit', function (e) {
+        //         e.preventDefault(); // Prevent the form from submitting
+
+        //         // Collect form data
+        //         const formData = new FormData(form);
+        //         const data = {};
+        //         formData.forEach((value, key) => {
+        //             data[key] = value;
+        //         });
+
+        //         // Log data to the console
+        //         console.log('Form Data:', data);
+
+        //         // Optional: Display a SweetAlert to show the collected data
+        //         Swal.fire({
+        //             icon: 'info',
+        //             title: 'Form Data Collected',
+        //             text: JSON.stringify(data, null, 2),
+        //             confirmButtonText: 'OK'
+        //         }).then((result) => {
+        //             if (result.isConfirmed) {
+        //                 form.submit(); // Submit the form
+        //             }
+        //         });
+        //     });
+        // });
+
+
+        $(document).ready(function() {
+            const steps = $(".step");
+            const stepContents = $(".step-content");
+            const progressBar = $("#step-progress");
+            const nextButtons = $(".step-next");
+            const prevButtons = $(".step-prev");
+            const dateInput = $('#date_input');
+            const colorCodeDiv = $('#color-code-div');
+            const colorCodeH1 = $('#color_code_h1');
+
+            let currentStep = 1;
+            let activeSegment = null;
+            let enteredMonthLetter = '';
+            let enteredYearLetter = '';
+
+            const monthMap = {
+                A: '01',
+                B: '02',
+                C: '03',
+                D: '04',
+                E: '05',
+                F: '06',
+                G: '07',
+                H: '08',
+                I: '09',
+                J: '10',
+                K: '11',
+                L: '12'
+            };
+
+            const yearMap = {
+                A: '2021',
+                B: '2022',
+                C: '2023',
+                D: '2024',
+                E: '2025',
+                F: '2026',
+                G: '2027',
+                H: '2028',
+                I: '2029',
+                J: '2030',
+                K: '2031',
+                L: '2032'
+            };
+
+            const colorMap = {
+                A: '#007f00',
+                B: '#002f99',
+                C: '#00bfff',
+                D: '#8b4513',
+                E: '#555555',
+                F: '#cccccc',
+                G: '#ff4500',
+                H: '#ffa500',
+                I: '#d87093',
+                J: '#ff6347',
+                K: '#4b0082',
+                L: '#228b22'
+            };
+
+            // Utility Functions
+            function showStep(step) {
+                steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                progressBar.css("width", `${(step / 3) * 100}%`);
+            }
+
+            function validateStep(step) {
+                const activeStepContent = $(`.step-content[data-step="${step}"]`);
+                const inputs = activeStepContent.find("[required]");
+                let isValid = true;
+
+                inputs.each(function() {
+                    const input = $(this);
+                    if (!input.val().trim()) {
+                        input.addClass("is-invalid");
+                        isValid = false;
+                    } else {
+                        input.removeClass("is-invalid");
+                    }
+                });
+
+                return isValid;
+            }
+
+            function updateProgress(step) {
+                if (validateStep(currentStep)) {
+                    currentStep = step;
+                    showStep(currentStep);
+                }
+            }
+
+            function activateSegment(segment) {
+                activeSegment = segment;
+                dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
+                setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ? 2 : 7);
+            }
+
+            function deactivateSegment() {
+                activeSegment = null;
+                dateInput.css("caretColor", 'black');
+            }
+
+            function handleKeydown(e) {
+                let value = dateInput.val();
+
+                if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
+                    const month = monthMap[e.key.toUpperCase()];
+                    value = month + value.slice(2);
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 3);
+                    activateSegment('year');
+                    enteredMonthLetter = e.key.toUpperCase();
+                    updateColorCode(enteredMonthLetter, enteredYearLetter);
+                    e.preventDefault();
+                } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
+                    const year = yearMap[e.key.toUpperCase()];
+                    value = value.slice(0, 3) + year;
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 7);
+                    deactivateSegment();
+                    enteredYearLetter = e.key.toUpperCase();
+                    updateColorCode(enteredMonthLetter, enteredYearLetter);
+                    e.preventDefault();
+                }
+
+                if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
+
+                if (e.key === "Enter") {
+                    deactivateSegment();
+                    $(document.activeElement).blur();
+                    e.preventDefault();
+                }
+            }
+
+            function updateColorCode(monthKey, yearKey) {
+                if (monthKey in colorMap) {
+                    colorCodeH1.css("backgroundColor", colorMap[monthKey]);
+                    colorCodeH1.text(`${monthKey}${yearKey}`);
+                }
+            }
+
+            function getCaretPosition(input) {
+                return input.selectionStart;
+            }
+
+            function setCaretPosition(input, start, end = start) {
+                input.setSelectionRange(start, end);
+            }
+
+            // Event Handlers
+            nextButtons.on("click", function() {
+                updateProgress(currentStep + 1);
+            });
+
+            prevButtons.on("click", function() {
+                if (currentStep > 1) {
+                    updateProgress(currentStep - 1);
+                }
+            });
+
+            $(document).on("keydown", function(event) {
+                if (event.key === "F1") {
+                    event.preventDefault();
+                    $('#product-modal').modal('show');
+                } else if (event.key === "ArrowRight") {
+                    updateProgress(currentStep + 1);
+                } else if (event.key === "ArrowLeft") {
+                    if (currentStep > 1) updateProgress(currentStep - 1);
+                } else if (event.key === "Enter" && currentStep === 3) {
+                    event.preventDefault();
+                    $("#product-form").submit();
+                } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                    const activeStepContent = $(".step-content.active");
+                    const inputs = activeStepContent.find("input, select, textarea").toArray();
+                    const currentIndex = inputs.indexOf(document.activeElement);
+
+                    if (event.key === "ArrowUp" && currentIndex > 0) {
+                        inputs[currentIndex - 1].focus();
+                    } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                    }
+                } else if (event.key === "t") {
+                    const productTypeSelect = $("#product-type");
+                    if (productTypeSelect.length) {
+                        const currentValue = productTypeSelect.val();
+                        productTypeSelect.val(currentValue === "Returnable" ? "Non Returnable" :
+                            "Returnable");
+                    }
+                }
+            });
+
+            dateInput.on('focus', function() {
+                activateSegment('month');
+            });
+
+            dateInput.on('click', function() {
+                const caretPos = getCaretPosition(dateInput[0]);
+                if (caretPos <= 2) activateSegment('month');
+                else activateSegment('year');
+            });
+
+            dateInput.on('keydown', handleKeydown);
+
+            $('.select2').select2();
+
+            $('#product_sku_step1').on('change', function() {
+                const products = @json($markhouse);
+                const productId = $(this).val();
+                const product = products.find(p => p.id == productId);
+
+
+                $('#product_name').val(product?.product_fullname || '');
+                $('#product_barcode').val(product?.product_barcode || '');
+                $('#product_type').val(product?.product_type || '');
+            });
+
+            // Initial State
+            showStep(currentStep);
+            activateSegment('month');
         });
     </script>
-    <style>
-
-    </style>
+@endsection
 
 @section('content')
     <!-- Hero -->
@@ -38,8 +337,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Warehouse
-                </h1>
+                    Receiving </h1>
             </div>
         </div>
     </div>
@@ -49,99 +347,259 @@
     <div class="content">
         <!-- Your Block -->
         <div class="block block-rounded">
-            <div class="block-content">
-                <form action="/warehouse/search" method="GET">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search.." name="q"
-                                value="{{ request('q') }}">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-secondary">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+            <div class="block-header">
+                <button type="button" class="btn btn-primary" id="add-receiving-btn" data-toggle="modal"
+                    data-target="#product-modal">
+                    <i class="fa fa-plus mr-1"></i> Add Receiving (F1)
+                </button>
             </div>
-        </div>
-        <div class="block block-rounded">
             <div class="block-content">
-                <table class="table table-bordered table-striped table-vcenter">
+            </div>
+            <div class="block-content block-content-full">
+                <table style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 50px;">#</th>
-                            <th>SKU #</th>
-                            <th>Name</th>
-                            <th>PCS</th>
+                            <th style="font-size: 12px;"> </th>
+                            <th style="font-size: 12px;">Transaction #</th>
+                            <th style="font-size: 12px;">SKU #</th>
+                            <th style="font-size: 12px;">ARRIVAL DATE</th>
+                            <th style="font-size: 12px;">NAME</th>
+                            <th style="font-size: 12px;">PCS</th>
+                            <th style="font-size: 12px;">COLOR CODE</th>
+                            <th style="font-size: 12px;">CHECKER</th>
+                            <th style="font-size: 12px;">REMARKS</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">1</td>
-                            <td class="font-w600">SKU-001</td>
-                            <td class="font-w600">Product 1</td>
-                            <td class="font-w600">0</td>
-                            <td>
-                                <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#addPcsModal">
-                                    Add PCS
-                                </button>
-                            </td>
-                        </tr>
+                        @if ($warehouses->isEmpty())
+                            <tr>
+                                <td colspan="9" class="text-center">No received transactions found .</td>
+                            </tr>
+                        @else
+                            @foreach ($warehouses as $warehouse)
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td>{{ $warehouse->transaction_number }}</td>
+                                    <td>{{ $warehouse->product->product_sku }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($warehouse->created_at)->format('m/d/Y') }}</td>
+                                    <td style="width: 15%;">
+                                        <span>{{ $warehouse->product->product_fullname }}</span>
+                                        <small
+                                            class="text-muted mb-0 d-block">{{ $warehouse->product->product_shortname }}</small>
+                                    </td>
+                                    <td>{{ $warehouse->pcs }}</td>
+                                    <td> <span class="badge badge-pill"
+                                            style="background-color: {{ $warehouse->color }}; color: #fff; font-size: 12px; border-radius: 5px;">
+                                            {{ $warehouse->color_code }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $warehouse->checker }}</td>
+                                    <td>{{ $warehouse->remarks }}</td>
+                                </tr>
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
-                <div class="modal fade" id="addPcsModal" tabindex="-1" role="dialog" aria-labelledby="addPcsModalLabel"
-                    aria-hidden="true" data-backdrop="static">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content text-center">
-                            <div class="modal-header border-0 bg-primary">
-                                <h5 class="modal-title h6  text-white" id="addPcsModalLabel">Add Pieces to Warehouse</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
+            </div>
+        </div>
+        <!-- END Your Block -->
+
+        <!-- Add New Receiving Modal -->
+        <div class="modal fade" id="product-modal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="block block-themed block-transparent mb-0">
+                        <div class="block-header bg-primary text-white">
+                            <h3 class="block-title">Add New Receiving</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                    <i class="fa fa-fw fa-times"></i>
                                 </button>
                             </div>
-                            <form action="/warehouse/add-pcs" method="POST">
+                        </div>
+                        <div class="block-content">
+                            <form id="product-form" action="{{ route('warehouses.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <p class="mb-0" style="font-size: 16px; font-weight: bold;">SKU: <span
-                                                id="skuLabel">1001111011</span></p>
-                                        <p class="mb-0" style="font-size: 16px; font-weight: bold;">NAME: <span
-                                                id="nameLabel">Quickchow</span></p>
+                                <!-- Stepper Progress Bar -->
+                                <div class="stepper-progress">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-primary" id="step-progress" style="width: 25%;"></div>
                                     </div>
-                                    <div class="d-flex justify-content-center align-items-center mb-4">
-                                        <div class="text-center"
-                                            style="width: 100px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                            <p class="mb-0"
-                                                style="font-size: 24px; font-weight: bold; line-height: 80px;">10
-                                            </p>
-                                            <p class="mb-0" style="font-size: 14px; color: #6c757d;">Receiving</p>
-                                        </div>
-                                        <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
-                                        <div class="text-center"
-                                            style="width: 100px; height: 80px; border: 2px solid #000; border-radius: 8px;">
-                                            <input type="number" class="form-control text-center" id="pcs"
-                                                name="pcs"
-                                                style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
-                                                placeholder="0" required>
-                                            <p class="mb-0" style="font-size: 14px; color: #6c757d;">Warehouse</p>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="sku" id="modalSku">
+                                    <ul class="stepper-steps">
+                                        <li class="step active" data-step="1">Transaction Details</li>
+                                        <li class="step" data-step="2">Product Details</li>
+                                        <li class="step" data-step="4">Finalize</li>
+                                    </ul>
                                 </div>
-                                <div class="modal-footer border-0 d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-primary px-4"
-                                        style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
+
+                                <!-- Stepper Body -->
+                                <div class="stepper-body">
+                                    <!-- Step 1: Transaction Details -->
+                                    <div class="step-content active" data-step="1">
+                                        <div class="form-group">
+                                            <label for="product_sku_step1">SKU #</label>
+                                            <select class="form-control select2" style="width: 100%;" id="product_sku_step1"
+                                                name="product_sku_step1" required>
+                                                <option value="">Search SKU #</option>
+                                                @foreach ($markhouse as $product)
+                                                    <option value="{{ $product->id }}">{{ $product->product_sku }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="row" id="product-details">
+                                            <div class="form-group col-12">
+                                                <label for="product_name">Product Name</label>
+                                                <input type="text" class="form-control" id="product_name"
+                                                    name="product_name" readonly>
+                                            </div>
+                                            <div class="form-group col-6">
+                                                <label for="product_barcode">Barcode</label>
+                                                <input type="text" class="form-control" id="product_barcode"
+                                                    name="product_barcode" readonly>
+                                            </div>
+                                            <div class="form-group col-6 ">
+                                                <label for="product_type">Type</label>
+                                                <input type="text" class="form-control" id="product_type"
+                                                    name="product_type" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <button type="button" class="btn btn-alt-primary step-next">
+                                                    Next <i class="fa fa-arrow-right ml-1"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 2: Product Details -->
+                                    <div class="step-content" data-step="2">
+                                        <div class="form-group">
+                                            <label for="transaction_number">TRANSACTION #</label>
+                                            <input type="text" class="form-control" id="transaction_number"
+                                                name="transaction_number" placeholder="Enter transaction number" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="product_pcs">PCS</label>
+                                            <input type="number" class="form-control" id="product_pcs"
+                                                name="product_pcs" placeholder="Enter number of pieces" required
+                                                min="0" step="1"
+                                                onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
+                                        </div>
+                                        <div class="row">
+                                            <div style="text-align: center; font-family: Arial, sans-serif; margin: 20px;">
+                                                <h3>Month Legend</h3>
+
+                                                <div
+                                                    style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                                                    <!-- Month Badges -->
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #007f00; color: white; text-align: center; font-size: 14px;">A
+                                                        = Jan</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #002f99; color: white; text-align: center; font-size: 14px;">B
+                                                        = Feb</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #00bfff; color: white; text-align: center; font-size: 14px;">C
+                                                        = Mar</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #8b4513; color: white; text-align: center; font-size: 14px;">D
+                                                        = Apr</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #555555; color: white; text-align: center; font-size: 14px;">E
+                                                        = May</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #cccccc; color: black; text-align: center; font-size: 14px;">F
+                                                        = June</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ff4500; color: white; text-align: center; font-size: 14px;">G
+                                                        = July</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ffa500; color: white; text-align: center; font-size: 14px;">H
+                                                        = Aug</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #d87093; color: white; text-align: center; font-size: 14px;">I
+                                                        = Sept</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #ff6347; color: white; text-align: center; font-size: 14px;">J
+                                                        = Oct</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #4b0082; color: white; text-align: center; font-size: 14px;">K
+                                                        = Nov</span>
+                                                    <span
+                                                        style="display: inline-block; padding: 5px 15px; border-radius: 50px; background-color: #228b22; color: white; text-align: center; font-size: 14px;">L
+                                                        = Dec</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div
+                                                    style="margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                    <h3>EXPIRY DATE</h3>
+                                                    <p>Click a segment to edit. Use shortcuts for Month (A-L) and Year
+                                                        (A-J).</p>
+
+                                                    <!-- Date Input Field -->
+                                                    <input type="text" id="date_input"
+                                                        style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
+                                                        value="MM/YYYY" maxlength="7" name="date_input" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="color-code-div"
+                                                    style=" margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
+                                                    <h3>COLOR CODE</h3>
+                                                    <p>EXIPRY COLOR CODE</p>
+
+                                                    <!-- Checker Input Field -->
+                                                    <h1 id="color_code_h1"
+                                                        style="font-size: 30px; display: inline-block; color: #fff; background-color: #ccc; padding: 10px; border-radius: 10px;">
+                                                        AE
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-alt-secondary step-prev">
+                                            <i class="fa fa-arrow-left mr-1"></i> Back
+                                        </button>
+                                        <button type="button" class="btn btn-alt-primary step-next">
+                                            Next <i class="fa fa-arrow-right ml-1"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Step 3: Finalize -->
+                                    <div class="step-content" data-step="3">
+                                        <div class="form-group">
+                                            <label for="checker">Checker</label>
+                                            <input type="text" class="form-control" id="checker" name="checker"
+                                                placeholder="Enter checker name" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="remarks">Remarks</label>
+                                            <textarea class="form-control" id="remarks" name="remarks" placeholder="Enter remarks"></textarea>
+                                        </div>
+                                        <button type="button" class="btn btn-alt-secondary step-prev">
+                                            <i class="fa fa-arrow-left mr-1"></i> Back
+                                        </button>
+                                        <button type="submit" class="btn btn-alt-primary">
+                                            <i class="fa fa-plus mr-1"></i> Add Receiving
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-
             </div>
+            <!-- END Add New Receiving Modal -->
         </div>
-        <!-- END Your Block -->
-    </div>
-    <!-- END Page Content -->
-@endsection
+        <!-- END Page Content -->
+    @endsection
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
