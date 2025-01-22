@@ -27,7 +27,7 @@ Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 Route::view('/pages/Warehouselogs', 'pages.Warehouselogs');
 Route::view('/pages/Selling', 'pages.Selling');
-Route::view('/pages/Display', 'pages.Display');
+Route::view('/pages/buffer', 'pages.buffer');
 
 
 Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');

@@ -80,7 +80,7 @@
         document.addEventListener("keydown", (event) => {
             if (event.key === "F1") {
             event.preventDefault();
-            window.location.href = "Selling";
+            window.location.href = "buffer";
             }
         });
     </script>
@@ -109,7 +109,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Selling
+                    Buffer
                 </h1>
             </div>
         </div>
@@ -120,10 +120,10 @@
      <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a class="nav-link active" href="Selling"> [ F1 ] Selling</a>
+              <a class="nav-link active" href="buffer"> [ F1 ] Buffer</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="Warehouselogs"> [ F2 ] Selling Logs</a>
+              <a class="nav-link" href="Warehouselogs"> [ F2 ] Buffer Logs</a>
           </ul>
         <div class="block block-rounded">
             <div class="block-content">
@@ -140,9 +140,9 @@
                     <tbody>
                         <tr>
                             <td class="text-center">1</td>
-                            <td class="font-w600">SKU-001</td>
-                            <td class="font-w600">Product 1</td>
-                            <td class="font-w600">0</td>
+                            <td class="font-w600">SKU-000000001</td>
+                            <td class="font-w600">Quickchow</td>
+                            <td class="font-w600">50</td>
                         </tr>
                         <tr>
                             <td class="text-center">2</td>
@@ -165,7 +165,7 @@
             <div class="modal-dialog" role="document">
             <div class="modal-content text-center">
                 <div class="modal-header border-0 bg-primary">
-                <h5 class="modal-title h6 text-white" id="addPcsModalLabel">Add Pieces to Selling</h5>
+                <h5 class="modal-title h6 text-white" id="addPcsModalLabel">Add Pieces to Buffer</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -185,7 +185,7 @@
                     <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                     <div class="text-center" style="width: 100px; height: 80px; border: 2px solid #000; border-radius: 8px;">
                         <input type="number" class="form-control text-center" id="pcs" name="pcs" style="height: 100%; border: none; font-size: 24px; font-weight: bold;" placeholder="0" required>
-                        <p class="mb-0" style="font-size: 14px; color: #6c757d;">Selling</p>
+                        <p class="mb-0" style="font-size: 14px; color: #6c757d;">Buffer</p>
                     </div>
                     </div>
                     <input type="hidden" name="sku" id="modalSku">

@@ -30,7 +30,7 @@
         document.addEventListener("keydown", (event) => {
             if (event.key === "F1") {
             event.preventDefault();
-            window.location.href = "Warehouse";
+            window.location.href = "buffer";
             }
         });
     </script>
@@ -47,6 +47,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
+                    Buffer Logs
                 </h1>
             </div>
         </div>
@@ -57,34 +58,32 @@
      <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-              <a class="nav-link" href="Warehouse"> [ F1 ] Warehouse</a>
+              <a class="nav-link" href="buffer"> [ F1 ] Buffer</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="pages.Warehouselogs"> [ F2 ] Logs</a>
+              <a class="nav-link active" href="Warehouselogs"> [ F2 ] Buffer Logs</a>
           </ul>
         <div class="block block-rounded">
             <div class="block-content">
                 <table class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 50px;">#</th>
+                            <th style="width: 0%">#</th>
                             <th>SKU #</th>
                             <th>Name</th>
                             <th>PCS</th>
+                            <th>Date Added</th>
+                            <th>Entry Person</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="text-center">1</td>
-                            <td class="font-w600">SKU-001</td>
-                            <td class="font-w600">Product 1</td>
-                            <td class="font-w600">0</td>
-                            <td>
-                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                    data-target="#addPcsModal">
-                                    Add PCS
-                                </button>
-                            </td>
+                            <td class="font-w600">SKU-000000001</td>
+                            <td class="font-w600">Quickchow4</td>
+                            <td class="font-w600">50</td>
+                            <td class="font-w600">01/21/2025</td>
+                            <td class="font-w600">Mark</td>
                         </tr>
                     </tbody>
                 </table>

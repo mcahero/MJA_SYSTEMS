@@ -1,5 +1,27 @@
 @extends('layouts.backend')
 
+@section('css_before')
+    <!-- Page JS Plugins CSS -->
+    <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
+@endsection
+
+@section('js_after')
+    <!-- Page JS Plugins -->
+    <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
+
+    <!-- Page JS Code -->
+    <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+@endsection
+
 @section('content')
     <!-- Hero -->
     <div class="bg-body-light">
@@ -20,24 +42,127 @@
     <!-- END Hero -->
 
     <!-- Page Content -->
-    <div class="content">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-xl-5">
-                <div class="block">
-                    <div class="block-header">
-                        <h3 class="block-title">Welcome to your app</h3>
-                    </div>
-                    <div class="block-content">
-                        <p class="font-size-sm text-muted">
-                            We’ve put everything together, so you can start working on your Laravel project as soon as possible! OneUI assets are integrated and work seamlessly with Laravel Mix, so you can use the npm scripts as you would in any other Laravel project.
-                        </p>
-                        <p class="font-size-sm text-muted">
-                            Feel free to use any examples you like from the full versions to build your own pages. <strong>Wish you all the best and happy coding!</strong>
-                        </p>
-                    </div>
+    <main id="container">
+        <div class="content">
+          <div class="row">
+            <div class="col-6 col-lg-3">
+              <a class="block block-rounded block-link-shadow text-center">
+                <div class="block-content block-content-full">
+                  <div class="fs-2 fw-semibold text-primary">35</div>
                 </div>
+                <div class="block-content py-2 bg-body-light">
+                  <p class="fw-medium fs-sm text-muted mb-0">
+                    SKU stocks
+                  </p>
+                </div>
+              </a>
             </div>
+            <div class="col-6 col-lg-3">
+              <a class="block block-rounded block-link-shadow text-center">
+                <div class="block-content block-content-full">
+                  <div class="fs-2 fw-semibold text-dark">120</div>
+                </div>
+                <div class="block-content py-2 bg-body-light">
+                  <p class="fw-medium fs-sm text-muted mb-0">
+                    Today
+                  </p>
+                </div>
+              </a>
+            </div>
+            <div class="col-6 col-lg-3">
+              <a class="block block-rounded block-link-shadow text-center">
+                <div class="block-content block-content-full">
+                  <div class="fs-2 fw-semibold text-dark">260</div>
+                </div>
+                <div class="block-content py-2 bg-body-light">
+                  <p class="fw-medium fs-sm text-muted mb-0">
+                    Yesterday
+                  </p>
+                </div>
+              </a>
+            </div>
+            <div class="col-6 col-lg-3">
+              <a class="block block-rounded block-link-shadow text-center">
+                <div class="block-content block-content-full">
+                  <div class="fs-2 fw-semibold text-dark">69,841</div>
+                </div>
+                <div class="block-content py-2 bg-body-light">
+                  <p class="fw-medium fs-sm text-muted mb-0">
+                    This Month
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="block block-rounded">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">SKU Count</h3>
+              <div class="block-options">
+                <div class="dropdown">
+                  <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-ecom-filters">
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      Pending..
+                      <span class="badge bg-black-50 rounded-pill">35</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      Processing
+                      <span class="badge bg-warning rounded-pill">15</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      For Delivery
+                      <span class="badge bg-info rounded-pill">20</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      Canceled
+                      <span class="badge bg-danger rounded-pill">72</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      Delivered
+                      <span class="badge bg-success rounded-pill">890</span>
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                      All
+                      <span class="badge bg-primary rounded-pill">997</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="block-content">
+              <div class="table-responsive">
+                <table class="table table-borderless table-vcenter js-dataTable-full" id="one-ecom-orders">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Warehouse</th>
+                      <th>Buffer</th>
+                      <th>Selling</th>
+                      <th>Sold</th>
+                      <th>B.O</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for ($i = 0; $i < 10; $i++)
+                    <tr>
+                        <td><a href="javascript:void(0)">SKU-{{ sprintf('%08d', rand(1, 99999999)) }}</a>
+                        </td>
+                        <td>{{ rand(100, 999) }}</td>
+                        <td>{{ rand(100, 999) }}</td>
+                        <td>
+                            <span>{{ rand(100, 999) }}</span>
+                        </td>
+                        <td>{{ rand(100, 999) }}</td>
+                        <td>
+                            <span>{{ rand(100, 999) }}</span>
+                        </td>
+                    </tr>
+                    @endfor
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+          </main>
     <!-- END Page Content -->
 @endsection
+

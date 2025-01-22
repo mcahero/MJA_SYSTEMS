@@ -338,7 +338,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Receiving </h1>
+                    Warehouse </h1>
             </div>
         </div>
     </div>
@@ -351,7 +351,7 @@
             <div class="block-header">
                 <button type="button" class="btn btn-primary" id="add-receiving-btn" data-toggle="modal"
                     data-target="#product-modal">
-                    <i class="fa fa-plus mr-1"></i> Add Receiving (F1)
+                    <i class="fa fa-plus mr-1"></i> Add SKU (F1)
                 </button>
             </div>
             <div class="block-content">
@@ -412,7 +412,7 @@
                 <div class="modal-content">
                     <div class="block block-themed block-transparent mb-0">
                         <div class="block-header bg-primary text-white">
-                            <h3 class="block-title">Add New Receiving</h3>
+                            <h3 class="block-title">Add New SKU</h3>
                             <div class="block-options">
                                 <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
                                     <i class="fa fa-fw fa-times"></i>
@@ -491,7 +491,7 @@
                                                 onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
                                         </div>
                                         <div class="row">
-                                            <div style="text-align: center; font-family: Arial, sans-serif; margin: 20px;">
+                                            <div style="text-align: center; font-family: Arial, sans-serif;">
                                                 <h3>Month Legend</h3>
 
                                                 <div
