@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
 @endsection
 
 @section('js_after')
@@ -17,6 +18,7 @@
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
     <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
@@ -68,45 +70,10 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
-
-        /* .swal2-container {
-                                                            z-index: 999999 !important;
-                                                        } */
     </style>
 
-    <!-- Add JavaScript for Stepper and Keyboard Shortcuts -->
+
     <script>
-        //         document.addEventListener('DOMContentLoaded', function () {
-        //     const form = document.getElementById('product-form');
-
-        //     form.addEventListener('submit', function (e) {
-        //         e.preventDefault(); // Prevent the form from submitting
-
-        //         // Collect form data
-        //         const formData = new FormData(form);
-        //         const data = {};
-        //         formData.forEach((value, key) => {
-        //             data[key] = value;
-        //         });
-
-        //         // Log data to the console
-        //         console.log('Form Data:', data);
-
-        //         // Optional: Display a SweetAlert to show the collected data
-        //         Swal.fire({
-        //             icon: 'info',
-        //             title: 'Form Data Collected',
-        //             text: JSON.stringify(data, null, 2),
-        //             confirmButtonText: 'OK'
-        //         }).then((result) => {
-        //             if (result.isConfirmed) {
-        //                 form.submit(); // Submit the form
-        //             }
-        //         });
-        //     });
-        // });
-
-
         $(document).ready(function() {
             const steps = $(".step");
             const stepContents = $(".step-content");
@@ -323,11 +290,42 @@
                 $('#product_type').val(product?.product_type || '');
             });
 
+            // AJAX form submission
+            $("#product-form").on("submit", function(event) {
+                event.preventDefault();
+                const formData = $(this).serialize();
+                const submitButton = $(this).find('button[type="submit"]');
 
+                // Disable the submit button to prevent multiple submissions
+                submitButton.prop('disabled', true);
+                $.ajax({
+                    url: $(this).attr("action"),
+                    method: $(this).attr("method"),
+                    data: formData,
+                    success: function(response) {
+                        // Handle success response
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Product added successfully!'
+                        });
+                        $('#product-modal').modal('hide');
+                        // Re-enable the submit button
+                        submitButton.prop('disabled', false);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'An error occurred: ' + error
+                        });
+                        // Re-enable the submit button
+                        submitButton.prop('disabled', false);
+                    }
+                });
 
-            // Initial State
-            showStep(currentStep);
-            activateSegment('month');
+                // Initial State
+                showStep(currentStep);
+            });
         });
     </script>
 @endsection

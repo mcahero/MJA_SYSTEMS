@@ -24,7 +24,7 @@
          document.addEventListener("keydown", (event) => {
             if (event.key === "F2") {
             event.preventDefault();
-            window.location.href = "Warehouselogs";
+            window.location.href = "bufferlogs";
             }
         });
         document.addEventListener("keydown", (event) => {
@@ -61,7 +61,7 @@
               <a class="nav-link" href="buffer"> [ F1 ] Buffer</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="Warehouselogs"> [ F2 ] Buffer Logs</a>
+              <a class="nav-link active" href="bufferlogs"> [ F2 ] Buffer Logs</a>
           </ul>
         <div class="block block-rounded">
             <div class="block-content">

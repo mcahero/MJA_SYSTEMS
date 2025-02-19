@@ -25,9 +25,18 @@ Route::match(['get', 'post'], '/dashboard', function(){
 Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
-Route::view('/pages/Warehouselogs', 'pages.Warehouselogs');
+Route::view('/pages/bufferlogs', 'pages.bufferlogs');
 Route::view('/pages/Selling', 'pages.Selling');
+Route::view('/pages/sellinglogs', 'pages.sellinglogs');
 Route::view('/pages/buffer', 'pages.buffer');
+Route::view('/pages/audit', 'pages.audit');
+
+
+Route::get('/pages/product_lists','ProductsList@getproducts')->name('product_lists'); 
+Route::post('/product_lists','ProductsList@addproducts')->name('products.store');
+Route::get('/pages/product_lists{id}','ProductsList@deleteproduct')->name('products.delete'); 
+Route::post('/pages/product_lists/edit','ProductsList@editproduct')->name('products.edit');
+Route::get('/pages/product_lists/edit/{id}', 'ProductsList@editform')->name('products.editform');
 
 
 Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
@@ -36,5 +45,3 @@ Route::post('pages/warehouses', [WarehouseController::class, 'store'])->name('wa
 Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');
 Route::post('pages/receivings', [ReceivingController::class, 'store'])->name('receivings.store');
 
-Route::get('/pages/product_lists',[ProductsList::class, 'index']);
-Route::post('/products', [ProductsList::class, 'store'])->name('products.store');

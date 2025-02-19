@@ -34,42 +34,46 @@
         window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
 
         document.addEventListener('keydown', function(event) {
-    // Check if the modal is active
-    const activeModal = document.querySelector('.modal.show'); // Adjust selector based on your modal's active class
-    const searchInput = document.getElementById('one-ecom-orders-search');
+            // Check if the modal is active
+            const activeModal = document.querySelector(
+                '.modal.show'); // Adjust selector based on your modal's active class
+            const searchInput = document.getElementById('one-ecom-orders-search');
 
-    if (!activeModal && document.activeElement !== searchInput && !document.querySelector('.dataTables_filter input:focus')) { // Proceed only if no modal is active, search input is not focused, and DataTables search input is not focused
-        const navKeys = {
-            '1': 'nav-dashboard',
-            '2': 'nav-product-lists',
-            '3': 'nav-receiving',
-            '4': 'nav-buffer',
-            '5': 'nav-selling',
-        };
+            if (!activeModal && document.activeElement !== searchInput && !document.querySelector(
+                    '.dataTables_filter input:focus'
+                )) { // Proceed only if no modal is active, search input is not focused, and DataTables search input is not focused
+                const navKeys = {
+                    '1': 'nav-dashboard',
+                    '2': 'nav-product-lists',
+                    '3': 'nav-receiving',
+                    '4': 'nav-buffer',
+                    '5': 'nav-selling',
+                    '6': 'nav-audit',
+                };
 
-        if (navKeys[event.key]) {
-            const targetElement = document.getElementById(navKeys[event.key]);
-            if (targetElement) {
-                targetElement.click();
+                if (navKeys[event.key]) {
+                    const targetElement = document.getElementById(navKeys[event.key]);
+                    if (targetElement) {
+                        targetElement.click();
+                    }
+                }
             }
-        }
-    }
-    // Focus on DataTables search input when 'F' key is pressed
-    if (event.key === 'f' || event.key === 'F') {
-            const dataTableSearchInput = document.querySelector('.dataTables_filter input');
-            if (dataTableSearchInput) {
-                dataTableSearchInput.focus();
-                event.preventDefault(); // Prevent default action to avoid any unintended behavior
+            // Focus on DataTables search input when 'F' key is pressed
+            if (event.key === 'f' || event.key === 'F') {
+                const dataTableSearchInput = document.querySelector('.dataTables_filter input');
+                if (dataTableSearchInput) {
+                    dataTableSearchInput.focus();
+                    event.preventDefault(); // Prevent default action to avoid any unintended behavior
+                }
             }
-        }
-        if (event.key === 'Escape') {
-            const dataTableSearchInput = document.querySelector('.dataTables_filter input');
-            if (dataTableSearchInput && document.activeElement === dataTableSearchInput) {
-                dataTableSearchInput.blur();
-                event.preventDefault(); // Prevent default action to avoid any unintended behavior
+            if (event.key === 'Escape') {
+                const dataTableSearchInput = document.querySelector('.dataTables_filter input');
+                if (dataTableSearchInput && document.activeElement === dataTableSearchInput) {
+                    dataTableSearchInput.blur();
+                    event.preventDefault(); // Prevent default action to avoid any unintended behavior
+                }
             }
-        }
-});
+        });
     </script>
 
 
@@ -273,6 +277,8 @@
                 <!-- Side Navigation -->
                 <div class="content-side">
                     <ul class="nav-main">
+                        <li class="nav-main-item nav-main-heading"><span>SKU Transactions</span></i>
+                        </li>
                         <li class="nav-main-item">
                             <a id="nav-dashboard"
                                 class="nav-main-link{{ request()->is('dashboard') ? ' active' : '' }}"
@@ -307,7 +313,7 @@
                         </li> --}}
                         <li class="nav-main-item">
                             <a id="nav-buffer"
-                                class="nav-main-link{{ request()->is('pages/buffer') ? ' active' : '' }}"
+                                class="nav-main-link{{ request()->is('pages/buffer') || request()->is('pages/bufferlogs') ? ' active' : '' }}"
                                 href="/pages/buffer">
                                 <i class="nav-main-link-icon fas fa-store"></i>
                                 <span class="nav-main-link-name">[ 4 ] Buffer</span>
@@ -315,10 +321,22 @@
                         </li>
                         <li class="nav-main-item">
                             <a id="nav-selling"
-                                class="nav-main-link{{ request()->is('pages/Selling') ? ' active' : '' }}"
+                                class="nav-main-link{{ request()->is('pages/Selling') || request()->is('pages/sellinglogs') ? ' active' : '' }}"
                                 href="/pages/Selling">
                                 <i class="nav-main-link-icon si si-basket"></i>
                                 <span class="nav-main-link-name">[ 5 ] Selling</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav-main">
+                        <li class="nav-main-item nav-main-heading"><span>Missing SKU</span></i>
+                        </li>
+                        <li class="nav-main-item">
+                            <a id="nav-audit"
+                                class="nav-main-link{{ request()->is('pages/audit') ? ' active' : '' }}"
+                                href="/pages/audit">
+                                <i class="nav-main-link-icon si si-cursor"></i>
+                                <span class="nav-main-link-name">[ 6 ] Missing Items</span>
                             </a>
                         </li>
                     </ul>

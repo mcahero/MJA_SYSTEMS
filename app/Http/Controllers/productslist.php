@@ -2,51 +2,67 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ProductsList extends Controller
 {
-    public function index()
+    public function getproducts()
     {
-        $products = Product::all()->map(function ($product) {
-            $product->created_at = Carbon::parse($product->created_at)->format('m/d/Y');
-            $product->updated_at = Carbon::parse($product->updated_at)->format('m/d/Y');
-            return $product;
-        });
+        $products = DB::table('productlist')
+         ->orderBy('id', 'desc')
+         ->get();
+
         return view('pages.product_lists', compact('products'));
     }
 
-    public function store(Request $request)
+    public function addproducts(Request $request)
     {
-        // Validate the request data
-        $request->validate([
-            'product-sku-name' => 'required|string|max:255',
-            'product-short-name' => 'nullable|string|max:255',
-            'jda-system-name' => 'nullable|string|max:255',
-            'product-sku' => 'required|string|max:255',
-            'product-barcode' => 'required|string|max:255',
-            'product-type' => 'required|string',
-            'product-warehouse' => 'required|string|max:255',
-            'product-entryperson' => 'nullable|string|max:255',
-            'product-remarks' => 'nullable|string',
+        DB::table('productlist')->insert([
+            'product_fullname' => $request->product_fullname,
+            'product_shortname' => $request->product_shortname,
+            'jda_systemname' => $request->jda_systemname,
+            'product_sku' => $request->product_sku,
+            'product_barcode' => $request->product_barcode,
+            'product_type' => $request->product_type,
+            'product_warehouse' => $request->product_warehouse,
+            'product_entryperson' => $request->product_entryperson,
+            'product_remarks' => $request->product_remarks,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
 
-        // Store the product data
-        // Assuming you have a Product model
-        Product::create([
-            'product_fullname' => $request->input('product-sku-name'),
-            'product_shortname' => $request->input('product-short-name'),
-            'jda_systemname' => $request->input('jda-system-name'),
-            'product_sku' => $request->input('product-sku'),
-            'product_barcode' => $request->input('product-barcode'),
-            'product_type' => $request->input('product-type'),
-            'product_warehouse' => $request->input('product-warehouse'),
-            'product_entryperson' => $request->input('product-entryperson'),
-            'product_remarks' => $request->input('product-remarks'),
-        ]);
-
-        // Redirect back with a success message
-        return redirect()->back()->with('success', 'Product added successfully!');
+        return redirect()->route('product_lists')->with('toast_success', 'Product Added Successfully');
     }
+    
+    public function deleteproduct($id)
+    {
+        DB::table('productlist')->where('id', $id)->delete();
+        return redirect()->route('product_lists')->with('toast_success', 'Product Deleted Successfully');
+    }
+
+    public function editproduct(Request $request)
+    {
+        DB::table('productlist')->where('id', $request->id)->update([
+            'product_fullname' => $request->product_fullname,
+            'product_shortname' => $request->product_shortname,
+            'jda_systemname' => $request->jda_systemname,
+            'product_sku' => $request->product_sku,
+            'product_barcode' => $request->product_barcode,
+            'product_type' => $request->product_type,
+            'product_warehouse' => $request->product_warehouse,
+            'product_entryperson' => $request->product_entryperson,
+            'product_remarks' => $request->product_remarks,
+            'updated_at' => Carbon::now()
+        ]);
+
+        return redirect()->route('product_lists')->with('toast_success', 'Product Updated Successfully');
+    }
+
+    public function editform()
+    {
+        $product = DB::table('productlist')->where('id', $id)->first();
+        return view('pages.product_lists', compact('product'));
+    }
+
 }
