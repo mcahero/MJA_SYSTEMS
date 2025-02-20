@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductsList;
 use App\Http\Controllers\ReceivingController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\BufferController;
 
 
 /*
@@ -45,3 +46,4 @@ Route::post('pages/warehouses', [WarehouseController::class, 'store'])->name('wa
 Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');
 Route::post('pages/receivings', [ReceivingController::class, 'store'])->name('receivings.store');
 
+Route::get('/pages/buffer', 'buffercontroller@getbuffer')->name('buffer.display');
