@@ -4,20 +4,7 @@
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/buttons-bs4/buttons.bootstrap4.min.css') }}">
-@endsection
-
-@section('js_after')
-    <!-- Page JS Plugins -->
-    <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
-    <!-- Page JS Code -->
-    <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
-    <!-- Add JavaScript for Stepper -->
+    <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
 @endsection
 
 @section('content')
@@ -40,14 +27,14 @@
             </div>
             <div class="block-content">
                 <button type="button" class="btn btn-primary" id="add-product-btn" data-toggle="modal"
-                    data-target="#product-modal">
+                    data-target="#product_modal">
                     <i class="fa fa-plus mr-1"></i> Add Product (F1)
                 </button>
             </div>
             <div class="block-content block-content-full">
                 <div class="table-responsive">
-                    <table style="font-size: 12px;"
-                        class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    <table style="font-size: 12px;" id="product_table"
+                        class="table table-bordered table-striped table-vcenter">
                         <thead>
                             <tr>
                                 <th style="font-size: 12px;"> </th>
@@ -65,39 +52,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($products as $product)
-                                <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td>{{ $product->product_sku }}</td>
-                                    <td>{{ $product->product_barcode }}</td>
-                                    <td style="width: 15%;">
-                                        <span>{{ $product->product_fullname }}</span>
-                                        <span>{{ $product->jda_systemname }}</span>
-                                        <small class="text-muted mb-0 d-block">{{ $product->product_shortname }}</small>
-                                    </td>
-                                    <td>
-                                        <span
-                                            class="badge badge-pill {{ $product->product_type == 'Returnable' ? 'badge-success' : 'badge-danger' }}">
-                                            {{ $product->product_type }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $product->product_warehouse }}</td>
-                                    <td>{{ $product->product_entryperson }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($product->created_at)->format('m/d/Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($product->updated_at)->format('m/d/Y') }}</td>
-                                    <td>{{ $product->product_remarks }}</td>
-                                    <td class="text-center">
-                                        <a href="{{ route('products.delete', $product->id) }}"
-                                            class="btn btn-sm btn-danger" data-toggle="tooltip" title="Delete">
-                                            <i class="fa fa-trash"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal"
-                                            data-target="#edit-product-modal" data-id="{{ $product->id }}"
-                                            data-toggle="tooltip" title="Edit">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                </tr>
-                            @endforeach
                         </tbody>
 
                     </table>
@@ -106,7 +60,7 @@
         </div>
         <!-- END Your Block -->
         <!-- Add New Product Modal -->
-        <div class="modal fade" id="product-modal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
+        <div class="modal fade" id="product_modal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
             aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -120,7 +74,7 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="{{ route('products.store') }}" method="POST">
+                            <form id="product_form" >
                                 @csrf
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
@@ -218,7 +172,7 @@
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
                                         </button>
-                                        <button type="submit" class="btn btn-alt-primary">
+                                        <button id="add_product" type="submit" class="btn btn-alt-primary">
                                             <i class="fa fa-plus mr-1"></i> Add Product
                                         </button>
                                     </div>
@@ -234,7 +188,7 @@
         </div>
 
         <!-- Edit Product Modal -->
-        {{-- <div class="modal fade" id="edit-product-modal" tabindex="-1" role="dialog"
+        <div class="modal fade" id="edit_product" tabindex="-1" role="dialog"
             aria-labelledby="modal-block-small" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -248,9 +202,8 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="{{ route('products.edit') }}" method="post">
+                            <form id="edit_product_form">
                                 @csrf
-                                <input type="hidden" name="id" id="product_id" value="{{ $product->id }}">
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
                                     <div class="progress">
@@ -272,20 +225,19 @@
                                         <div class="form-group">
                                             <label for="product_fullname">Name of Product</label>
                                             <input type="text" class="form-control" id="product_fullname"
-                                                name="product_fullname" placeholder="Enter the full product name" required
-                                                value="{{ $product->product_fullname }}">
+                                                name="product_fullname" placeholder="Enter the full product name" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="product_shortname">Shortcut Name (optional)</label>
                                             <input type="text" class="form-control" id="product_shortname"
                                                 name="product_shortname" placeholder="Enter shortcut name (if any)"
-                                                value="{{ $product->product_shortname }}">
+                                                >
                                         </div>
                                         <div class="form-group">
                                             <label for="jda_systemname">JDA System Name (optional)</label>
                                             <input type="text" class="form-control" id="jda_systemname"
                                                 name="jda_systemname" placeholder="Enter JDA system name (if any)"
-                                                value="{{ $product->jda_systemname }}">
+                                                >
                                         </div>
                                         <button type="button" class="btn btn-alt-primary step-next">
                                             Next <i class="fa fa-arrow-right ml-1"></i>
@@ -298,13 +250,13 @@
                                             <label for="product_sku">SKU #</label>
                                             <input type="text" class="form-control" id="product_sku"
                                                 name="product_sku" placeholder="000000001" required
-                                                value="{{ $product->product_sku }}">
+                                                >
                                         </div>
                                         <div class="form-group">
                                             <label for="product_barcode">BARCODE</label>
                                             <input type="text" class="form-control" id="product_barcode"
                                                 name="product_barcode" placeholder="000000001" required
-                                                value="{{ $product->product_barcode }}">
+                                                >
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
@@ -320,25 +272,21 @@
                                             <label for="product_type">TYPE</label>
                                             <select class="form-control" id="product_type" name="product_type" required>
                                                 <option value="">Select Type</option>
-                                                <option value="Returnable" class="text-success"
-                                                    {{ $product->product_type == 'Returnable' ? 'selected' : '' }}>
-                                                    Returnable</option>
-                                                <option value="Non Returnable" class="text-danger"
-                                                    {{ $product->product_type == 'Non Returnable' ? 'selected' : '' }}>Non
-                                                    Returnable</option>
+                                                <option value="1" class="text-success">Returnable</option>
+                                                <option value="2" class="text-danger">Non Returnable</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="product_warehouse">WAREHOUSE</label>
                                             <input type="text" class="form-control" id="product_warehouse"
                                                 name="product_warehouse" placeholder="Enter warehouse name"
-                                                value="{{ $product->product_warehouse }}">
+                                                >
                                         </div>
                                         <div class="form-group">
                                             <label for="product_entryperson">Entry Person</label>
                                             <input type="text" class="form-control" id="product_entryperson"
                                                 name="product_entryperson" placeholder="Enter entry person name" required
-                                                value="{{ $product->product_entryperson }}">
+                                                >
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
@@ -352,7 +300,7 @@
                                     <div class="step-content" data-step="4">
                                         <div class="form-group">
                                             <label for="product_remarks">REMARKS</label>
-                                            <textarea class="form-control" id="product_remarks" name="product_remarks" placeholder="Enter remarks"> {{ $product->product_remarks }}</textarea>
+                                            <textarea class="form-control" id="product_remarks" name="product_remarks" placeholder="Enter remarks"></textarea>
                                         </div>
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
@@ -370,6 +318,185 @@
                 </div>
             </div>
             <!-- END Add New Product Modal -->
-        </div> --}}
+        </div>
         <!-- END Page Content -->
+        @section('js_after')
+    <!-- Page JS Plugins -->
+    <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+
+    <!-- Page JS Code -->
+    <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+
+    <!-- Add JavaScript for Stepper -->
+
+        <script>
+            $(document).ready(function() {
+            csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+            $('#add_product').click(function(){
+            $.ajax({
+                url: "/product_lists",
+                type: "POST",
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                data: $('#product_form').serialize(),
+                success: function(data) {
+                    getproductlists();
+                    alert('Successfully Added Product');
+                    console.log(data);
+                    $('#product_form')[0].reset();
+                }
+            });
+            });
+
+            $(document).on('click', '.edit_productlist', function(){
+                let product_id = $(this).data('product_id');
+            $.ajax({
+                url: "/pages/product_lists/editform",
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                data: {id: product_id},
+                success: function(data) {
+                    $("#edit_product_form #product_fullname").val(data.product_fullname);
+                    $("#edit_product_form #product_shortname").val(data.product_shortname);
+                    $("#edit_product_form #jda_systemname").val(data.jda_systemname);
+                    $("#edit_product_form #product_sku").val(data.product_sku);
+                    $("#edit_product_form #product_barcode").val(data.product_barcode);
+                    $("#edit_product_form #product_type").val(data.product_type);
+                    $("#edit_product_form #product_warehouse").val(data.product_warehouse);
+                    $("#edit_product_form #product_entryperson").val(data.product_entryperson);
+                    $("#edit_product_form #product_remarks").val(data.product_remarks);
+                    $("#edit_product_form #updated_at").val(data.updated_at);
+                }
+            });
+            });
+
+            $('#edit_product_form').submit(function(){
+            $.ajax({
+                url: "/product_lists/update",
+                type: "POST",
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                data: $('#edit_product_form').serialize(),
+                success: function(data) {
+                    getproductlists();
+                    alert('Successfully Updated Product');
+                    console.log(data);
+                    $('#edit_product_form')[0].reset();
+                }
+            });
+            });
+
+
+            getproductlists();
+            function getproductlists(){
+            $.ajax({
+                url: "/product_display",
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                success: function(productlists) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: `${productlists.length} Product Found`
+                    });
+                    console.log(productlists);
+                    display_productlist(productlists);
+                }
+            });
+            }
+                function display_productlist(productlists){
+                $('#product_table').DataTable({
+                    destroy: true,
+                    data: productlists,
+                    columns: [
+                        { data: null },
+                        { data: 'product_sku' },
+                        { data: 'product_barcode' },
+                        { data: null },
+                        { data: 'product_type' },
+                        { data: 'product_warehouse' },
+                        { data: 'product_entryperson' },
+                        { data: 'created_at' },
+                        { data: 'updated_at' },
+                        { data: 'product_remarks' },
+                        { data: null },
+                    ],
+                    columnDefs: [
+                        {
+                            targets: 0,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html(`${productlists.indexOf(rowData) + 1}`)
+                                $(td).addClass('align-middle')
+                            }
+                        },
+                        {
+                            targets: 3,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html(`${rowData.product_fullname} ${rowData.jda_systemname} <small class="text-muted mb-0 d-block">${rowData.product_shortname}</small>`)
+                                $(td).addClass('align-middle')
+                            }
+                        },
+                        {
+                            targets: 4,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                if(rowData.product_type == 1){
+                                    $(td).html(`<span class="badge badge-success">Returnable</span>`)
+                                }else if(rowData.product_type == 2){
+                                    $(td).html(`<span class="badge badge-danger">Non Returnable</span>`)
+                                }
+                                $(td).addClass('align-middle')
+                            }
+                        },
+                        {
+                            targets: 10,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html('<div><button type="button" class="btn btn-sm btn-danger" id="delete-product-btn"><i class="fa fa-trash mr-1"></i></button>' +
+                                    '<button type="button" class="btn btn-sm btn-primary ml-2 edit_productlist"  data-toggle="modal" data-target="#edit_product" data-product_id="' + rowData.id + '" id="product_form"><i class="fas fa-pen mr-1"></i></button></div>')
+                                $(td).addClass('align-middle')
+                            }
+                        },
+
+                    ]
+
+                })
+            }
+
+            });
+
+
+
+        </script>
+    @endsection
     @endsection

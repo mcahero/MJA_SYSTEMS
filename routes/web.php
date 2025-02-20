@@ -32,11 +32,12 @@ Route::view('/pages/buffer', 'pages.buffer');
 Route::view('/pages/audit', 'pages.audit');
 
 
-Route::get('/pages/product_lists','ProductsList@getproducts')->name('product_lists'); 
+Route::get('/pages/product_lists','ProductsList@getproducts')->name('product_lists');
+Route::get('/product_display','ProductsList@displayproductlist')->name('product_lists.display');
 Route::post('/product_lists','ProductsList@addproducts')->name('products.store');
-Route::get('/pages/product_lists{id}','ProductsList@deleteproduct')->name('products.delete'); 
+Route::get('/pages/product_lists{id}','ProductsList@deleteproduct')->name('products.delete');
 Route::post('/pages/product_lists/edit','ProductsList@editproduct')->name('products.edit');
-Route::get('/pages/product_lists/edit/{id}', 'ProductsList@editform')->name('products.editform');
+Route::get('/pages/product_lists/editform', 'ProductsList@editform')->name('products.editform');
 
 
 Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');

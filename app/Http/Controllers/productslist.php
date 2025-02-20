@@ -16,6 +16,15 @@ class ProductsList extends Controller
         return view('pages.product_lists', compact('products'));
     }
 
+    public function displayproductlist()
+    {
+        $products = DB::table('productlist')
+         ->orderBy('id', 'asc')
+         ->get();
+
+        return $products;
+    }
+
     public function addproducts(Request $request)
     {
         DB::table('productlist')->insert([
@@ -34,7 +43,7 @@ class ProductsList extends Controller
 
         return redirect()->route('product_lists')->with('toast_success', 'Product Added Successfully');
     }
-    
+
     public function deleteproduct($id)
     {
         DB::table('productlist')->where('id', $id)->delete();
@@ -59,10 +68,11 @@ class ProductsList extends Controller
         return redirect()->route('product_lists')->with('toast_success', 'Product Updated Successfully');
     }
 
-    public function editform()
+    public function editform(Request $request)
     {
+        $id = $request->id;
         $product = DB::table('productlist')->where('id', $id)->first();
-        return view('pages.product_lists', compact('product'));
+        return response()->json($product);
     }
 
 }
