@@ -172,7 +172,7 @@
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
                                         </button>
-                                        <button id="add_product" type="submit" class="btn btn-alt-primary">
+                                        <button id="add_product" type="button" class="btn btn-alt-primary">
                                             <i class="fa fa-plus mr-1"></i> Add Product
                                         </button>
                                     </div>
@@ -204,6 +204,7 @@
                         <div class="block-content">
                             <form id="edit_product_form">
                                 @csrf
+                                <input type="hidden" name="product_id" id="product_id">
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
                                     <div class="progress">
@@ -305,7 +306,7 @@
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
                                         </button>
-                                        <button type="submit" value="Update" class="btn btn-alt-primary">
+                                        <button type="submit" id="save_editproduct" class="btn btn-alt-primary">
                                             <i class="fa fa-plus mr-1"></i> Save Changes
                                         </button>
                                     </div>
@@ -369,6 +370,7 @@
                 },
                 data: {id: product_id},
                 success: function(data) {
+                    $('#edit_product_form #product_id').val(product_id);
                     $("#edit_product_form #product_fullname").val(data.product_fullname);
                     $("#edit_product_form #product_shortname").val(data.product_shortname);
                     $("#edit_product_form #jda_systemname").val(data.jda_systemname);
@@ -383,24 +385,26 @@
             });
             });
 
-            $('#edit_product_form').submit(function(){
-            $.ajax({
-                url: "/product_lists/update",
-                type: "POST",
-                dataType: "json",
-                headers: {
-                    'X-CSRF-TOKEN': csrf_token
-                },
-                data: $('#edit_product_form').serialize(),
-                success: function(data) {
-                    getproductlists();
-                    alert('Successfully Updated Product');
-                    console.log(data);
-                    $('#edit_product_form')[0].reset();
-                }
+            $(document).on('click', '#save_editproduct', function(){
+                $.ajax({
+                    url: "/pages/product_lists/edit",
+                    type: "post",
+                    dataType: "json",
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    data: $('#edit_product_form').serialize(),
+                    success: function(data) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Product Updated Successfully'
+                        });
+                        $('#edit_product_form')[0].reset();
+                        $('#edit_product').modal('hide');
+                        getproductlists();
+                    }
+                })
             });
-            });
-
 
             getproductlists();
             function getproductlists(){
@@ -494,9 +498,6 @@
             }
 
             });
-
-
-
         </script>
     @endsection
     @endsection

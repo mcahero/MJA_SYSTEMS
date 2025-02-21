@@ -50,23 +50,21 @@ class ProductsList extends Controller
         return redirect()->route('product_lists')->with('toast_success', 'Product Deleted Successfully');
     }
 
-    public function editproduct(Request $request)
-    {
-        DB::table('productlist')->where('id', $request->id)->update([
-            'product_fullname' => $request->product_fullname,
-            'product_shortname' => $request->product_shortname,
-            'jda_systemname' => $request->jda_systemname,
-            'product_sku' => $request->product_sku,
-            'product_barcode' => $request->product_barcode,
-            'product_type' => $request->product_type,
-            'product_warehouse' => $request->product_warehouse,
-            'product_entryperson' => $request->product_entryperson,
-            'product_remarks' => $request->product_remarks,
-            'updated_at' => Carbon::now()
-        ]);
-
-        return redirect()->route('product_lists')->with('toast_success', 'Product Updated Successfully');
-    }
+    // public function editproduct(Request $request)
+    // {
+    //     DB::table('productlist')->where('id', $request->product_id)->update([
+    //         'product_fullname' => $request->product_fullname,
+    //         'product_shortname' => $request->product_shortname,
+    //         'jda_systemname' => $request->jda_systemname,
+    //         'product_sku' => $request->product_sku,
+    //         'product_barcode' => $request->product_barcode,
+    //         'product_type' => $request->product_type,
+    //         'product_warehouse' => $request->product_warehouse,
+    //         'product_entryperson' => $request->product_entryperson,
+    //         'product_remarks' => $request->product_remarks,
+    //         'updated_at' => Carbon::now()
+    //     ]);
+    // }
 
     public function editform(Request $request)
     {
