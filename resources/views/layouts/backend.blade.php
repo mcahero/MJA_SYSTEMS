@@ -697,7 +697,7 @@
     <!-- <script src="{{ mix('/js/laravel.app.js') }}"></script> -->
 
     @yield('js_after')
-    
+
 </body>
 
 </html>

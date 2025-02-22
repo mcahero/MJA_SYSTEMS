@@ -332,6 +332,7 @@
     <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
     <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
+
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
 
@@ -341,23 +342,44 @@
             $(document).ready(function() {
             csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-            $('#add_product').click(function(){
-            $.ajax({
-                url: "/product_lists",
-                type: "POST",
-                dataType: "json",
-                headers: {
-                    'X-CSRF-TOKEN': csrf_token
-                },
-                data: $('#product_form').serialize(),
-                success: function(data) {
-                    getproductlists();
-                    alert('Successfully Added Product');
-                    console.log(data);
-                    $('#product_form')[0].reset();
-                }
-            });
-            });
+            $('#add_product').click(function () {
+                let formData = new FormData();
+
+                formData.append('product_fullname', $('#product_fullname').val().trim());
+                formData.append('product_shortname', $('#product_shortname').val().trim());
+                formData.append('jda_systemname', $('#jda_systemname').val().trim());
+                formData.append('product_sku', $('#product_sku').val().trim());
+                formData.append('product_barcode', $('#product_barcode').val().trim());
+                formData.append('product_type', $('#product_type').val());
+                formData.append('product_warehouse', $('#product_warehouse').val().trim());
+                formData.append('product_entryperson', $('#product_entryperson').val().trim());
+                formData.append('product_remarks', $('#product_remarks').val().trim());
+
+                // Fetch CSRF token dynamically from meta tag
+                let csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+                $.ajax({
+                    url: "/product_lists",
+                    type: "POST",
+                    data: formData,
+                    processData: false, // Prevent jQuery from converting FormData into a query string
+                    contentType: false, // Prevent jQuery from setting content type (needed for FormData)
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken // Send CSRF token in headers
+                    },
+                    success: function (response) {
+                        alert('Successfully Added Product');
+                        console.log(response);
+                        $('#product_form')[0].reset();
+                        getproductlists();
+                    },
+                    error: function (xhr) {
+                        console.error('Error:', xhr.responseText);
+                        alert('Failed to add product. Please check the console for details.');
+                    }
+                });
+        });
+
 
             $(document).on('click', '.edit_productlist', function(){
                 let product_id = $(this).data('product_id');
@@ -406,6 +428,52 @@
                 })
             });
 
+            $(document).on('click', '.delete_productlist', function () {
+                let product_id = $(this).data('product_id');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "/pages/product_lists/delete/" + product_id,
+                            type: "DELETE",
+                            dataType: "json",
+                            headers: {
+                                'X-CSRF-TOKEN': csrf_token
+                            },
+                            success: function (response) {
+                                Swal.fire({
+                                    icon: response.status,
+                                    title: 'Deleted!',
+                                    text: response.message,
+                                    showConfirmButton: false,
+                                    timer: 5000
+                                });
+
+                                getproductlists(); // Refresh product list
+                            },
+                            error: function (xhr) {
+                                let response = xhr.responseJSON;
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: response ? response.message : 'Something went wrong.',
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+
             getproductlists();
             function getproductlists(){
             $.ajax({
@@ -416,21 +484,6 @@
                     'X-CSRF-TOKEN': csrf_token
                 },
                 success: function(productlists) {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer)
-                            toast.addEventListener('mouseleave', Swal.resumeTimer)
-                        }
-                    })
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: `${productlists.length} Product Found`
-                    });
                     console.log(productlists);
                     display_productlist(productlists);
                 }
@@ -486,7 +539,7 @@
                             targets: 10,
                             orderable: false,
                             createdCell: function(td, cellData, rowData) {
-                                $(td).html('<div><button type="button" class="btn btn-sm btn-danger" id="delete-product-btn"><i class="fa fa-trash mr-1"></i></button>' +
+                                $(td).html('<div><button type="button" class="btn btn-sm btn-danger delete_productlist" data-product_id="' + rowData.id + '"><i class="fa fa-trash mr-1"></i></button>' +
                                     '<button type="button" class="btn btn-sm btn-primary ml-2 edit_productlist"  data-toggle="modal" data-target="#edit_product" data-product_id="' + rowData.id + '" id="product_form"><i class="fas fa-pen mr-1"></i></button></div>')
                                 $(td).addClass('align-middle')
                             }
