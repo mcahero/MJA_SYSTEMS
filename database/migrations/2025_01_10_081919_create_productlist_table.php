@@ -18,7 +18,7 @@ class CreateProductlistTable extends Migration
             $table->string('product_fullname');
             $table->string('product_shortname')->nullable();
             $table->string('jda_systemname')->nullable();
-            $table->string('product_sku');
+            $table->string('product_sku')->unique();
             $table->string('product_barcode');
             $table->string('product_type');
             $table->string('product_warehouse');

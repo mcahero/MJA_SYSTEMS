@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 
-    <title>OneUI - Bootstrap 4 Admin Template &amp; UI Framework</title>
+    <title>MJA_INVENTORY</title>
 
     <meta name="description"
         content="OneUI - Bootstrap 4 Admin Template &amp; UI Framework created by pixelcave and published on Themeforest">
@@ -181,7 +181,7 @@
                         <i class="fa fa-circle-notch text-primary"></i>
                     </span>
                     <span class="smini-hide font-size-h5 tracking-wider">
-                        One<span class="font-w400">UI</span>
+                        MJA<span class="font-w400">SYSTEMS</span>
                     </span>
                 </a>
                 <!-- END Logo -->

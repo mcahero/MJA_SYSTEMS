@@ -34,10 +34,7 @@
             </div>
         </div>
     </div>
-    <!-- END Hero -->
-
-    <!-- Page Content -->
-    <div class="content">
+     <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link active" href="buffer"> [ F1 ] Buffer</a>
@@ -46,7 +43,10 @@
                 <a class="nav-link" href="bufferlogs"> [ F2 ] Buffer Logs</a>
         </ul>
         <div class="block block-rounded">
-            <div class="block-content">
+            <div class="block-content ">
+                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#warehouseModal">
+        Open Warehouse Inventory
+    </button>
                 <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
@@ -57,9 +57,65 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td class="text-center">1</td>
+                            <td class="font-w600">SKU-000000001</td>
+                            <td class="font-w600">Quickchow4</td>
+                            <td class="font-w600">50</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">2</td>
+                            <td class="font-w600">SKU-000000002</td>
+                            <td class="font-w600">Quickchow5</td>
+                            <td class="font-w600">100</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3</td>
+                            <td class="font-w600">SKU-000000003</td>
+                            <td class="font-w600">Quickchow6</td>
+                            <td class="font-w600">150</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    
+
+    <!-- Modal -->
+    <div class="modal fade" id="warehouseModal" tabindex="-1" aria-labelledby="warehouseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Warehouse Products</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search Bar -->
+                    <input type="text" id="searchSKU" class="form-control mb-3" placeholder="Search SKU...">
+                    
+                    <!-- Table -->
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Available PCS</th>
+                                <th>Buffer PCS</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warehouse-table">
+                            <!-- Data will load dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
 
         <div class="modal fade" id="addPcsModal" tabindex="-1" role="dialog" aria-labelledby="addPcsModalLabel"
@@ -128,34 +184,79 @@
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
     <script>
         $(document).ready(function() {
-            fetchProducts();
-        });
+            $(document).ready(function () {
+            console.log("Document ready.");
 
-        function fetchProducts() {
-            $.ajax({
-                url: "/pages/buffer",
-                type: "GET",
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(response) {
-                    let rows = "";
-                    $.each(response, function(index, product) {
-                        rows += `
-                            <tr>
-                                <td>${id}</td>
-                                <td>${product_sku}</td>
-                                <td>${product_fullname}</td>
-                            </tr>
-                        `;
-                    });
-                    $("#productTable").html(rows);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching data:", error);
-                }
+            // Fetch warehouse products when modal opens
+            $("#warehouseModal").on("show.bs.modal", function () {
+                console.log("Fetching warehouse products...");
+                $.ajax({
+                    url: "/warehouse/products",
+                    type: "GET",
+                    success: function (data) {
+                        console.log("Products loaded:", data);
+                        let rows = "";
+                        data.forEach(product => {
+                            rows += `
+                                <tr data-sku="${product.product_sku}">
+                                    <td>${product.sku}</td>
+                                    <td>${product.product_name}</td>
+                                    <td class="warehouse-pcs">${product.pcs}</td>
+                                    <td>
+                                        <input type="number" class="buffer-input form-control" data-id="${product.id}" min="1" max="${product.pcs}">
+                                    </td>
+                                    <td>
+                                        <button class="add-to-buffer btn btn-success">Add</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        $("#warehouse-table").html(rows);
+                    }
+                });
             });
+
+            // Search SKU filter
+            $("#searchSKU").on("keyup", function () {
+                let value = $(this).val().toLowerCase();
+                $("#warehouse-table tr").filter(function () {
+                    $(this).toggle($(this).data("sku").toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+    // Add product to buffer and update warehouse
+    $(document).on("click", ".add-to-buffer", function () {
+        let row = $(this).closest("tr");
+        let sku = row.data("sku");
+        let pcs = row.find(".buffer-input").val();
+        let productId = row.find(".buffer-input").data("id");
+
+        if (!pcs || pcs <= 0) {
+            alert("Enter a valid number of pieces.");
+            return;
         }
+
+        $.ajax({
+            url: "/warehouse/add-to-buffer",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                sku: sku,
+                pcs: pcs,
+                product_id: productId
+            },
+            success: function (response) {
+                alert("Stock added to buffer!");
+                row.find(".warehouse-pcs").text(response.new_warehouse_pcs);
+                row.find(".buffer-input").val(""); // Reset input
+            },
+            error: function (xhr) {
+                alert("Error: " + xhr.responseJSON.message);
+            }
+        });
+    });
+});
+
 
         document.addEventListener('DOMContentLoaded', function() {
             const table = document.querySelector('table');
@@ -218,6 +319,8 @@
                 event.preventDefault();
                 window.location.href = "buffer";
             }
+        });
+
         });
     </script>
 @endsection
