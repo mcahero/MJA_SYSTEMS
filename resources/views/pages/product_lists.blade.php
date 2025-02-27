@@ -109,7 +109,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="block-content" >
+                        <div class="block-content">
                             <form id="product_form">
                                 @csrf
                                 <!-- Stepper Progress Bar -->
@@ -422,7 +422,6 @@
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true,
-
                             });
 
                             if (xhr.status === 422) {
@@ -443,6 +442,7 @@
                         }
                     });
                 });
+
                 function resetStepper() {
                     currentStep = 1;
                     showStep(currentStep);
@@ -657,116 +657,116 @@
                     })
                 }
 
-            const steps = document.querySelectorAll(".step");
-            const stepContents = document.querySelectorAll(".step-content");
-            const progressBar = document.getElementById("step-progress");
-            const nextButtons = document.querySelectorAll(".step-next");
-            const prevButtons = document.querySelectorAll(".step-prev");
+                const steps = document.querySelectorAll(".step");
+                const stepContents = document.querySelectorAll(".step-content");
+                const progressBar = document.getElementById("step-progress");
+                const nextButtons = document.querySelectorAll(".step-next");
+                const prevButtons = document.querySelectorAll(".step-prev");
 
-            let currentStep = 1;
+                let currentStep = 1;
 
-            function showStep(step) {
-                steps.forEach(s => s.classList.toggle("active", s.dataset.step == step));
-                stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
+                function showStep(step) {
+                    steps.forEach(s => s.classList.toggle("active", s.dataset.step == step));
+                    stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
 
-                // Update progress bar
-                progressBar.style.width = `${(step / steps.length) * 100}%`;
-            }
-
-            function validateStep(step) {
-                const activeStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
-                const inputs = activeStepContent.querySelectorAll("[required]");
-                let isValid = true;
-
-                inputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        input.classList.add("is-invalid");
-                        isValid = false;
-                    } else {
-                        input.classList.remove("is-invalid");
-                    }
-                });
-
-                return isValid;
-            }
-
-            nextButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    if (validateStep(currentStep) && currentStep < steps.length) {
-                        currentStep++;
-                        showStep(currentStep);
-                    }
-                });
-            });
-
-            prevButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    if (currentStep > 1) {
-                        currentStep--;
-                        showStep(currentStep);
-                    }
-                });
-            });
-
-            // Handle selection change
-            const dropdown = document.getElementById('product_type');
-            dropdown.addEventListener('change', function() {
-                const selectedValue = dropdown.value;
-            });
-
-            // Allow selection using R and N keys
-            document.addEventListener('keydown', function(event) {
-                if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
-                    if (event.key.toUpperCase() === 'R') {
-                        dropdown.value = 'Returnable';
-                        dropdown.dispatchEvent(new Event('change'));
-                    } else if (event.key.toUpperCase() === 'N') {
-                        dropdown.value = 'Non Returnable';
-                        dropdown.dispatchEvent(new Event('change'));
-                    }
+                    // Update progress bar
+                    progressBar.style.width = `${(step / steps.length) * 100}%`;
                 }
-            });
-            showStep(currentStep);
 
-            // Add event listener for keyboard shortcuts
-            document.addEventListener("keydown", (event) => {
-                if (event.key === "F1") {
-                    event.preventDefault();
-                    $('#product_modal').modal('show');
-                } else if (event.key === "ArrowRight") {
-                    // Right Arrow to go to next step
-                    if (validateStep(currentStep) && currentStep < steps.length) {
-                        currentStep++;
-                        showStep(currentStep);
-                    }
-                } else if (event.key === "ArrowLeft") {
-                    // Left Arrow to go to previous step
-                    if (currentStep > 1) {
-                        currentStep--;
-                        showStep(currentStep);
-                    }
-                } else if (event.key === "Enter") {
-                    // Enter to submit the form only if on the final step
-                    if (currentStep === steps.length) {
-                        event.preventDefault();
-                        document.getElementById("product_form").submit();
-                    } else {
-                        event.preventDefault();
-                    }
-                } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    // Up and Down Arrow to navigate between input fields
-                    const activeStepContent = document.querySelector(`.step-content.active`);
-                    const inputs = Array.from(activeStepContent.querySelectorAll(
-                        "input, select, textarea"));
-                    const currentIndex = inputs.indexOf(document.activeElement);
+                function validateStep(step) {
+                    const activeStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
+                    const inputs = activeStepContent.querySelectorAll("[required]");
+                    let isValid = true;
 
-                    if (event.key === "ArrowUp" && currentIndex > 0) {
-                        inputs[currentIndex - 1].focus();
-                    } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
-                        inputs[currentIndex + 1].focus();
-                    }
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            input.classList.add("is-invalid");
+                            isValid = false;
+                        } else {
+                            input.classList.remove("is-invalid");
+                        }
+                    });
+
+                    return isValid;
                 }
-            });
+
+                nextButtons.forEach(button => {
+                    button.addEventListener("click", () => {
+                        if (validateStep(currentStep) && currentStep < steps.length) {
+                            currentStep++;
+                            showStep(currentStep);
+                        }
+                    });
+                });
+
+                prevButtons.forEach(button => {
+                    button.addEventListener("click", () => {
+                        if (currentStep > 1) {
+                            currentStep--;
+                            showStep(currentStep);
+                        }
+                    });
+                });
+
+                // Handle selection change
+                const dropdown = document.getElementById('product_type');
+                dropdown.addEventListener('change', function() {
+                    const selectedValue = dropdown.value;
+                });
+
+                // Allow selection using R and N keys
+                document.addEventListener('keydown', function(event) {
+                    if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                        if (event.key.toUpperCase() === 'R') {
+                            dropdown.value = 'Returnable';
+                            dropdown.dispatchEvent(new Event('change'));
+                        } else if (event.key.toUpperCase() === 'N') {
+                            dropdown.value = 'Non Returnable';
+                            dropdown.dispatchEvent(new Event('change'));
+                        }
+                    }
+                });
+                showStep(currentStep);
+
+                // Add event listener for keyboard shortcuts
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "F1") {
+                        event.preventDefault();
+                        $('#product_modal').modal('show');
+                    } else if (event.key === "ArrowRight") {
+                        // Right Arrow to go to next step
+                        if (validateStep(currentStep) && currentStep < steps.length) {
+                            currentStep++;
+                            showStep(currentStep);
+                        }
+                    } else if (event.key === "ArrowLeft") {
+                        // Left Arrow to go to previous step
+                        if (currentStep > 1) {
+                            currentStep--;
+                            showStep(currentStep);
+                        }
+                    } else if (event.key === "Enter") {
+                        // Enter to submit the form only if on the final step
+                        if (currentStep === steps.length) {
+                            event.preventDefault();
+                            document.getElementById("product_form").submit();
+                        } else {
+                            event.preventDefault();
+                        }
+                    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                        // Up and Down Arrow to navigate between input fields
+                        const activeStepContent = document.querySelector(`.step-content.active`);
+                        const inputs = Array.from(activeStepContent.querySelectorAll(
+                            "input, select, textarea"));
+                        const currentIndex = inputs.indexOf(document.activeElement);
+
+                        if (event.key === "ArrowUp" && currentIndex > 0) {
+                            inputs[currentIndex - 1].focus();
+                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
+                            inputs[currentIndex + 1].focus();
+                        }
+                    }
+                });
             });
         </script>
     @endsection

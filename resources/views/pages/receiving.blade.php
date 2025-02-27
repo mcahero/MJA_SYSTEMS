@@ -223,11 +223,31 @@
                 });
             }
 
-            function displayReceivingList(receivingList) {
-                console.log('this is the one',receivingList);
+            let productList = [];
+            $(document).ready(function() {
+                const csrf_token = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url: '/pages/receivings/getproducts',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(products) {
+                        productList = products;
+
+                        $.ajax({
+                            url: '/pages/receivings/getreceiving',
+                            success: function(receivingData) {
+                                displayReceivingList(receivingData);
+                            }
+                        });
+                    }
+                });
+            });
+
+            function displayReceivingList(data) {
                 $('#receiving_table').DataTable({
                     destroy: true,
-                    data: receivingList,
+                    data: data,
                     columns: [{
                             data: null
                         },
@@ -235,10 +255,10 @@
                             data: 'transaction_number'
                         },
                         {
-                            data: 'sku_id'
+                            data: null
                         },
                         {
-                            data: 'arrival_date'
+                            data: 'created_at'
                         },
                         {
                             data: null
@@ -247,7 +267,7 @@
                             data: 'pcs'
                         },
                         {
-                            data: 'color_code'
+                            data: null
                         },
                         {
                             data: 'checker'
@@ -259,36 +279,65 @@
                     columnDefs: [{
                             targets: 0,
                             orderable: false,
-                            createdCell: function(td, cellData, rowData, row) {
-                                $(td).html(`${receivingList.indexOf(rowData) + 1}`)
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html(`${data.indexOf(rowData) + 1}`)
                                 $(td).addClass('align-middle')
                             }
                         },
                         {
-                            targets: 4,
-                            orderable: false,
-                            createdCell: function(td, cellData, rowData) {
-                                $(td).html(`
-                        <span>${rowData.product_fullname}</span>
-                        <small class="text-muted mb-0 d-block">${rowData.product_shortname}</small>
-                    `).addClass('align-middle');
+                            targets: 2,
+                            render: (data, type, row) => {
+                                const product = productList.find(p => p.id == row.sku_id);
+                                return product ?
+                                    `${product.product_sku}` :
+                                    'Loading...';
                             }
                         },
                         {
-                            targets: 6,
+                            targets: 4,
+                            width: '20%',
+                            render: (data, type, row) => {
+                                const product = productList.find(p => p.id == row.sku_id);
+                                return product ?
+                                    `${product.product_fullname} <small class="text-muted">(${product.product_shortname})</small>  <small class="text-muted">${product.jda_systemname}</small>` :
+                                    'Loading...';
+                            }
+                        },
+                        {
+                            targets: 6, // Color badge column
                             orderable: false,
                             createdCell: function(td, cellData, rowData) {
                                 $(td).html(`
-                        <span class="badge badge-pill"
-                            style="background-color: ${rowData.color_code}; color: #fff; font-size: 12px; border-radius: 5px;">
-                            ${rowData.color_name}
-                        </span>
-                    `).addClass('align-middle');
+                                <span class="badge badge-pill" 
+                                    style="background-color: ${rowData.color}; color: #fff; font-size: 12px; border-radius: 5px;">
+                                ${rowData.color_code}
+                                </span>
+                            `).addClass('align-middle');
                             }
-                        }
+                        },
                     ]
                 });
             }
+
+            $(document).ready(function() {
+                $('#addReceivingModal').on('shown.bs.modal', function() {
+                    // Destroy existing instance (if any) to prevent duplicates
+                    if ($.fn.select2 && $('#sku_id').data('select2')) {
+                        $('#sku_id').select2('destroy');
+                    }
+
+                    // Re-initialize Select2
+                    $('#sku_id').select2({
+                        dropdownParent: $('#addReceivingModal'),
+                        selectOnClose: true,
+                        width: '100%',
+                        placeholder: "Search or select an option",
+                    });
+                });
+            });
+
+
+
 
 
             $(document).ready(function() {
@@ -298,7 +347,7 @@
                 const nextButtons = $(".step-next");
                 const prevButtons = $(".step-prev");
                 const dateInput = $('#expiry_date');
-                const colorCodeDiv = $('#color-code-div');
+                const colorCodeDiv = $('#color_code_div');
                 const colorCodeH1 = $('#color_code_h1');
 
                 let currentStep = 1;
@@ -354,7 +403,8 @@
                 // Utility Functions
                 function showStep(step) {
                     steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
-                    stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                    stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass(
+                        "active");
                     progressBar.css("width", `${(step / 3) * 100}%`);
                 }
 
@@ -386,7 +436,8 @@
                 function activateSegment(segment) {
                     activeSegment = segment;
                     dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
-                    setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ? 2 :
+                    setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ?
+                        2 :
                         7);
                 }
 
@@ -454,6 +505,10 @@
                 });
 
                 $(document).on("keydown", function(event) {
+                    if ($(".select2-search__field:focus").length > 0) {
+                        return; // Ignore shortcut keys when Select2 is open
+                    }
+
                     if (event.key === "F1") {
                         event.preventDefault();
                         $('#addReceivingModal').modal('show');
@@ -466,20 +521,15 @@
                         $("#submitReceiving").trigger("click");
                     } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
                         const activeStepContent = $(".step-content.active");
-                        const inputs = activeStepContent.find("input, select, textarea").toArray();
+                        const inputs = activeStepContent.find("input, select, textarea")
+                            .toArray();
                         const currentIndex = inputs.indexOf(document.activeElement);
 
                         if (event.key === "ArrowUp" && currentIndex > 0) {
                             inputs[currentIndex - 1].focus();
-                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
+                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length -
+                            1) {
                             inputs[currentIndex + 1].focus();
-                        }
-                    } else if (event.key === "t") {
-                        const productTypeSelect = $("#product-type");
-                        if (productTypeSelect.length) {
-                            const currentValue = productTypeSelect.val();
-                            productTypeSelect.val(currentValue === "Returnable" ? "Non Returnable" :
-                                "Returnable");
                         }
                     }
                 });
@@ -495,9 +545,6 @@
                 });
 
                 dateInput.on('keydown', handleKeydown);
-
-                $('.select2').select2();
-
 
             });
         });
@@ -529,10 +576,11 @@
             <div class="block-content">
             </div>
             <div class="block-content block-content-full">
-                <table id="receiving_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                <table id="receiving_table" style="font-size: 12px;"
+                    class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
                         <tr>
-                            <th style="font-size: 12px;"> </th>
+                            <th style="font-size: 12px;">#</th>
                             <th style="font-size: 12px;">Transaction #</th>
                             <th style="font-size: 12px;">SKU #</th>
                             <th style="font-size: 12px;">ARRIVAL DATE</th>
@@ -692,7 +740,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <div id="color-code-div"
+                                                <div id="color_code_div"
                                                     style=" margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; text-align: center;">
                                                     <h3>COLOR CODE</h3>
                                                     <p>EXIPRY COLOR CODE</p>

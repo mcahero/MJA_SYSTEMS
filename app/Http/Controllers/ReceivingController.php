@@ -9,28 +9,68 @@ use Illuminate\Support\Facades\DB;
 
 class ReceivingController extends Controller
 {
+
     public function index()
-    {
+    {   
         return view('pages.receiving');
     }
 
     public function getreceiving()
     {
+        // Define the mappings
+        $monthMap = [
+            'A' => '01', 'B' => '02', 'C' => '03', 'D' => '04', 'E' => '05', 'F' => '06',
+            'G' => '07', 'H' => '08', 'I' => '09', 'J' => '10', 'K' => '11', 'L' => '12'
+        ];
+
+        $yearMap = [
+            'A' => '2021', 'B' => '2022', 'C' => '2023', 'D' => '2024', 'E' => '2025',
+            'F' => '2026', 'G' => '2027', 'H' => '2028', 'I' => '2029', 'J' => '2030',
+            'K' => '2031', 'L' => '2032'
+        ];
+
+        $colorMap = [
+            'A' => '#007f00', 'B' => '#002f99', 'C' => '#00bfff', 'D' => '#8b4513', 'E' => '#555555',
+            'F' => '#cccccc', 'G' => '#ff4500', 'H' => '#ffa500', 'I' => '#d87093', 'J' => '#ff6347',
+            'K' => '#4b0082', 'L' => '#228b22'
+        ];
+
+        // Fetch records
         $receivings = DB::table('receivinglist')
             ->orderBy('id', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($receiving) use ($monthMap, $yearMap, $colorMap) {
+                // Ensure expiry_date is in MM/YYYY format
+                $expiryDate = $receiving->expiry_date;
+                $month = substr($expiryDate, 0, 2); // Extract month (e.g., '12')
+                $year = substr($expiryDate, 3, 4); // Extract year (e.g., '2023')
 
-         return $receivings;
+                // Find the corresponding letters for month and year
+                $monthLetter = array_search($month, $monthMap);
+                $yearLetter = array_search($year, $yearMap);
+
+                // Get the color code based on the month letter
+                $color = isset($colorMap[$monthLetter]) ? $colorMap[$monthLetter] : '#000'; // Default black if not found
+                $colorCode = $monthLetter . $yearLetter;
+
+                // Add the color and color code to the receiving object
+                $receiving->color = $color;
+                $receiving->color_code = $colorCode;
+
+                return $receiving;
+            });
+
+        return response()->json($receivings); // Return JSON response
     }
 
-
-    public function getproducts(Request $request)
-    {
-        $products = DB::table('productlist')->get();
-        return $products;
-    }
-    public function addreceiving(Request $request)
-    {
+        public function getproducts(Request $request)
+        {
+            $products = DB::table('productlist')->get();
+            return $products;
+        }
+        
+        public function addreceiving(Request $request)
+        {
         try {
             // Validate request data
             $validatedData = $request->validate([
