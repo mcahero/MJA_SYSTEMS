@@ -75,256 +75,430 @@
 
     <script>
         $(document).ready(function() {
-            const steps = $(".step");
-            const stepContents = $(".step-content");
-            const progressBar = $("#step-progress");
-            const nextButtons = $(".step-next");
-            const prevButtons = $(".step-prev");
-            const dateInput = $('#date_input');
-            const colorCodeDiv = $('#color-code-div');
-            const colorCodeH1 = $('#color_code_h1');
+            csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-            let currentStep = 1;
-            let activeSegment = null;
-            let enteredMonthLetter = '';
-            let enteredYearLetter = '';
-
-            const monthMap = {
-                A: '01',
-                B: '02',
-                C: '03',
-                D: '04',
-                E: '05',
-                F: '06',
-                G: '07',
-                H: '08',
-                I: '09',
-                J: '10',
-                K: '11',
-                L: '12'
-            };
-
-            const yearMap = {
-                A: '2021',
-                B: '2022',
-                C: '2023',
-                D: '2024',
-                E: '2025',
-                F: '2026',
-                G: '2027',
-                H: '2028',
-                I: '2029',
-                J: '2030',
-                K: '2031',
-                L: '2032'
-            };
-
-            const colorMap = {
-                A: '#007f00',
-                B: '#002f99',
-                C: '#00bfff',
-                D: '#8b4513',
-                E: '#555555',
-                F: '#cccccc',
-                G: '#ff4500',
-                H: '#ffa500',
-                I: '#d87093',
-                J: '#ff6347',
-                K: '#4b0082',
-                L: '#228b22'
-            };
-
-            // Utility Functions
-            function showStep(step) {
-                steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
-                stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
-                progressBar.css("width", `${(step / 3) * 100}%`);
-            }
-
-            function validateStep(step) {
-                const activeStepContent = $(`.step-content[data-step="${step}"]`);
-                const inputs = activeStepContent.find("[required]");
-                let isValid = true;
-
-                inputs.each(function() {
-                    const input = $(this);
-                    if (!input.val().trim()) {
-                        input.addClass("is-invalid");
-                        isValid = false;
-                    } else {
-                        input.removeClass("is-invalid");
-                    }
-                });
-
-                return isValid;
-            }
-
-            function updateProgress(step) {
-                if (validateStep(currentStep)) {
-                    currentStep = step;
-                    showStep(currentStep);
-                }
-            }
-
-            function activateSegment(segment) {
-                activeSegment = segment;
-                dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
-                setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ? 2 : 7);
-            }
-
-            function deactivateSegment() {
-                activeSegment = null;
-                dateInput.css("caretColor", 'black');
-            }
-
-            function handleKeydown(e) {
-                let value = dateInput.val();
-
-                if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
-                    const month = monthMap[e.key.toUpperCase()];
-                    value = month + value.slice(2);
-                    dateInput.val(value);
-                    setCaretPosition(dateInput[0], 3);
-                    activateSegment('year');
-                    enteredMonthLetter = e.key.toUpperCase();
-                    updateColorCode(enteredMonthLetter, enteredYearLetter);
-                    e.preventDefault();
-                } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
-                    const year = yearMap[e.key.toUpperCase()];
-                    value = value.slice(0, 3) + year;
-                    dateInput.val(value);
-                    setCaretPosition(dateInput[0], 7);
-                    deactivateSegment();
-                    enteredYearLetter = e.key.toUpperCase();
-                    updateColorCode(enteredMonthLetter, enteredYearLetter);
-                    e.preventDefault();
-                }
-
-                if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
-
-                if (e.key === "Enter") {
-                    deactivateSegment();
-                    $(document.activeElement).blur();
-                    e.preventDefault();
-                }
-            }
-
-            function updateColorCode(monthKey, yearKey) {
-                if (monthKey in colorMap) {
-                    colorCodeH1.css("backgroundColor", colorMap[monthKey]);
-                    colorCodeH1.text(`${monthKey}${yearKey}`);
-                }
-            }
-
-            function getCaretPosition(input) {
-                return input.selectionStart;
-            }
-
-            function setCaretPosition(input, start, end = start) {
-                input.setSelectionRange(start, end);
-            }
-
-            // Event Handlers
-            nextButtons.on("click", function() {
-                updateProgress(currentStep + 1);
-            });
-
-            prevButtons.on("click", function() {
-                if (currentStep > 1) {
-                    updateProgress(currentStep - 1);
-                }
-            });
-
-            $(document).on("keydown", function(event) {
-                if (event.key === "F1") {
-                    event.preventDefault();
-                    $('#product-modal').modal('show');
-                } else if (event.key === "ArrowRight") {
-                    updateProgress(currentStep + 1);
-                } else if (event.key === "ArrowLeft") {
-                    if (currentStep > 1) updateProgress(currentStep - 1);
-                } else if (event.key === "Enter" && currentStep === 3) {
-                    event.preventDefault();
-                    $("#product-form").submit();
-                } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    const activeStepContent = $(".step-content.active");
-                    const inputs = activeStepContent.find("input, select, textarea").toArray();
-                    const currentIndex = inputs.indexOf(document.activeElement);
-
-                    if (event.key === "ArrowUp" && currentIndex > 0) {
-                        inputs[currentIndex - 1].focus();
-                    } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
-                        inputs[currentIndex + 1].focus();
-                    }
-                } else if (event.key === "t") {
-                    const productTypeSelect = $("#product-type");
-                    if (productTypeSelect.length) {
-                        const currentValue = productTypeSelect.val();
-                        productTypeSelect.val(currentValue === "Returnable" ? "Non Returnable" :
-                            "Returnable");
-                    }
-                }
-            });
-
-            dateInput.on('focus', function() {
-                activateSegment('month');
-            });
-
-            dateInput.on('click', function() {
-                const caretPos = getCaretPosition(dateInput[0]);
-                if (caretPos <= 2) activateSegment('month');
-                else activateSegment('year');
-            });
-
-            dateInput.on('keydown', handleKeydown);
-
-            $('.select2').select2();
-
-            $('#product_sku_step1').on('change', function() {
-                const products = @json($products);
-                const productId = $(this).val();
-                const product = products.find(p => p.id == productId);
-
-                $('#product_name').val(product?.product_fullname || '');
-                $('#product_barcode').val(product?.product_barcode || '');
-                $('#product_type').val(product?.product_type || '');
-            });
-
-            // AJAX form submission
-            $("#product-form").on("submit", function(event) {
+            $('#submitReceiving').click(function(event) {
                 event.preventDefault();
-                const formData = $(this).serialize();
-                const submitButton = $(this).find('button[type="submit"]');
 
-                // Disable the submit button to prevent multiple submissions
-                submitButton.prop('disabled', true);
+                let formData = new FormData();
+                formData.append('sku_id', parseInt($('#sku_id').val().trim(), 10));
+                formData.append('transaction_number', $('#transaction_number').val().trim());
+                formData.append('pcs', $('#pcs').val().trim());
+                formData.append('expiry_date', $('#expiry_date').val().trim());
+                formData.append('checker', $('#checker').val().trim());
+                formData.append('remarks', $('#remarks').val().trim());
+
                 $.ajax({
-                    url: $(this).attr("action"),
-                    method: $(this).attr("method"),
+                    url: '/pages/receivings/add', // Adjust to your route
+                    type: 'POST',
                     data: formData,
-                    success: function(response) {
-                        // Handle success response
-                        Toast.fire({
-                            icon: 'success',
-                            title: 'Product added successfully!'
-                        });
-                        $('#product-modal').modal('hide');
-                        // Re-enable the submit button
-                        submitButton.prop('disabled', false);
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
                     },
-                    error: function(xhr, status, error) {
-                        // Handle error response
-                        Toast.fire({
-                            icon: 'error',
-                            title: 'An error occurred: ' + error
+                    success: function(response) {
+                        $('#addReceivingModal').modal('hide');
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.message,
+                                text: `Added successfully`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
+                            console.log($('#product_form'));
+                            console.log($('#product_form')[0]);
+                            $('#product_form')[0].reset();
+                            resetStepper();
+
+                            getReceivingList();
+
+                        }
+                    },
+                    error: function(xhr) {
+                        let toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
                         });
-                        // Re-enable the submit button
-                        submitButton.prop('disabled', false);
+
+                        if (xhr.status === 422) {
+                            let errors = xhr.responseJSON.errors;
+                            let firstError = Object.values(errors)[0][0];
+                            toast.fire({
+                                icon: 'error',
+                                title: firstError
+                            });
+                        } else {
+                            console.error('Error:', xhr.responseText);
+                            toast.fire({
+                                icon: 'error',
+                                title: 'Failed to add receiving. Please try again.',
+                            });
+                        }
+                    }
+                });
+            });
+
+            function resetStepper() {
+                currentStep = 1;
+                $(".step").removeClass("active");
+                $(".step-content").removeClass("active");
+
+                $(".step[data-step='1']").addClass("active");
+                $(".step-content[data-step='1']").addClass("active");
+
+                $("#step-progress").css("width", "25%");
+            }
+
+            // Reset stepper when modal is closed
+            $('#addReceivingModal').on('hidden.bs.modal', function() {
+                resetStepper(); // Reset the stepper to Step 1
+                $('#product_form')[0].reset();
+            });
+
+            $.ajax({
+                url: '/pages/receivings/getproducts',
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                success: function(response) {
+
+                    console.log('Received product lists:', response);
+
+                    $('#sku_id').empty();
+                    $('#sku_id').append(
+                        '<option value="" disabled selected>Select SKU</option>');
+                    $.each(response, function(index, sku) {
+                        $('#sku_id').append('<option value="' + sku.id + '">' + sku
+                            .product_sku + '</option>');
+                    });
+
+                    $('#sku_id').on('change', function() {
+                        let selectedSku = $(this).val();
+                        let selectedProduct = response.find(sku => sku.id ==
+                            selectedSku);
+
+                        if (selectedProduct) {
+                            let productName = selectedProduct.product_shortname ?
+                                `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
+                                selectedProduct.product_fullname;
+
+
+                            $('#product_name').val(
+                                productName); // Set value in the input field
+                            $('#product_barcode').val(selectedProduct
+                                .product_barcode);
+                            $('#product_type').val(selectedProduct.product_type);
+
+                        }
+
+                        console.log('Selected SKU:', selectedSku);
+                        console.log('Selected Product:', selectedProduct);
+                        console.log('Selected Product Name:', $('#product_name')
+                            .val());
+                    });
+                },
+            });
+
+            getReceivingList()
+
+            function getReceivingList() {
+                $.ajax({
+                    url: '/pages/receivings/getreceiving',
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(receivingList) {
+                        console.log('Received receiving lists:', receivingList);
+                        displayReceivingList(receivingList);
+                    },
+                });
+            }
+
+            function displayReceivingList(receivingList) {
+                console.log('this is the one',receivingList);
+                $('#receiving_table').DataTable({
+                    destroy: true,
+                    data: receivingList,
+                    columns: [{
+                            data: null
+                        },
+                        {
+                            data: 'transaction_number'
+                        },
+                        {
+                            data: 'sku_id'
+                        },
+                        {
+                            data: 'arrival_date'
+                        },
+                        {
+                            data: null
+                        },
+                        {
+                            data: 'pcs'
+                        },
+                        {
+                            data: 'color_code'
+                        },
+                        {
+                            data: 'checker'
+                        },
+                        {
+                            data: 'remarks'
+                        }
+                    ],
+                    columnDefs: [{
+                            targets: 0,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData, row) {
+                                $(td).html(`${receivingList.indexOf(rowData) + 1}`)
+                                $(td).addClass('align-middle')
+                            }
+                        },
+                        {
+                            targets: 4,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html(`
+                        <span>${rowData.product_fullname}</span>
+                        <small class="text-muted mb-0 d-block">${rowData.product_shortname}</small>
+                    `).addClass('align-middle');
+                            }
+                        },
+                        {
+                            targets: 6,
+                            orderable: false,
+                            createdCell: function(td, cellData, rowData) {
+                                $(td).html(`
+                        <span class="badge badge-pill"
+                            style="background-color: ${rowData.color_code}; color: #fff; font-size: 12px; border-radius: 5px;">
+                            ${rowData.color_name}
+                        </span>
+                    `).addClass('align-middle');
+                            }
+                        }
+                    ]
+                });
+            }
+
+
+            $(document).ready(function() {
+                const steps = $(".step");
+                const stepContents = $(".step-content");
+                const progressBar = $("#step-progress");
+                const nextButtons = $(".step-next");
+                const prevButtons = $(".step-prev");
+                const dateInput = $('#expiry_date');
+                const colorCodeDiv = $('#color-code-div');
+                const colorCodeH1 = $('#color_code_h1');
+
+                let currentStep = 1;
+                let activeSegment = null;
+                let enteredMonthLetter = '';
+                let enteredYearLetter = '';
+
+                const monthMap = {
+                    A: '01',
+                    B: '02',
+                    C: '03',
+                    D: '04',
+                    E: '05',
+                    F: '06',
+                    G: '07',
+                    H: '08',
+                    I: '09',
+                    J: '10',
+                    K: '11',
+                    L: '12'
+                };
+
+                const yearMap = {
+                    A: '2021',
+                    B: '2022',
+                    C: '2023',
+                    D: '2024',
+                    E: '2025',
+                    F: '2026',
+                    G: '2027',
+                    H: '2028',
+                    I: '2029',
+                    J: '2030',
+                    K: '2031',
+                    L: '2032'
+                };
+
+                const colorMap = {
+                    A: '#007f00',
+                    B: '#002f99',
+                    C: '#00bfff',
+                    D: '#8b4513',
+                    E: '#555555',
+                    F: '#cccccc',
+                    G: '#ff4500',
+                    H: '#ffa500',
+                    I: '#d87093',
+                    J: '#ff6347',
+                    K: '#4b0082',
+                    L: '#228b22'
+                };
+
+                // Utility Functions
+                function showStep(step) {
+                    steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                    stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                    progressBar.css("width", `${(step / 3) * 100}%`);
+                }
+
+                function validateStep(step) {
+                    const activeStepContent = $(`.step-content[data-step="${step}"]`);
+                    const inputs = activeStepContent.find("[required]");
+                    let isValid = true;
+
+                    inputs.each(function() {
+                        const input = $(this);
+                        if (!input.val().trim()) {
+                            input.addClass("is-invalid");
+                            isValid = false;
+                        } else {
+                            input.removeClass("is-invalid");
+                        }
+                    });
+
+                    return isValid;
+                }
+
+                function updateProgress(step) {
+                    if (validateStep(currentStep)) {
+                        currentStep = step;
+                        showStep(currentStep);
+                    }
+                }
+
+                function activateSegment(segment) {
+                    activeSegment = segment;
+                    dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
+                    setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ? 2 :
+                        7);
+                }
+
+                function deactivateSegment() {
+                    activeSegment = null;
+                    dateInput.css("caretColor", 'black');
+                }
+
+                function handleKeydown(e) {
+                    let value = dateInput.val();
+
+                    if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
+                        const month = monthMap[e.key.toUpperCase()];
+                        value = month + value.slice(2);
+                        dateInput.val(value);
+                        setCaretPosition(dateInput[0], 3);
+                        activateSegment('year');
+                        enteredMonthLetter = e.key.toUpperCase();
+                        updateColorCode(enteredMonthLetter, enteredYearLetter);
+                        e.preventDefault();
+                    } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
+                        const year = yearMap[e.key.toUpperCase()];
+                        value = value.slice(0, 3) + year;
+                        dateInput.val(value);
+                        setCaretPosition(dateInput[0], 7);
+                        deactivateSegment();
+                        enteredYearLetter = e.key.toUpperCase();
+                        updateColorCode(enteredMonthLetter, enteredYearLetter);
+                        e.preventDefault();
+                    }
+
+                    if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
+
+                    if (e.key === "Enter") {
+                        deactivateSegment();
+                        $(document.activeElement).blur();
+                        e.preventDefault();
+                    }
+                }
+
+                function updateColorCode(monthKey, yearKey) {
+                    if (monthKey in colorMap) {
+                        colorCodeH1.css("backgroundColor", colorMap[monthKey]);
+                        colorCodeH1.text(`${monthKey}${yearKey}`);
+                    }
+                }
+
+                function getCaretPosition(input) {
+                    return input.selectionStart;
+                }
+
+                function setCaretPosition(input, start, end = start) {
+                    input.setSelectionRange(start, end);
+                }
+
+                // Event Handlers
+                nextButtons.on("click", function() {
+                    updateProgress(currentStep + 1);
+                });
+
+                prevButtons.on("click", function() {
+                    if (currentStep > 1) {
+                        updateProgress(currentStep - 1);
                     }
                 });
 
-                // Initial State
-                showStep(currentStep);
+                $(document).on("keydown", function(event) {
+                    if (event.key === "F1") {
+                        event.preventDefault();
+                        $('#addReceivingModal').modal('show');
+                    } else if (event.key === "ArrowRight") {
+                        updateProgress(currentStep + 1);
+                    } else if (event.key === "ArrowLeft") {
+                        if (currentStep > 1) updateProgress(currentStep - 1);
+                    } else if (event.key === "Enter" && currentStep === 3) {
+                        event.preventDefault();
+                        $("#submitReceiving").trigger("click");
+                    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                        const activeStepContent = $(".step-content.active");
+                        const inputs = activeStepContent.find("input, select, textarea").toArray();
+                        const currentIndex = inputs.indexOf(document.activeElement);
+
+                        if (event.key === "ArrowUp" && currentIndex > 0) {
+                            inputs[currentIndex - 1].focus();
+                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
+                            inputs[currentIndex + 1].focus();
+                        }
+                    } else if (event.key === "t") {
+                        const productTypeSelect = $("#product-type");
+                        if (productTypeSelect.length) {
+                            const currentValue = productTypeSelect.val();
+                            productTypeSelect.val(currentValue === "Returnable" ? "Non Returnable" :
+                                "Returnable");
+                        }
+                    }
+                });
+
+                dateInput.on('focus', function() {
+                    activateSegment('month');
+                });
+
+                dateInput.on('click', function() {
+                    const caretPos = getCaretPosition(dateInput[0]);
+                    if (caretPos <= 2) activateSegment('month');
+                    else activateSegment('year');
+                });
+
+                dateInput.on('keydown', handleKeydown);
+
+                $('.select2').select2();
+
+
             });
         });
     </script>
@@ -348,14 +522,14 @@
         <div class="block block-rounded">
             <div class="block-header">
                 <button type="button" class="btn btn-primary" id="add-receiving-btn" data-toggle="modal"
-                    data-target="#product-modal">
+                    data-target="#addReceivingModal">
                     <i class="fa fa-plus mr-1"></i> Add SKU (F1)
                 </button>
             </div>
             <div class="block-content">
             </div>
             <div class="block-content block-content-full">
-                <table style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                <table id="receiving_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter js-dataTable-full">
                     <thead>
                         <tr>
                             <th style="font-size: 12px;"> </th>
@@ -370,33 +544,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if ($receivings->isEmpty())
-                            <tr>
-                                <td colspan="9" class="text-center">No received transactions found .</td>
-                            </tr>
-                        @else
-                            @foreach ($receivings as $receiving)
-                                <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td>{{ $receiving->transaction_number }}</td>
-                                    <td>{{ $receiving->product->product_sku }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($receiving->created_at)->format('m/d/Y') }}</td>
-                                    <td style="width: 15%;">
-                                        <span>{{ $receiving->product->product_fullname }}</span>
-                                        <small
-                                            class="text-muted mb-0 d-block">{{ $receiving->product->product_shortname }}</small>
-                                    </td>
-                                    <td>{{ $receiving->pcs }}</td>
-                                    <td> <span class="badge badge-pill"
-                                            style="background-color: {{ $receiving->color }}; color: #fff; font-size: 12px; border-radius: 5px;">
-                                            {{ $receiving->color_code }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $receiving->checker }}</td>
-                                    <td>{{ $receiving->remarks }}</td>
-                                </tr>
-                            @endforeach
-                        @endif
+
                     </tbody>
                 </table>
             </div>
@@ -404,7 +552,7 @@
         <!-- END Your Block -->
 
         <!-- Add New Receiving Modal -->
-        <div class="modal fade" id="product-modal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
+        <div class="modal fade" id="addReceivingModal" tabindex="-1" role="dialog" aria-labelledby="modal-block-small"
             aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -418,9 +566,9 @@
                             </div>
                         </div>
                         <div class="block-content">
-                            <form id="product-form" action="{{ route('receivings.store') }}" method="POST"
-                                enctype="multipart/form-data">
+                            <form id="product_form">
                                 @csrf
+                                <input type="hidden" id="id" name="id">
                                 <!-- Stepper Progress Bar -->
                                 <div class="stepper-progress">
                                     <div class="progress">
@@ -429,7 +577,7 @@
                                     <ul class="stepper-steps">
                                         <li class="step active" data-step="1">Transaction Details</li>
                                         <li class="step" data-step="2">Product Details</li>
-                                        <li class="step" data-step="4">Finalize</li>
+                                        <li class="step" data-step="3">Finalize</li>
                                     </ul>
                                 </div>
 
@@ -438,14 +586,11 @@
                                     <!-- Step 1: Transaction Details -->
                                     <div class="step-content active" data-step="1">
                                         <div class="form-group">
-                                            <label for="product_sku_step1">SKU #</label>
-                                            <select class="form-control select2" style="width: 100%;" id="product_sku_step1"
-                                                name="product_sku_step1" required>
+                                            <label for="sku_id">SKU #</label>
+                                            <select class="form-control select2" style="width: 100%;" id="sku_id"
+                                                name="sku_id" required>
                                                 <option value="">Search SKU #</option>
-                                                @foreach ($products as $product)
-                                                    <option value="{{ $product->id }}">{{ $product->product_sku }}
-                                                    </option>
-                                                @endforeach
+
                                             </select>
                                         </div>
                                         <div class="row" id="product-details">
@@ -482,10 +627,10 @@
                                                 name="transaction_number" placeholder="Enter transaction number" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="product_pcs">PCS</label>
-                                            <input type="number" class="form-control" id="product_pcs"
-                                                name="product_pcs" placeholder="Enter number of pieces" required
-                                                min="0" step="1"
+                                            <label for="pcs">PCS</label>
+                                            <input type="number" class="form-control" id="pcs" name="pcs"
+                                                placeholder="Enter number of pieces" required min="0"
+                                                step="1"
                                                 onkeydown="return event.key !== 'ArrowUp' && event.key !== 'ArrowDown'">
                                         </div>
                                         <div class="row">
@@ -541,9 +686,9 @@
                                                         (A-J).</p>
 
                                                     <!-- Date Input Field -->
-                                                    <input type="text" id="date_input"
+                                                    <input type="text" id="expiry_date"
                                                         style="width: 90%; padding: 10px; font-size: 18px; text-align: center; border: 1px solid #ccc; border-radius: 5px;"
-                                                        value="MM/YYYY" maxlength="7" name="date_input" readonly>
+                                                        value="MM/YYYY" maxlength="7" name="expiry_date" readonly>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -582,7 +727,7 @@
                                         <button type="button" class="btn btn-alt-secondary step-prev">
                                             <i class="fa fa-arrow-left mr-1"></i> Back
                                         </button>
-                                        <button type="submit" class="btn btn-alt-primary">
+                                        <button type="button" id="submitReceiving" class="btn btn-alt-primary">
                                             <i class="fa fa-plus mr-1"></i> Add Receiving
                                         </button>
                                     </div>

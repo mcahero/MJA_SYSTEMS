@@ -409,8 +409,8 @@
                                     timer: 1500
                                 });
                                 getproductlists();
-                                console.log($('#product_form')); 
-                                console.log($('#product_form')[0]);     
+                                console.log($('#product_form'));
+                                console.log($('#product_form')[0]);
                                 $('#product_form')[0].reset();
                                 resetStepper();
                             }
@@ -656,7 +656,7 @@
 
                     })
                 }
-                
+
             const steps = document.querySelectorAll(".step");
             const stepContents = document.querySelectorAll(".step-content");
             const progressBar = document.getElementById("step-progress");

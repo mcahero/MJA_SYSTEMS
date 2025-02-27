@@ -25,7 +25,8 @@ class BufferController extends Controller
         ]);
 
         // Find product
-        $product = DB::table('receivinglist')->where('id', $request->product_id)->first();
+        $product = DB::table('receivinglist')
+        ->where('id', $request->product_id)->first();
 
         if (!$product || $product->pcs < $request->pcs) {
             return response()->json(['message' => 'Insufficient stock!'], 400);

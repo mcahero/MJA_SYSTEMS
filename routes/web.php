@@ -45,9 +45,10 @@ Route::get('/pages/product_lists/editform', 'ProductsList@editform')->name('prod
 Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
 Route::post('pages/warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
 
+Route::get('/pages/receivings/getreceiving', 'ReceivingController@getreceiving')->name('receivings.getreceiving');
 Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('receivings.index');
-Route::post('pages/receivings', [ReceivingController::class, 'store'])->name('receivings.store');
-
+Route::post('/pages/receivings/add','ReceivingController@addreceiving')->name('receivings.store');
+Route::get('/pages/receivings/getproducts', 'ReceivingController@getproducts')->name('receivings.getproducts');
 
 // ✅ Warehouse & Buffer Routes
 Route::get('/warehouse/products', 'BufferController@getWarehouseProducts')->name('warehouse.products');
