@@ -10,9 +10,26 @@ class BufferController extends Controller
     // ✅ Fetch all warehouse products
     public function getWarehouseProducts()
     {
-        $receivings = DB::table('receivinglist')->get();
+        $receivings = DB::table('receivinglist')
+            ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id') // Ensure correct FK relationship
+            ->select(
+                'receivinglist.sku_id as id', // This is necessary for the JS dropdown
+                'productlist.product_sku', 
+                'productlist.product_fullname', 
+                'productlist.product_shortname'
+            )
+            ->groupBy('receivinglist.sku_id', 'productlist.product_sku', 'productlist.product_fullname', 'productlist.product_shortname') // Avoid duplicates
+            ->get();
+
         return response()->json($receivings);
     }
+
+    public function getwareproducts()
+    {
+        $getreceivings = DB::table('receivinglist')->get();
+        return response()->json($getreceivings);
+    }
+
 
     public function getproducts()
     {
@@ -23,36 +40,28 @@ class BufferController extends Controller
     // ✅ Add product stock to buffer and update warehouse stock
     public function addToBuffer(Request $request)
     {
+        \Log::info('Received request:', $request->all()); // Log the incoming request
+
         // Validate request
         $request->validate([
-            'sku' => 'required|string',
+            'receivinglist' => 'required|exists:warehouse,id|integer',
+            'sku_id' => 'required|exists:productlist,id|integer',
             'pcs' => 'required|integer|min:1',
-            'product_id' => 'required|integer'
+            'remarks' => 'nullable|string',
+            'checker' => 'nullable|string', 
+
         ]);
 
-        // Find product
-        $product = DB::table('receivinglist')
-        ->where('id', $request->product_id)->first();
-
-        if (!$product || $product->pcs < $request->pcs) {
-            return response()->json(['message' => 'Insufficient stock!'], 400);
-        }
-
-        // Deduct from warehouse
-        DB::table('receivinglist')->where('id', $request->product_id)->decrement('pcs', $request->pcs);
-
-        // Add to buffer
-        DB::table('buffer')->insert([
-            'sku' => $request->sku,
+        $bufferId = DB::table('buffer')->insertGetId([
+            'receivinglist' => $request->receivinglist,
+            'product_sku' => $request->sku_id,
             'pcs' => $request->pcs,
+            'checker' => $request->checker, 
+            'remarks' => $request->remarks,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return response()->json([
-            'message' => 'Stock added to buffer!',
-            'new_warehouse_pcs' => $product->pcs - $request->pcs
-        ]);
     }
 }
 

@@ -95,13 +95,14 @@
                 </div>
                 <div class="modal-body">
                     <!-- Search Bar -->
-                    <form action="/warehouse/add-pcs" method="POST">
+                    <form id="product_form">
                         @csrf
+                        <input type="hidden" name="id" id="id">
+                        <input type="hidden" name="receivinglist" id="receivinglist">
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="sku_id">SKU #</label>
-                                <select class="form-control select2" style="width: 100%;" id="sku_id" name="sku_id"
-                                    required>
+                                <select class="form-control select2" style="width: 100%;" id="sku_id" name="sku_id">
                                     <option value="">Search SKU #</option>
                                 </select>
                             </div>
@@ -109,33 +110,35 @@
                                 <div class="col-6">
                                     <p class="mb-0" style="font-size: 16px; font-weight: bold;">Selected SKU: <input
                                             type="text" class="form-control" id="selected_sku" name="product_name"
-                                            readonly></p>
+                                            placeholder="No Selected SKU..." readonly></p>
                                 </div>
                                 <div class="col-6">
-                                    <p class="mb-0" style="font-size: 16px; font-weight: bold;">Name:<input type="text"
-                                            class="form-control" id="product_name" name="product_name" readonly></p>
+                                    <p class="mb-0" style="font-size: 16px; font-weight: bold;">Product Name:<input
+                                            type="text" placeholder="No Selected SKU..." class="form-control"
+                                            id="product_name" name="product_name" readonly></p>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-center align-items-center mb-4">
                                 <div class="text-center"
-                                    style="width: 100px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
+                                    style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
                                     <p id="warehouse_pcs_display" class="mb-0"
                                         style="font-size: 24px; font-weight: bold; line-height: 80px;">0</p>
                                     <b class="mb-0" style="font-size: 12px; color: #6c757d;">Warehouse</b>
                                 </div>
-
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
-                                <div class="text-center"
-                                    style="width: 100px; height: 80px; border: 2px solid #000; border-radius: 8px;">
+                                <div class="text-center" id="dynamic_container"
+                                    style="width: 130px; height: 80px; border: 2px solid #000; border-radius: 8px;">
                                     <input type="number" class="form-control text-center" id="pcs" name="pcs"
                                         style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
                                         placeholder="0" required>
                                     <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to Buffer</b>
                                 </div>
+
+
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center"
-                                    style="width: 100px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">10
+                                    style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
+                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">0
                                     </p>
                                     <b class="mb-0 text-nowrap" style="font-size: 12px; color: #6c757d;">Current Buffer
                                         Pcs</b>
@@ -148,7 +151,7 @@
                             </div>
                         </div>
                         <div class="modal-footer border-0 d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary btn-sm btn-block"
+                            <button type="button" id="addToBuffer" class="btn btn-primary btn-sm btn-block"
                                 style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
                         </div>
                     </form>
@@ -159,7 +162,7 @@
     </div>
     </div>
 
-    <div class="modal fade" id="addPcsModal" tabindex="-1" role="dialog" aria-labelledby="addPcsModalLabel"
+    {{-- <div class="modal fade" id="addPcsModal" tabindex="-1" role="dialog" aria-labelledby="addPcsModalLabel"
         aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog" role="document">
             <div class="modal-content text-center">
@@ -201,14 +204,13 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0 d-flex justify-content-center">
-                        <button type="submit" class="btn btn-primary btn-sm btn-block add-to-buffer "
+                        <button type="button" id="addToBuffer" class="btn btn-primary btn-sm btn-block add-to-buffer "
                             style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-    </div>
+    </div> --}}
     <!-- END Page Content -->
 @section('js_after')
     <!-- Page JS Plugins -->
@@ -227,78 +229,34 @@
         $(document).ready(function() {
             csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-            // // Fetch warehouse products when modal opens
-            // $("#Addbuffermodal").on("show.bs.modal", function () {
-            //     console.log("Fetching warehouse products...");
-            //     $.ajax({
-            //         url: "/warehouse/products",
-            //         type: "GET",
-            //         success: function (data) {
-            //             console.log("Products loaded:", data);
-            //             let rows = "";
-            //             data.forEach(product => {
-            //                 rows += `
-        //                     <tr data-sku="${product.product_sku}">
-        //                         <td>${product.sku}</td>
-        //                         <td>${product.product_name}</td>
-        //                         <td class="warehouse-pcs">${product.pcs}</td>
-        //                         <td>
-        //                             <input type="number" class="buffer-input form-control" data-id="${product.id}" min="1" max="${product.pcs}">
-        //                         </td>
-        //                         <td>
-        //                             <button class="add-to-buffer btn btn-success">Add</button>
-        //                         </td>
-        //                     </tr>
-        //                 `;
-            //             });
-            //             $("#warehouse-table").html(rows);
-            //         }
-            //     });
-            // });
-
-
-            $.ajax({
-                url: '/pages/buffer/getproducts',
-                type: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrf_token
-                },
-                success: function(response) {
-
-                    console.log('Received product lists:', response);
-
-                    $('#sku_id').empty();
-                    $('#sku_id').append(
-                        '<option value="" disabled selected>Select SKU</option>');
-                    $.each(response, function(index, sku) {
-                        $('#sku_id').append('<option value="' + sku.id + '">' + sku
-                            .product_sku + '</option>');
-                    });
-
-                    $('#sku_id').on('change', function() {
-                        let selectedSku = $(this).val();
-                        let selectedProduct = response.find(sku => sku.id ==
-                            selectedSku);
-
-                        if (selectedProduct) {
-                            let productName = selectedProduct.product_shortname ?
-                                `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
-                                selectedProduct.product_fullname;
-
-
-                            $('#product_name').val(
-                                productName); // Set value in the input field
-                            $('#selected_sku').val(selectedProduct
-                                .product_sku);
-
-                        }
-
-                        console.log('Selected SKU:', selectedSku);
-                        console.log('Selected Product:', selectedProduct);
-                        console.log('Selected Product Name:', $('#product_name')
-                            .val());
-                    });
-                },
+            $('#addToBuffer').click(function() {
+                let formData = new FormData();
+                console.log('Adding PCS to buffer:', {
+                    product_sku: $('#sku_id').val().trim(),
+                    pcs: $('#pcs').val().trim(),
+                    remarks: $('#remarks').val().trim()
+                });
+                formData.append('sku_id', parseInt($('#sku_id').val().trim(), 10));
+                formData.append('receivinglist', $('#receivinglist').val());
+                formData.append('pcs', $('#pcs').val().trim());
+                formData.append('remarks', $('#remarks').val().trim());
+                $.ajax({
+                    url: '/warehouse/buffer/add_pcs',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        window.location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                    }
+                })
             });
 
             $.ajax({
@@ -310,15 +268,48 @@
                 success: function(response) {
                     console.log('Received product lists:', response);
 
+                    $('#sku_id').empty().append(
+                        '<option value="" disabled selected>Select SKU</option>');
+
+                    $.each(response, function(index, sku) {
+                        $('#sku_id').append('<option value="' + sku.id + '">' + sku
+                            .product_sku + '</option>');
+                    });
+
                     $('#sku_id').on('change', function() {
                         let selectedSku = $(this).val();
                         let selectedProduct = response.find(sku => sku.id == selectedSku);
 
                         if (selectedProduct) {
-                            let pcs = selectedProduct
-                            .pcs; // Assuming `pcs` is the field for quantity
+                            let productName = selectedProduct.product_shortname ?
+                                `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
+                                selectedProduct.product_fullname;
 
-                            // Update the warehouse quantity in the div
+                            $('#product_name').val(productName);
+                            $('#selected_sku').val(selectedProduct.product_sku);
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    console.error('Error fetching warehouse products:', xhr.responseText);
+                }
+            });
+
+            $.ajax({
+                url: '/pages/buffer/getwareproducts',
+                type: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrf_token
+                },
+                success: function(response) {
+                    $('#sku_id').on('change', function() {
+                        let selectedSku = $(this).val();
+                        let selectedProduct = response.find(sku => sku.id ==
+                            selectedSku);
+
+                        if (selectedProduct) {
+                            let pcs = selectedProduct
+                                .pcs;
                             $('#warehouse_pcs_display').text(pcs);
                         }
 
@@ -346,39 +337,17 @@
                 });
             });
 
+            function adjustWidthBasedOnInput(inputId, containerId) {
+                document.getElementById(inputId).addEventListener('input', function() {
+                    let inputLength = this.value.length;
+                    let parentDiv = document.getElementById(containerId);
 
-            // Add product to buffer and update warehouse
-            $(document).on("click", ".add-to-buffer", function() {
-                let row = $(this).closest("tr");
-                let sku = row.data("sku");
-                let pcs = row.find(".buffer-input").val();
-                let productId = row.find(".buffer-input").data("id");
-
-                if (!pcs || pcs <= 0) {
-                    alert("Enter a valid number of pieces.");
-                    return;
-                }
-
-                $.ajax({
-                    url: "/warehouse/add-to-buffer",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        sku: sku,
-                        pcs: pcs,
-                        product_id: productId
-                    },
-                    success: function(response) {
-                        alert("Stock added to buffer!");
-                        row.find(".warehouse-pcs").text(response.new_warehouse_pcs);
-                        row.find(".buffer-input").val(""); // Reset input
-                    },
-                    error: function(xhr) {
-                        alert("Error: " + xhr.responseJSON.message);
-                    }
+                    // Set dynamic width based on input length, but ensure a minimum of 100px
+                    let newWidth = 100 + (inputLength * 10);
+                    parentDiv.style.width = newWidth + 'px';
                 });
-            });
-
+            }
+            adjustWidthBasedOnInput('pcs', 'dynamic_container');
 
             document.addEventListener('DOMContentLoaded', function() {
                 const table = document.querySelector('table');
@@ -413,9 +382,11 @@
                     } else if (e.key === 'Enter') {
                         // Open modal with data from the current row
                         const selectedRow = rows[currentRowIndex];
-                        const sku = selectedRow.querySelector('td:nth-child(2)').textContent.trim();
-                        const name = selectedRow.querySelector('td:nth-child(3)').textContent
-                    .trim();
+                        const sku = selectedRow.querySelector('td:nth-child(2)')
+                            .textContent.trim();
+                        const name = selectedRow.querySelector('td:nth-child(3)')
+                            .textContent
+                            .trim();
 
                         $('#addPcsModal').modal('show');
                         $('#skuLabel').text(sku);

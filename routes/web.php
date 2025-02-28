@@ -53,5 +53,6 @@ Route::get('/pages/receivings/getproducts', 'ReceivingController@getproducts')->
 // ✅ Warehouse & Buffer Routes
 Route::get('/pages/buffer/getproducts', 'BufferController@getproducts')->name('warehouse.products');
 Route::get('/pages/buffer/getwarehouseproducts', 'BufferController@getWarehouseProducts')->name('warehouse.warehouse_products');
-Route::post('/warehouse/add-to-buffer','BufferController@addToBuffer')->name('warehouse.add_to_buffer');
+Route::get('/pages/buffer/getwareproducts', 'BufferController@getwareproducts')->name('warehouse.getwareproducts');
+Route::post('/warehouse/buffer/add_pcs','BufferController@addToBuffer')->name('warehouse.add_to_buffer');
 

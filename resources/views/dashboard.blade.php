@@ -37,132 +37,141 @@
                     </ol>
                 </nav>
             </div>
-       </div>
+        </div>
     </div>
     <!-- END Hero -->
 
     <!-- Page Content -->
     <main id="container">
         <div class="content">
-          <div class="row">
-            <div class="col-6 col-lg-3">
-              <a class="block block-rounded block-link-shadow text-center">
-                <div class="block-content block-content-full">
-                  <div class="fs-2 fw-semibold text-primary">35</div>
-                </div>
-                <div class="block-content py-2 bg-body-light">
-                  <p class="fw-medium fs-sm text-muted mb-0">
-                    SKU stocks
-                  </p>
-                </div>
-              </a>
-            </div>
-            <div class="col-6 col-lg-3">
-              <a class="block block-rounded block-link-shadow text-center">
-                <div class="block-content block-content-full">
-                  <div class="fs-2 fw-semibold text-dark">120</div>
-                </div>
-                <div class="block-content py-2 bg-body-light">
-                  <p class="fw-medium fs-sm text-muted mb-0">
-                    Today
-                  </p>
-                </div>
-              </a>
-            </div>
-            <div class="col-6 col-lg-3">
-              <a class="block block-rounded block-link-shadow text-center">
-                <div class="block-content block-content-full">
-                  <div class="fs-2 fw-semibold text-dark">260</div>
-                </div>
-                <div class="block-content py-2 bg-body-light">
-                  <p class="fw-medium fs-sm text-muted mb-0">
-                    Yesterday
-                  </p>
-                </div>
-              </a>
-            </div>
-            <div class="col-6 col-lg-3">
-              <a class="block block-rounded block-link-shadow text-center">
-                <div class="block-content block-content-full">
-                  <div class="fs-2 fw-semibold text-dark">69,841</div>
-                </div>
-                <div class="block-content py-2 bg-body-light">
-                  <p class="fw-medium fs-sm text-muted mb-0">
-                    This Month
-                  </p>
-                </div>
-              </a>
-            </div>
-          </div>
-          <div class="block block-rounded">
-            <div class="block-header block-header-default">
-                <h3 class="block-title">SKU Count</h3>
-              <div class="block-options">
-                <div class="dropdown">
-                  <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-ecom-filters">
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      Pending..
-                      <span class="badge bg-black-50 rounded-pill">35</span>
+            <div class="row">
+                <div class="col-6 col-lg-3">
+                    <a class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-primary">35</div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                SKU stocks
+                            </p>
+                        </div>
                     </a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      Processing
-                      <span class="badge bg-warning rounded-pill">15</span>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      For Delivery
-                      <span class="badge bg-info rounded-pill">20</span>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      Canceled
-                      <span class="badge bg-danger rounded-pill">72</span>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      Delivered
-                      <span class="badge bg-success rounded-pill">890</span>
-                    </a>
-                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
-                      All
-                      <span class="badge bg-primary rounded-pill">997</span>
-                    </a>
-                  </div>
                 </div>
-              </div>
+                <div class="col-6 col-lg-3">
+                    <a class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-dark">120</div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Today
+                            </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <a class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-dark">260</div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Yesterday
+                            </p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <a class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-dark">69,841</div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                This Month
+                            </p>
+                        </div>
+                    </a>
+                </div>
             </div>
-            <div class="block-content">
-              <div class="table-responsive">
-                <table class="table table-borderless table-vcenter js-dataTable-full" id="one-ecom-orders">
-                  <thead>
-                    <tr>
-                      <th>SKU</th>
-                      <th>Warehouse</th>
-                      <th>Buffer</th>
-                      <th>Selling</th>
-                      <th>Sold</th>
-                      <th>B.O</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for ($i = 0; $i < 10; $i++)
-                    <tr>
-                        <td><a href="javascript:void(0)">SKU-{{ sprintf('%08d', rand(1, 99999999)) }}</a>
-                        </td>
-                        <td>{{ rand(100, 999) }}</td>
-                        <td>{{ rand(100, 999) }}</td>
-                        <td>
-                            <span>{{ rand(100, 999) }}</span>
-                        </td>
-                        <td>{{ rand(100, 999) }}</td>
-                        <td>
-                            <span>{{ rand(100, 999) }}</span>
-                        </td>
-                    </tr>
-                    @endfor
-                </table>
-              </div>
+            <div class="block block-rounded">
+                <div class="block-header block-header-default">
+                    <h3 class="block-title">SKU Count</h3>
+                    <div class="block-options">
+                        <div class="dropdown">
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-ecom-filters">
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    Pending..
+                                    <span class="badge bg-black-50 rounded-pill">35</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    Processing
+                                    <span class="badge bg-warning rounded-pill">15</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    For Delivery
+                                    <span class="badge bg-info rounded-pill">20</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    Canceled
+                                    <span class="badge bg-danger rounded-pill">72</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    Delivered
+                                    <span class="badge bg-success rounded-pill">890</span>
+                                </a>
+                                <a class="dropdown-item d-flex align-items-center justify-content-between"
+                                    href="javascript:void(0)">
+                                    All
+                                    <span class="badge bg-primary rounded-pill">997</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content">
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-vcenter js-dataTable-full" id="one-ecom-orders">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Warehouse</th>
+                                    <th>Buffer</th>
+                                    <th>Selling</th>
+                                    <th>Sold</th>
+                                    <th>B.O</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for ($i = 0; $i < 10; $i++)
+                                    <tr>
+                                        <td><a href="javascript:void(0)">SKU-{{ sprintf('%08d', rand(1, 99999999)) }}</a>
+                                        </td>
+                                        <td>{{ rand(100, 999) }}</td>
+                                        <td>{{ rand(100, 999) }}</td>
+                                        <td>
+                                            <span>{{ rand(100, 999) }}</span>
+                                        </td>
+                                        <td>{{ rand(100, 999) }}</td>
+                                        <td>
+                                            <span>{{ rand(100, 999) }}</span>
+                                        </td>
+                                        <td>
+                                            <span>{{ rand(100, 999) }}</span>
+                                        </td>
+                                    </tr>
+                                @endfor
+                        </table>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-          </main>
+    </main>
     <!-- END Page Content -->
 @endsection
-

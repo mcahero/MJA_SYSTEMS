@@ -18,7 +18,8 @@ class CreateBufferTable extends Migration
             $table->unsignedBigInteger('receivinglist');
             $table->unsignedBigInteger('product_sku');
             $table->integer('pcs');
-            $table->string('checker');
+            $table->string('checker')->nullable();
+            $table->string('remarks')->nullable();
             $table->timestamps();
 
 

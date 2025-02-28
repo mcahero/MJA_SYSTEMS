@@ -44,6 +44,42 @@
 @endsection
 
 @section('content')
+    <style>
+        .stepper-progress {
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 5px;
+            margin-bottom: 15px;
+        }
+
+        .stepper-steps {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+        }
+
+        .stepper-steps .step {
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .stepper-steps .step.active {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+    </style>
     <!-- Hero -->
     <div class="bg-body-light">
         <div class="content content-full">
@@ -173,7 +209,10 @@
                                     <!-- Step 3: Additional Info -->
                                     <div class="step-content" data-step="3">
                                         <div class="form-group">
-                                            <label for="product_type">TYPE</label>
+                                            <label class="form-label d-flex align-items-center" for="product-type">TYPE
+                                                <small class="form-text text-muted ml-2 mt-1">(R) Returnable / (N)
+                                                    Non-Returnable / (Tab) Confirm</small>
+                                            </label>
                                             <select class="form-control" id="product_type" name="product_type" required>
                                                 <option value="">Select Type</option>
                                                 <option value="1" class="text-success">Returnable</option>
@@ -614,6 +653,7 @@
                             },
                             {
                                 targets: 3,
+                                width: '15%',
                                 orderable: false,
                                 createdCell: function(td, cellData, rowData) {
                                     $(td).html(
@@ -656,6 +696,13 @@
 
                     })
                 }
+                document.getElementById("add_product").addEventListener("click", function() {
+                    console.log("Button clicked!");
+                });
+                document.addEventListener("keydown", (event) => {
+                    console.log("Key Pressed: ", event.key);
+                });
+
 
                 const steps = document.querySelectorAll(".step");
                 const stepContents = document.querySelectorAll(".step-content");
@@ -670,7 +717,7 @@
                     stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
 
                     // Update progress bar
-                    progressBar.style.width = `${(step / steps.length) * 100}%`;
+                    progressBar.style.width = `${(step / 4) * 100}%`;
                 }
 
                 function validateStep(step) {
@@ -718,10 +765,10 @@
                 document.addEventListener('keydown', function(event) {
                     if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
                         if (event.key.toUpperCase() === 'R') {
-                            dropdown.value = 'Returnable';
+                            dropdown.value = '1';
                             dropdown.dispatchEvent(new Event('change'));
                         } else if (event.key.toUpperCase() === 'N') {
-                            dropdown.value = 'Non Returnable';
+                            dropdown.value = '2';
                             dropdown.dispatchEvent(new Event('change'));
                         }
                     }
@@ -735,7 +782,7 @@
                         $('#product_modal').modal('show');
                     } else if (event.key === "ArrowRight") {
                         // Right Arrow to go to next step
-                        if (validateStep(currentStep) && currentStep < steps.length) {
+                        if (validateStep(currentStep) && currentStep < 4) {
                             currentStep++;
                             showStep(currentStep);
                         }
@@ -746,12 +793,12 @@
                             showStep(currentStep);
                         }
                     } else if (event.key === "Enter") {
-                        // Enter to submit the form only if on the final step
-                        if (currentStep === steps.length) {
-                            event.preventDefault();
-                            document.getElementById("product_form").submit();
-                        } else {
-                            event.preventDefault();
+                        event.preventDefault();
+                        if (currentStep === 4) {
+                            // Validate the final step before triggering submission
+                            if (validateStep(currentStep)) {
+                                $('#add_product').trigger('click');
+                            }
                         }
                     } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
                         // Up and Down Arrow to navigate between input fields
