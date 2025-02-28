@@ -10,7 +10,13 @@ class BufferController extends Controller
     // ✅ Fetch all warehouse products
     public function getWarehouseProducts()
     {
-        $products = DB::table('receivinglist')->get();
+        $receivings = DB::table('receivinglist')->get();
+        return response()->json($receivings);
+    }
+
+    public function getproducts()
+    {
+        $products = DB::table('productlist')->get();
         return response()->json($products);
     }
 

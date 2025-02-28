@@ -168,9 +168,7 @@
                     'X-CSRF-TOKEN': csrf_token
                 },
                 success: function(response) {
-
                     console.log('Received product lists:', response);
-
                     $('#sku_id').empty();
                     $('#sku_id').append(
                         '<option value="" disabled selected>Select SKU</option>');
@@ -308,7 +306,7 @@
                             orderable: false,
                             createdCell: function(td, cellData, rowData) {
                                 $(td).html(`
-                                <span class="badge badge-pill" 
+                                <span class="badge badge-pill"
                                     style="background-color: ${rowData.color}; color: #fff; font-size: 12px; border-radius: 5px;">
                                 ${rowData.color_code}
                                 </span>

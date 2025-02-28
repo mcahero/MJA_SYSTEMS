@@ -16,13 +16,14 @@ class CreateBufferTable extends Migration
         Schema::create('buffer', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('receivinglist');
-            $table->string('product_sku');
+            $table->unsignedBigInteger('product_sku');
             $table->integer('pcs');
             $table->string('checker');
             $table->timestamps();
 
 
              $table->foreign('receivinglist')->references('id')->on('warehouse')->onDelete('cascade');
+             $table->foreign('product_sku')->references('id')->on('productlist')->onDelete('cascade');
         });
     }
 
