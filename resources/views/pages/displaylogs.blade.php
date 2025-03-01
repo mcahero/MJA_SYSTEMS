@@ -21,82 +21,20 @@
     <!-- Page JS Code -->
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const table = document.querySelector('table');
-            let currentRowIndex = 0;
-
-            // Add a class to highlight the selected row
-            function highlightRow(index) {
-                const rows = table.querySelectorAll('tbody tr');
-                rows.forEach((row, i) => {
-                    if (i === index) {
-                        row.classList.add('table-primary');
-                    } else {
-                        row.classList.remove('table-primary');
-                    }
-                });
-            }
-
-            // Navigate rows using arrow keys
-            document.addEventListener('keydown', function(e) {
-                const rows = table.querySelectorAll('tbody tr');
-
-                if (e.key === 'ArrowDown') {
-                    if (currentRowIndex < rows.length - 1) {
-                        currentRowIndex++;
-                        highlightRow(currentRowIndex);
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    if (currentRowIndex > 0) {
-                        currentRowIndex--;
-                        highlightRow(currentRowIndex);
-                    }
-                } else if (e.key === 'Enter') {
-                    // Open modal with data from the current row
-                    const selectedRow = rows[currentRowIndex];
-                    const sku = selectedRow.querySelector('td:nth-child(2)').textContent.trim();
-                    const name = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
-
-                    $('#addPcsModal').modal('show');
-                    $('#skuLabel').text(sku);
-                    $('#nameLabel').text(name);
-                    $('#modalSku').val(sku);
-                }
-            });
-
-            // Initialize the first row as highlighted
-            highlightRow(currentRowIndex);
-        });
-        $('#addPcsModal').on('shown.bs.modal', function() {
-            $('#pcs').focus();
-        });
-
         document.addEventListener("keydown", (event) => {
             if (event.key === "F2") {
                 event.preventDefault();
-                window.location.href = "sellinglogs";
+                window.location.href = "displaylogs";
             }
         });
         document.addEventListener("keydown", (event) => {
             if (event.key === "F1") {
                 event.preventDefault();
-                window.location.href = "Selling";
+                window.location.href = "display";
             }
         });
     </script>
     <style>
-        /* For Chrome, Edge, Safari */
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        /* For Firefox */
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
         .content {
             font-size: 12px;
         }
@@ -109,7 +47,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Selling
+                    Buffer Logs
                 </h1>
             </div>
         </div>
@@ -120,41 +58,32 @@
     <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="Selling"> [ F1 ] Selling</a>
+                <a class="nav-link" href="Selling"> [ F1 ] Buffer</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="sellinglogs"> [ F2 ] Selling Logs</a>
+                <a class="nav-link active" href="sellinglogs"> [ F2 ] Buffer Logs</a>
         </ul>
         <div class="block block-rounded">
             <div class="block-content">
-                <table style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
+                <table class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
-                            <th class="text-center">#</th>
+                            <th style="width: 0%">#</th>
                             <th>SKU #</th>
                             <th>Name</th>
                             <th>PCS</th>
-
+                            <th>Date Added</th>
+                            <th>Entry Person</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="text-center">1</td>
-                            <td class="font-w600">SKU-001</td>
-                            <td class="font-w600">Product 1</td>
-                            <td class="font-w600">0</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">2</td>
-                            <td class="font-w600">SKU-002</td>
-                            <td class="font-w600">Product 2</td>
-                            <td class="font-w600">5</td>
-                        </tr>
-                        <tr>
-                            <td class="text-center">3</td>
-                            <td class="font-w600">SKU-003</td>
-                            <td class="font-w600">Product 3</td>
-                            <td class="font-w600">10</td>
+                            <td class="font-w600">SKU-000000001</td>
+                            <td class="font-w600">Quickchow4</td>
+                            <td class="font-w600">50</td>
+                            <td class="font-w600">01/21/2025</td>
+                            <td class="font-w600">Mark</td>
                         </tr>
                     </tbody>
                 </table>
@@ -166,7 +95,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content text-center">
                     <div class="modal-header border-0 bg-primary">
-                        <h5 class="modal-title h6 text-white" id="addPcsModalLabel">Add Pieces to Selling</h5>
+                        <h5 class="modal-title h6  text-white" id="addPcsModalLabel">Add Pieces to Warehouse</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -183,8 +112,9 @@
                             <div class="d-flex justify-content-center align-items-center mb-4">
                                 <div class="text-center"
                                     style="width: 100px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">10</p>
-                                    <p class="mb-0" style="font-size: 14px; color: #6c757d;">Warehouse</p>
+                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">10
+                                    </p>
+                                    <p class="mb-0" style="font-size: 14px; color: #6c757d;">Receiving</p>
                                 </div>
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center"
@@ -192,18 +122,13 @@
                                     <input type="number" class="form-control text-center" id="pcs" name="pcs"
                                         style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
                                         placeholder="0" required>
-                                    <p class="mb-0" style="font-size: 14px; color: #6c757d;">Selling</p>
+                                    <p class="mb-0" style="font-size: 14px; color: #6c757d;">Warehouse</p>
                                 </div>
                             </div>
                             <input type="hidden" name="sku" id="modalSku">
-                            <div class="form-group text-left mb-0 mt-2">
-                                <label for="remarks">Remarks</label>
-                                <textarea class="form-control"style="font-size: 12px;" id="remarks" name="remarks" rows="3"
-                                    placeholder="Enter remarks here..."></textarea>
-                            </div>
                         </div>
                         <div class="modal-footer border-0 d-flex justify-content-center">
-                            <button type="submit" class="btn btn-primary btn-sm btn-block"
+                            <button type="submit" class="btn btn-primary px-4"
                                 style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
                         </div>
                     </form>

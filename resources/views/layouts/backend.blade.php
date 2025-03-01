@@ -49,7 +49,7 @@
                         '2': 'nav-product-lists',
                         '3': 'nav-receiving',
                         '4': 'nav-buffer',
-                        '5': 'nav-selling',
+                        '5': 'nav-display',
                         '6': 'nav-audit',
                     };
 
@@ -324,13 +324,30 @@
                                 </a>
                             </li>
                             <li class="nav-main-item">
-                                <a id="nav-selling"
-                                    class="nav-main-link{{ request()->is('pages/Selling') || request()->is('pages/sellinglogs') ? ' active' : '' }}"
-                                    href="/pages/Selling">
+                                <a id="nav-display"
+                                    class="nav-main-link{{ request()->is('pages/display') || request()->is('pages/displaylogs') ? ' active' : '' }}"
+                                    href="/pages/display">
                                     <i class="nav-main-link-icon si si-basket"></i>
-                                    <span class="nav-main-link-name">[ 5 ] Selling</span>
+                                    <span class="nav-main-link-name">[ 5 ] Display</span>
                                 </a>
                             </li>
+                            <li class="nav-main-item">
+                                <a id="nav-audit"
+                                    class="nav-main-link{{ request()->is('pages/badorder') ? ' active' : '' }}"
+                                    href="/pages/audit">
+                                    <i class="nav-main-link-icon fas fa-times-circle"></i>
+                                    <span class="nav-main-link-name">[ 6 ] B.O</span>
+                                </a>
+                            </li>
+                            <li class="nav-main-item">
+                                <a id="nav-audit"
+                                    class="nav-main-link{{ request()->is('pages/sold') ? ' active' : '' }}"
+                                    href="/pages/audit">
+                                    <i class="nav-main-link-icon fas fa-cash-register"></i>
+                                    <span class="nav-main-link-name">[ 7 ] Sold</span>
+                                </a>
+                            </li>
+
                         </ul>
                         <ul class="nav-main">
                             <li class="nav-main-item nav-main-heading"><span>Missing SKU</span></i>

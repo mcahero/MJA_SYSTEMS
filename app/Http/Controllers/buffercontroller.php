@@ -37,31 +37,63 @@ class BufferController extends Controller
         return response()->json($products);
     }
 
-    // ✅ Add product stock to buffer and update warehouse stock
-    public function addToBuffer(Request $request)
+    public function getbuffer()
+    {
+        $buffer = DB::table('buffer')
+        ->orderBy('id', 'desc')
+        ->get();
+        
+        return response()->json($buffer);
+    }
+
+        // ✅ Add product stock to buffer and update warehouse stock
+        public function addToBuffer(Request $request)
     {
         \Log::info('Received request:', $request->all()); // Log the incoming request
 
         // Validate request
         $request->validate([
-            'receivinglist' => 'required|exists:warehouse,id|integer',
+            'warehouse_pcs' => 'required|integer|min:0',
             'sku_id' => 'required|exists:productlist,id|integer',
             'pcs' => 'required|integer|min:1',
             'remarks' => 'nullable|string',
-            'checker' => 'nullable|string', 
-
+            'checker' => 'nullable|string',
         ]);
 
+        // Retrieve the current warehouse stock
+        $warehouseStock = DB::table('receivinglist')
+            ->where('sku_id', $request->sku_id)
+            ->value('pcs');
+
+        if ($warehouseStock === null) {
+            return response()->json(['error' => 'Warehouse stock not found.'], 404);
+        }
+
+        if ($warehouseStock < $request->pcs) {
+            return response()->json(['error' => 'Not enough stock in warehouse.'], 400);
+        }
+
+        // Subtract the pcs from warehouse_pcs
+        $newStock = $warehouseStock - $request->pcs;
+
+        // Update warehouse stock
+        DB::table('receivinglist')
+            ->where('sku_id', $request->sku_id)
+            ->update(['pcs' => $newStock]);
+
+        // Insert into buffer
         $bufferId = DB::table('buffer')->insertGetId([
-            'receivinglist' => $request->receivinglist,
+            'warehouse_pcs' => $newStock, // Updated stock value
             'product_sku' => $request->sku_id,
             'pcs' => $request->pcs,
-            'checker' => $request->checker, 
+            'checker' => $request->checker,
             'remarks' => $request->remarks,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
+        return response()->json(['success' => 'Stock added to buffer successfully.', 'buffer_id' => $bufferId, 'new_stock' => $newStock]);
     }
+
 }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBufferTable extends Migration
+class CreateDisplayTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateBufferTable extends Migration
      */
     public function up()
     {
-        Schema::create('buffer', function (Blueprint $table) {
+        Schema::create('display', function (Blueprint $table) {
             $table->id();
-            $table->integer('warehouse_pcs');
+            $table->integer('buffer_pcs');
             $table->unsignedBigInteger('product_sku');
             $table->integer('pcs');
             $table->string('checker')->nullable();
@@ -33,6 +33,6 @@ class CreateBufferTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('buffer');
+        Schema::dropIfExists('display');
     }
 }

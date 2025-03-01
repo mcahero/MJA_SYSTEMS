@@ -27,8 +27,8 @@ Route::view('/pages/slick', 'pages.slick');
 Route::view('/pages/datatables', 'pages.datatables');
 Route::view('/pages/blank', 'pages.blank');
 Route::view('/pages/bufferlogs', 'pages.bufferlogs');
-Route::view('/pages/Selling', 'pages.Selling');
-Route::view('/pages/sellinglogs', 'pages.sellinglogs');
+Route::view('/pages/display', 'pages.display');
+Route::view('/pages/displaylogs', 'pages.displaylogs');
 Route::view('/pages/buffer', 'pages.buffer');
 Route::view('/pages/audit', 'pages.audit');
 
@@ -55,4 +55,9 @@ Route::get('/pages/buffer/getproducts', 'BufferController@getproducts')->name('w
 Route::get('/pages/buffer/getwarehouseproducts', 'BufferController@getWarehouseProducts')->name('warehouse.warehouse_products');
 Route::get('/pages/buffer/getwareproducts', 'BufferController@getwareproducts')->name('warehouse.getwareproducts');
 Route::post('/warehouse/buffer/add_pcs','BufferController@addToBuffer')->name('warehouse.add_to_buffer');
+Route::get('/pages/buffer/getbuffer', 'BufferController@getbuffer')->name('warehouse.getbuffer');
+
+
+// ✅ Warehouse & Buffer Routes
+
 
