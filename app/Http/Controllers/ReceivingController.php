@@ -35,6 +35,25 @@ class ReceivingController extends Controller
             'K' => '#4b0082', 'L' => '#228b22'
         ];
 
+        $receivings = DB::table('receivinglist')
+        ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id')
+        ->select(
+            'receivinglist.id as receiving_id',
+            'receivinglist.transaction_number',
+            'receivinglist.pcs_in',
+            'receivinglist.pcs_out',
+            'receivinglist.balance_pcs',
+            'receivinglist.checker',
+            'receivinglist.expiry_date',
+            'receivinglist.remarks',
+            'receivinglist.created_at',
+            'productlist.product_sku',
+            'productlist.product_shortname',
+            'productlist.product_fullname'
+        )
+        ->orderBy('receivinglist.id', 'desc')
+        ->get();
+        
         // Fetch records
         $receivings = DB::table('receivinglist')
             ->orderBy('id', 'desc')
@@ -71,62 +90,81 @@ class ReceivingController extends Controller
         
         public function addreceiving(Request $request)
         {
-        try {
-            // Validate request data
-            $validatedData = $request->validate([
-            'sku_id' => 'required|exists:productlist,id|integer',
-                'transaction_number' => 'required|string|max:255',
-                'pcs' => 'required|integer|min:1',
-                'checker' => 'required|string|max:255',
-                'remarks' => 'nullable|string|max:255',
-                'expiry_date' => 'required|date_format:m/Y',
-            ]);
-
-            // Use transaction for database operations
-            DB::beginTransaction();
             try {
-                // Insert using Query Builder
-                $receivingId = DB::table('receivinglist')->insertGetId([
-                    'sku_id' => $validatedData['sku_id'],
-                    'transaction_number' => $validatedData['transaction_number'],
-                    'pcs' => $validatedData['pcs'],
-                    'checker' => $validatedData['checker'],
-                    'remarks' => $validatedData['remarks'],
-                    'expiry_date' => $validatedData['expiry_date'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                  $previousEntriesCount = DB::table('receivinglist')
+                    ->where('sku_id', $request['sku_id'])
+                    ->count();
 
+                if ($previousEntriesCount > 0) {
+                    // Calculate the new balance if there are previous entries
+                    $previousBalance = DB::table('receivinglist')
+                        ->where('sku_id', $request['sku_id'])
+                        ->orderBy('created_at', 'desc')
+                        ->value('balance_pcs'); // Get the latest balance
+
+                    $newBalance = $previousBalance + $request['pcs_in'];
+                } else {
+                    $newBalance = $request['pcs_in'];
+                }
+                
+                $now = Carbon::now('Asia/Manila');
+                $validatedData = $request->validate([
+                    'sku_id' => 'required|exists:productlist,id|integer',
+                    'transaction_number' => 'required|string|max:255',
+                    'pcs_in' => 'required|integer|min:1',
+                    'balance_pcs' => 'integer|min:0',
+                    'checker' => 'required|string|max:255',
+                    'remarks' => 'nullable|string|max:255',
+                    'expiry_date' => 'required|date_format:m/Y',
                 ]);
 
-                $createdReceiving = DB::table('receivinglist')
-                    ->where('id', $receivingId)
-                    ->first();
+                // Use transaction for database operations
+                DB::beginTransaction();
+                try {
+                    // Insert using Query Builder
+                    $receivingId = DB::table('receivinglist')->insertGetId([
+                        'sku_id' => $validatedData['sku_id'],
+                        'transaction_number' => $validatedData['transaction_number'],
+                        'pcs_in' => $validatedData['pcs_in'],
+                        'balance_pcs' => $newBalance,
+                        'checker' => $validatedData['checker'],
+                        'remarks' => $validatedData['remarks'],
+                        'expiry_date' => $validatedData['expiry_date'],
+                        'created_at' => $now,
+                        'updated_at' => now(),
 
-                DB::commit();
+                    ]);
+        
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Receiving added successfully',
-                    'receiving' => $createdReceiving
-                ], 201);
+                    $createdReceiving = DB::table('receivinglist')
+                        ->where('id', $receivingId)
+                        ->first();
 
-            } catch (\Exception $e) {
-                DB::rollBack();
+                    DB::commit();
 
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Receiving added successfully',
+                        'receiving' => $createdReceiving
+                    ], 201);
+
+                } catch (\Exception $e) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to add receiving',
+                        'error' => $e->getMessage()
+                    ], 500);
+
+                }
+
+            } catch (ValidationException $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to add receiving',
-                    'error' => $e->getMessage()
-                ], 500);
-
+                    'message' => 'Validation error',
+                    'errors' => $e->errors()
+                ], 422);
             }
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
         }
-    }
 }

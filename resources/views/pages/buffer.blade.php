@@ -55,6 +55,23 @@
                             <th class="text-center">#</th>
                             <th>SKU #</th>
                             <th>Name</th>
+                            <th>Entry Date</th>
+                            <th>In</th>
+                            <th>Out</th>
+                            <th>Balance</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                {{-- <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>SKU #</th>
+                            <th>Name</th>
                             <th>Last Modified</th>
                             <th>PCS</th>
                         </tr>
@@ -62,7 +79,7 @@
                     <tbody>
 
                     </tbody>
-                </table>
+                </table> --}}
             </div>
         </div>
     </div>
@@ -105,14 +122,15 @@
                             <div class="d-flex justify-content-center align-items-center mb-4">
                                 <div class="text-center"
                                     style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p id="warehouse_pcs" class="mb-0"
+                                    <p id="balance_pcs" class="mb-0"
                                         style="font-size: 24px; font-weight: bold; line-height: 80px;">0</p>
                                     <b class="mb-0" style="font-size: 12px; color: #6c757d;">Warehouse</b>
                                 </div>
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center" id="dynamic_container"
                                     style="width: 130px; height: 80px; border: 2px solid #000; border-radius: 8px;">
-                                    <input type="number" class="form-control text-center" id="pcs" name="pcs"
+                                    <input type="number" class="form-control text-center" id="buffer_pcs_in"
+                                        name="buffer_pcs_in"
                                         style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
                                         placeholder="0" required>
                                     <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to Buffer</b>
@@ -170,20 +188,20 @@
             $('#addToBuffer').click(function() {
                 let formData = new FormData();
                 let product_sku = $('#sku_id').val().trim();
-                let pcs = $('#pcs').val().trim();
+                let buffer_pcs_in = $('#buffer_pcs_in').val().trim();
                 let remarks = $('#remarks').val().trim();
-                let warehouse_pcs = $('#warehouse_pcs').text().trim();
+                let balance_pcs = $('#balance_pcs').text().trim();
 
                 console.log('Adding PCS to buffer:', {
                     product_sku,
-                    pcs,
+                    buffer_pcs_in,
                     remarks,
-                    warehouse_pcs
+                    balance_pcs
                 });
 
                 formData.append('sku_id', parseInt(product_sku, 10));
-                formData.append('warehouse_pcs', warehouse_pcs);
-                formData.append('pcs', pcs);
+                formData.append('balance_pcs', balance_pcs);
+                formData.append('buffer_pcs_in', buffer_pcs_in);
                 formData.append('remarks', remarks);
 
                 $.ajax({
@@ -206,7 +224,7 @@
                             timerProgressBar: false,
                         });
                         $('#buffer_form')[0].reset();
-                        $('#warehouse_pcs').text('0');
+                        $('#balance_pcs').text('0');
 
                         getbuffer()
                         getpcs()
@@ -240,13 +258,14 @@
                         '<option value="" disabled selected>Select SKU</option>');
 
                     $.each(response, function(index, sku) {
-                        $('#sku_id').append('<option value="' + sku.id + '">' + sku
-                            .product_sku + '</option>');
+                        $('#sku_id').append('<option value="' + sku.sku_id +
+                            '" data-balance="' + sku.balance_pcs + '">' + sku.product_sku +
+                            '</option>');
                     });
 
                     $('#sku_id').on('change', function() {
-                        let selectedSku = $(this).val();
-                        let selectedProduct = response.find(sku => sku.id == selectedSku);
+                        let selectedSkuId = $(this).val();
+                        let selectedProduct = response.find(sku => sku.sku_id == selectedSkuId);
 
                         if (selectedProduct) {
                             let productName = selectedProduct.product_shortname ?
@@ -255,7 +274,13 @@
 
                             $('#product_name').val(productName);
                             $('#selected_sku').val(selectedProduct.product_sku);
+                            $('#balance_pcs').text(selectedProduct.balance_pcs);
+                        } else {
+                            $('#product_name').val('');
+                            $('#selected_sku').val('');
+                            $('#balance_pcs').text('0');
                         }
+                        console.log('Selected sku_id:', selectedSkuId);
                     });
                 },
                 error: function(xhr) {
@@ -283,14 +308,14 @@
                             let selectedProduct = response.find(sku => sku.id == selectedSku);
 
                             if (selectedProduct) {
-                                let warehouse_pcs = selectedProduct.pcs;
-                                $('#warehouse_pcs').text(warehouse_pcs);
+                                let balance_pcs = selectedProduct.pcs;
+                                $('#balance_pcs').text(balance_pcs);
                             } else {
-                                $('#warehouse_pcs').text('N/A');
+                                $('#balance_pcs').text('N/A');
                             }
 
                             console.log('Selected SKU:', selectedSku);
-                            console.log('Selected Product:', selectedProduct);
+                            console.log('Selected getwareproducts:', selectedProduct);
                         });
                     },
                     error: function(xhr, status, error) {
@@ -318,6 +343,7 @@
             });
 
             function getbuffer() {
+                console.log('Fetching buffer list...');
                 $.ajax({
                     url: '/pages/buffer/getbuffer',
                     type: 'GET',
@@ -326,27 +352,22 @@
                         'X-CSRF-TOKEN': csrf_token
                     },
                     success: function(data) {
+                        console.log('Received buffer list:', data);
                         displaybufferlist(data);
                     }
                 });
             }
 
             function displaybufferlist(data) {
-                const productsBuffer = data.reduce((acc, cur) => {
-                    const existing = acc.find(p => p.product_sku === cur.product_sku);
-                    if (existing) {
-                        existing.pcs += cur.pcs;
-                    } else {
-                        acc.push(cur);
-                    }
-                    return acc;
-                }, []);
-
                 $('#buffer_table').DataTable({
                     destroy: true,
-                    data: productsBuffer,
+                    data: data,
                     columns: [{
-                            data: null
+                            data: 'id',
+                            render: function(data, type, row) {
+                                const paddedId = String(data).padStart(3, '0');
+                                return `${paddedId}-${data}`;
+                            }
                         },
                         {
                             data: null
@@ -358,18 +379,19 @@
                             data: 'created_at'
                         },
                         {
-                            data: 'pcs'
-                        },
-                    ],
-                    columnDefs: [{
-                            targets: 0,
-                            orderable: false,
-                            createdCell: function(td, cellData, rowData) {
-                                $(td).html(`${productsBuffer.indexOf(rowData) + 1}`)
-                                $(td).addClass('align-middle')
-                            }
+                            data: 'buffer_pcs_in'
                         },
                         {
+                            data: 'buffer_pcs_out'
+                        },
+                        {
+                            data: 'buffer_balance_pcs'
+                        },
+                        {
+                            data: 'remarks'
+                        }
+                    ],
+                    columnDefs: [{
                             targets: 1,
                             render: (data, type, row) => {
                                 const product = productList.find(p => p.id == row.product_sku);
@@ -388,12 +410,12 @@
                                     'Loading...';
                             }
                         },
-                    ]
+                    ],
+                    order: [
+                        [0, 'desc']
+                    ] // Add this line to set initial sorting
                 });
             }
-
-
-
 
             $(document).ready(function() {
                 $('#Addbuffermodal').on('shown.bs.modal', function() {
@@ -422,7 +444,7 @@
                     parentDiv.style.width = newWidth + 'px';
                 });
             }
-            adjustWidthBasedOnInput('pcs', 'dynamic_container');
+            adjustWidthBasedOnInput('buffer_pcs_in', 'dynamic_container');
 
             document.addEventListener('DOMContentLoaded', function() {
                 const table = document.querySelector('table');

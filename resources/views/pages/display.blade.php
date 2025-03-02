@@ -30,7 +30,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    Buffer
+                    Display
                 </h1>
             </div>
         </div>
@@ -38,18 +38,35 @@
     <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="buffer"> [ F1 ] Buffer</a>
+                <a class="nav-link active" href="display"> [ F1 ] Display</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="bufferlogs"> [ F2 ] Buffer Logs</a>
+                <a class="nav-link" href="display"> [ F2 ] Display Logs</a>
         </ul>
         <div class="block block-rounded">
             <div class="block-content ">
                 <button type="button" class="btn btn-sm btn-primary mb-3" data-toggle="modal"
                     data-target="#Addbuffermodal">
-                    <i class="fa fa-plus mr-2"></i>Add Pcs to Buffer
+                    <i class="fa fa-plus mr-2"></i>Add Pcs to Display
                 </button>
                 <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>SKU #</th>
+                            <th>Name</th>
+                            <th>Entry Date</th>
+                            <th>In</th>
+                            <th>Out</th>
+                            <th>Balance</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                {{-- <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -62,7 +79,7 @@
                     <tbody>
 
                     </tbody>
-                </table>
+                </table> --}}
             </div>
         </div>
     </div>
@@ -73,7 +90,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Pcs to Buffer</h5>
+                    <h5 class="modal-title">Add Pcs to Display</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span>&times;</span>
                     </button>
@@ -105,17 +122,18 @@
                             <div class="d-flex justify-content-center align-items-center mb-4">
                                 <div class="text-center"
                                     style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p id="warehouse_pcs" class="mb-0"
+                                    <p id="buffer_balance_pcs" class="mb-0"
                                         style="font-size: 24px; font-weight: bold; line-height: 80px;">0</p>
-                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Warehouse</b>
+                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Buffer</b>
                                 </div>
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center" id="dynamic_container"
                                     style="width: 130px; height: 80px; border: 2px solid #000; border-radius: 8px;">
-                                    <input type="number" class="form-control text-center" id="pcs" name="pcs"
+                                    <input type="number" class="form-control text-center" id="display_pcs_in"
+                                        name="display_pcs_in"
                                         style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
                                         placeholder="0" required>
-                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to Buffer</b>
+                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to Display</b>
                                 </div>
 
 
@@ -125,7 +143,7 @@
                                     <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">0
                                     </p>
                                     <b class="mb-0 text-nowrap" style="font-size: 12px; color: #6c757d;">Current
-                                        Buffer
+                                        Display
                                         Pcs</b>
                                 </div>
                             </div>
@@ -136,7 +154,7 @@
                             </div>
                         </div>
                         <div class="modal-footer border-0 d-flex justify-content-center">
-                            <button type="button" id="addToBuffer" class="btn btn-primary btn-sm btn-block"
+                            <button type="button" id="addToDisplay" class="btn btn-primary btn-sm btn-block"
                                 style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
                         </div>
                     </form>
@@ -165,70 +183,10 @@
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
     <script>
         $(document).ready(function() {
-            csrf_token = $('meta[name="csrf-token"]').attr('content');
-
-            $('#addToBuffer').click(function() {
-                let formData = new FormData();
-                let product_sku = $('#sku_id').val().trim();
-                let pcs = $('#pcs').val().trim();
-                let remarks = $('#remarks').val().trim();
-                let warehouse_pcs = $('#warehouse_pcs').text().trim();
-
-                console.log('Adding PCS to buffer:', {
-                    product_sku,
-                    pcs,
-                    remarks,
-                    warehouse_pcs
-                });
-
-                formData.append('sku_id', parseInt(product_sku, 10));
-                formData.append('warehouse_pcs', warehouse_pcs);
-                formData.append('pcs', pcs);
-                formData.append('remarks', remarks);
-
-                $.ajax({
-                    url: '/warehouse/buffer/add_pcs',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': csrf_token
-                    },
-                    success: function(response) {
-                        $('#Addbuffermodal').modal('hide');
-                        console.log('Response:', response);
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'PCS added to buffer successfully.',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: false,
-                        });
-                        $('#buffer_form')[0].reset();
-                        $('#warehouse_pcs').text('0');
-
-                        getbuffer()
-                        getpcs()
-
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error adding PCS to buffer:', error);
-
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'Failed to add PCS to buffer. Please try again.',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true,
-                        });
-                    }
-                });
-            });
+            var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
             $.ajax({
-                url: '/pages/buffer/getwarehouseproducts',
+                url: '/pages/display/get_buffer_products',
                 type: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': csrf_token
@@ -240,13 +198,15 @@
                         '<option value="" disabled selected>Select SKU</option>');
 
                     $.each(response, function(index, sku) {
-                        $('#sku_id').append('<option value="' + sku.id + '">' + sku
-                            .product_sku + '</option>');
+                        $('#sku_id').append('<option value="' + sku.sku_id +
+                            '" data-balance="' + sku.buffer_balance_pcs + '">' + sku
+                            .product_sku +
+                            '</option>');
                     });
 
                     $('#sku_id').on('change', function() {
-                        let selectedSku = $(this).val();
-                        let selectedProduct = response.find(sku => sku.id == selectedSku);
+                        let selectedSkuId = $(this).val();
+                        let selectedProduct = response.find(sku => sku.sku_id == selectedSkuId);
 
                         if (selectedProduct) {
                             let productName = selectedProduct.product_shortname ?
@@ -255,7 +215,13 @@
 
                             $('#product_name').val(productName);
                             $('#selected_sku').val(selectedProduct.product_sku);
+                            $('#buffer_balance_pcs').text(selectedProduct.buffer_balance_pcs);
+                        } else {
+                            $('#product_name').val('');
+                            $('#selected_sku').val('');
+                            $('#buffer_balance_pcs').text('0');
                         }
+                        console.log('Selected sku_id:', selectedSkuId);
                     });
                 },
                 error: function(xhr) {
@@ -267,7 +233,7 @@
 
             function getpcs() {
                 $.ajax({
-                    url: '/pages/buffer/getwareproducts',
+                    url: '/pages/display/getbufferpcs',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrf_token
@@ -283,14 +249,14 @@
                             let selectedProduct = response.find(sku => sku.id == selectedSku);
 
                             if (selectedProduct) {
-                                let warehouse_pcs = selectedProduct.pcs;
-                                $('#warehouse_pcs').text(warehouse_pcs);
+                                let buffer_balance_pcs = selectedProduct.pcs;
+                                $('#buffer_balance_pcs').text(buffer_balance_pcs);
                             } else {
-                                $('#warehouse_pcs').text('N/A');
+                                $('#buffer_balance_pcs').text('N/A');
                             }
 
                             console.log('Selected SKU:', selectedSku);
-                            console.log('Selected Product:', selectedProduct);
+                            console.log('Selected getwareproducts:', selectedProduct);
                         });
                     },
                     error: function(xhr, status, error) {
@@ -300,6 +266,52 @@
 
             }
 
+            // in your #addToDisplay click handler:
+            $('#addToDisplay').click(function() {
+                let formData = new FormData();
+                let product_sku = $('#sku_id').val().trim();
+                let display_pcs_in = $('#display_pcs_in').val().trim(); // Changed name
+                let remarks = $('#remarks').val().trim();
+                let buffer_balance_pcs = $('#buffer_balance_pcs').text().trim();
+
+                console.log('Adding PCS to display:', {
+                    product_sku,
+                    display_pcs_in, // Changed name
+                    remarks,
+                    buffer_balance_pcs
+                });
+
+                formData.append('sku_id', parseInt(product_sku, 10));
+                formData.append('buffer_balance_pcs', buffer_balance_pcs);
+                formData.append('display_pcs_in', display_pcs_in); // Changed name
+                formData.append('remarks', remarks);
+
+                $.ajax({
+                    url: '/pages/display/addToDisplay',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(response) {
+                        $('#Addbuffermodal').modal('hide');
+                        console.log('Response:', response);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'PCS added to Display successfully.',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: false,
+                        });
+                        $('#buffer_form')[0].reset();
+                        $('#buffer_balance_pcs').text('0');
+
+                        getdisplay();
+                    },
+                });
+            });
 
             let productList = [];
 
@@ -312,41 +324,37 @@
                     },
                     success: function(products) {
                         productList = products;
-                        getbuffer();
+                        getdisplay();
                     }
                 });
             });
 
-            function getbuffer() {
+            function getdisplay() {
+                console.log('get display...');
                 $.ajax({
-                    url: '/pages/buffer/getbuffer',
+                    url: '/pages/display/getdisplay',
                     type: 'GET',
                     dataType: 'json',
                     headers: {
                         'X-CSRF-TOKEN': csrf_token
                     },
                     success: function(data) {
+                        console.log('Received display list:', data);
                         displaybufferlist(data);
                     }
                 });
             }
 
             function displaybufferlist(data) {
-                const productsBuffer = data.reduce((acc, cur) => {
-                    const existing = acc.find(p => p.product_sku === cur.product_sku);
-                    if (existing) {
-                        existing.pcs += cur.pcs;
-                    } else {
-                        acc.push(cur);
-                    }
-                    return acc;
-                }, []);
-
                 $('#buffer_table').DataTable({
                     destroy: true,
-                    data: productsBuffer,
+                    data: data,
                     columns: [{
-                            data: null
+                            data: 'id',
+                            render: function(data, type, row) {
+                                const paddedId = String(data).padStart(3, '0');
+                                return `${paddedId}-${data}`;
+                            }
                         },
                         {
                             data: null
@@ -358,18 +366,19 @@
                             data: 'created_at'
                         },
                         {
-                            data: 'pcs'
-                        },
-                    ],
-                    columnDefs: [{
-                            targets: 0,
-                            orderable: false,
-                            createdCell: function(td, cellData, rowData) {
-                                $(td).html(`${productsBuffer.indexOf(rowData) + 1}`)
-                                $(td).addClass('align-middle')
-                            }
+                            data: 'display_pcs_in'
                         },
                         {
+                            data: 'display_pcs_out'
+                        },
+                        {
+                            data: 'display_balance_pcs'
+                        },
+                        {
+                            data: 'remarks'
+                        }
+                    ],
+                    columnDefs: [{
                             targets: 1,
                             render: (data, type, row) => {
                                 const product = productList.find(p => p.id == row.product_sku);
@@ -388,11 +397,12 @@
                                     'Loading...';
                             }
                         },
-                    ]
+                    ],
+                    order: [
+                        [0, 'desc']
+                    ] // Add this line to set initial sorting
                 });
             }
-
-
 
 
             $(document).ready(function() {
@@ -422,7 +432,7 @@
                     parentDiv.style.width = newWidth + 'px';
                 });
             }
-            adjustWidthBasedOnInput('pcs', 'dynamic_container');
+            adjustWidthBasedOnInput('display_pcs_in', 'dynamic_container');
 
             document.addEventListener('DOMContentLoaded', function() {
                 const table = document.querySelector('table');
@@ -451,13 +461,13 @@
             document.addEventListener("keydown", (event) => {
                 if (event.key === "F2") {
                     event.preventDefault();
-                    window.location.href = "bufferlogs";
+                    window.location.href = "displaylogs";
                 }
             });
             document.addEventListener("keydown", (event) => {
                 if (event.key === "F1") {
                     event.preventDefault();
-                    window.location.href = "buffer";
+                    window.location.href = "display";
                 }
             });
         });

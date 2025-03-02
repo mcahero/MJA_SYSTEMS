@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class ProductsList extends Controller
 {
+
     public function getproducts()
     {
         $products = DB::table('productlist')
@@ -28,6 +29,7 @@ class ProductsList extends Controller
     public function addproducts(Request $request)
 {
     try {
+        
         // Validate request data
         $validatedData = $request->validate([
             'product_fullname' => 'required|string|max:255',
@@ -41,6 +43,7 @@ class ProductsList extends Controller
         DB::beginTransaction();
 
         try {
+            $now = Carbon::now('Asia/Manila');
             // Insert using Query Builder
             $productId = DB::table('productlist')->insertGetId([
                 'product_fullname' => $validatedData['product_fullname'],
@@ -52,8 +55,8 @@ class ProductsList extends Controller
                 'product_warehouse' => $request->product_warehouse,
                 'product_entryperson' => $validatedData['product_entryperson'],
                 'product_remarks' => $request->product_remarks,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
 
             // Retrieve inserted product using Query Builder
@@ -114,6 +117,8 @@ class ProductsList extends Controller
         }
     public function editproduct(Request $request)
     {
+        
+        $now = Carbon::now('Asia/Manila');
         DB::table('productlist')->where('id', $request->product_id)->update([
             'product_fullname' => $request->product_fullname,
             'product_shortname' => $request->product_shortname,
@@ -124,7 +129,7 @@ class ProductsList extends Controller
             'product_warehouse' => $request->product_warehouse,
             'product_entryperson' => $request->product_entryperson,
             'product_remarks' => $request->product_remarks,
-            'updated_at' => Carbon::now()
+            'updated_at' => $now,
         ]);
     }
 

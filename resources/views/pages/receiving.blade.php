@@ -83,7 +83,7 @@
                 let formData = new FormData();
                 formData.append('sku_id', parseInt($('#sku_id').val().trim(), 10));
                 formData.append('transaction_number', $('#transaction_number').val().trim());
-                formData.append('pcs', $('#pcs').val().trim());
+                formData.append('pcs_in', $('#pcs').val().trim());
                 formData.append('expiry_date', $('#expiry_date').val().trim());
                 formData.append('checker', $('#checker').val().trim());
                 formData.append('remarks', $('#remarks').val().trim());
@@ -108,12 +108,11 @@
                                 timer: 1500
                             });
 
+                            getReceivingList();
                             console.log($('#product_form'));
                             console.log($('#product_form')[0]);
                             $('#product_form')[0].reset();
                             resetStepper();
-
-                            getReceivingList();
 
                         }
                     },
@@ -264,7 +263,13 @@
                             data: null
                         },
                         {
-                            data: 'pcs'
+                            data: 'pcs_in'
+                        },
+                        {
+                            data: 'pcs_out'
+                        },
+                        {
+                            data: 'balance_pcs'
                         },
                         {
                             data: null
@@ -286,6 +291,7 @@
                         },
                         {
                             targets: 2,
+                            width: '10%',
                             render: (data, type, row) => {
                                 const product = productList.find(p => p.id == row.sku_id);
                                 return product ?
@@ -295,16 +301,16 @@
                         },
                         {
                             targets: 4,
-                            width: '20%',
+                            width: '15%',
                             render: (data, type, row) => {
                                 const product = productList.find(p => p.id == row.sku_id);
                                 return product ?
-                                    `${product.product_fullname} <small class="text-muted">(${product.product_shortname})</small>  <small class="text-muted">${product.jda_systemname}</small>` :
+                                    `${product.product_fullname} <br><small class="text-muted">(${product.product_shortname})</small>  <small class="text-muted">${product.jda_systemname}</small>` :
                                     'Loading...';
                             }
                         },
                         {
-                            targets: 6, // Color badge column
+                            targets: 8, // Color badge column
                             orderable: false,
                             createdCell: function(td, cellData, rowData) {
                                 $(td).html(`
@@ -315,7 +321,11 @@
                             `).addClass('align-middle');
                             }
                         },
-                    ]
+                    ],
+                    language: {
+                        lengthMenu: "Show _MENU_ entries",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries"
+                    }
                 });
             }
 
@@ -336,217 +346,212 @@
                 });
             });
 
+            const steps = $(".step");
+            const stepContents = $(".step-content");
+            const progressBar = $("#step-progress");
+            const nextButtons = $(".step-next");
+            const prevButtons = $(".step-prev");
+            const dateInput = $('#expiry_date');
+            const colorCodeDiv = $('#color_code_div');
+            const colorCodeH1 = $('#color_code_h1');
 
+            let currentStep = 1;
+            let activeSegment = null;
+            let enteredMonthLetter = '';
+            let enteredYearLetter = '';
 
+            const monthMap = {
+                A: '01',
+                B: '02',
+                C: '03',
+                D: '04',
+                E: '05',
+                F: '06',
+                G: '07',
+                H: '08',
+                I: '09',
+                J: '10',
+                K: '11',
+                L: '12'
+            };
 
+            const yearMap = {
+                A: '2021',
+                B: '2022',
+                C: '2023',
+                D: '2024',
+                E: '2025',
+                F: '2026',
+                G: '2027',
+                H: '2028',
+                I: '2029',
+                J: '2030',
+                K: '2031',
+                L: '2032'
+            };
 
-            $(document).ready(function() {
-                const steps = $(".step");
-                const stepContents = $(".step-content");
-                const progressBar = $("#step-progress");
-                const nextButtons = $(".step-next");
-                const prevButtons = $(".step-prev");
-                const dateInput = $('#expiry_date');
-                const colorCodeDiv = $('#color_code_div');
-                const colorCodeH1 = $('#color_code_h1');
+            const colorMap = {
+                A: '#007f00',
+                B: '#002f99',
+                C: '#00bfff',
+                D: '#8b4513',
+                E: '#555555',
+                F: '#cccccc',
+                G: '#ff4500',
+                H: '#ffa500',
+                I: '#d87093',
+                J: '#ff6347',
+                K: '#4b0082',
+                L: '#228b22'
+            };
 
-                let currentStep = 1;
-                let activeSegment = null;
-                let enteredMonthLetter = '';
-                let enteredYearLetter = '';
+            // Utility Functions
+            function showStep(step) {
+                steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
+                stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass(
+                    "active");
+                progressBar.css("width", `${(step / 3) * 100}%`);
+            }
 
-                const monthMap = {
-                    A: '01',
-                    B: '02',
-                    C: '03',
-                    D: '04',
-                    E: '05',
-                    F: '06',
-                    G: '07',
-                    H: '08',
-                    I: '09',
-                    J: '10',
-                    K: '11',
-                    L: '12'
-                };
+            function validateStep(step) {
+                const activeStepContent = $(`.step-content[data-step="${step}"]`);
+                const inputs = activeStepContent.find("[required]");
+                let isValid = true;
 
-                const yearMap = {
-                    A: '2021',
-                    B: '2022',
-                    C: '2023',
-                    D: '2024',
-                    E: '2025',
-                    F: '2026',
-                    G: '2027',
-                    H: '2028',
-                    I: '2029',
-                    J: '2030',
-                    K: '2031',
-                    L: '2032'
-                };
-
-                const colorMap = {
-                    A: '#007f00',
-                    B: '#002f99',
-                    C: '#00bfff',
-                    D: '#8b4513',
-                    E: '#555555',
-                    F: '#cccccc',
-                    G: '#ff4500',
-                    H: '#ffa500',
-                    I: '#d87093',
-                    J: '#ff6347',
-                    K: '#4b0082',
-                    L: '#228b22'
-                };
-
-                // Utility Functions
-                function showStep(step) {
-                    steps.removeClass("active").filter(`[data-step="${step}"]`).addClass("active");
-                    stepContents.removeClass("active").filter(`[data-step="${step}"]`).addClass(
-                        "active");
-                    progressBar.css("width", `${(step / 3) * 100}%`);
-                }
-
-                function validateStep(step) {
-                    const activeStepContent = $(`.step-content[data-step="${step}"]`);
-                    const inputs = activeStepContent.find("[required]");
-                    let isValid = true;
-
-                    inputs.each(function() {
-                        const input = $(this);
-                        if (!input.val().trim()) {
-                            input.addClass("is-invalid");
-                            isValid = false;
-                        } else {
-                            input.removeClass("is-invalid");
-                        }
-                    });
-
-                    return isValid;
-                }
-
-                function updateProgress(step) {
-                    if (validateStep(currentStep)) {
-                        currentStep = step;
-                        showStep(currentStep);
-                    }
-                }
-
-                function activateSegment(segment) {
-                    activeSegment = segment;
-                    dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
-                    setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ?
-                        2 :
-                        7);
-                }
-
-                function deactivateSegment() {
-                    activeSegment = null;
-                    dateInput.css("caretColor", 'black');
-                }
-
-                function handleKeydown(e) {
-                    let value = dateInput.val();
-
-                    if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
-                        const month = monthMap[e.key.toUpperCase()];
-                        value = month + value.slice(2);
-                        dateInput.val(value);
-                        setCaretPosition(dateInput[0], 3);
-                        activateSegment('year');
-                        enteredMonthLetter = e.key.toUpperCase();
-                        updateColorCode(enteredMonthLetter, enteredYearLetter);
-                        e.preventDefault();
-                    } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
-                        const year = yearMap[e.key.toUpperCase()];
-                        value = value.slice(0, 3) + year;
-                        dateInput.val(value);
-                        setCaretPosition(dateInput[0], 7);
-                        deactivateSegment();
-                        enteredYearLetter = e.key.toUpperCase();
-                        updateColorCode(enteredMonthLetter, enteredYearLetter);
-                        e.preventDefault();
-                    }
-
-                    if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
-
-                    if (e.key === "Enter") {
-                        deactivateSegment();
-                        $(document.activeElement).blur();
-                        e.preventDefault();
-                    }
-                }
-
-                function updateColorCode(monthKey, yearKey) {
-                    if (monthKey in colorMap) {
-                        colorCodeH1.css("backgroundColor", colorMap[monthKey]);
-                        colorCodeH1.text(`${monthKey}${yearKey}`);
-                    }
-                }
-
-                function getCaretPosition(input) {
-                    return input.selectionStart;
-                }
-
-                function setCaretPosition(input, start, end = start) {
-                    input.setSelectionRange(start, end);
-                }
-
-                // Event Handlers
-                nextButtons.on("click", function() {
-                    updateProgress(currentStep + 1);
-                });
-
-                prevButtons.on("click", function() {
-                    if (currentStep > 1) {
-                        updateProgress(currentStep - 1);
+                inputs.each(function() {
+                    const input = $(this);
+                    if (!input.val().trim()) {
+                        input.addClass("is-invalid");
+                        isValid = false;
+                    } else {
+                        input.removeClass("is-invalid");
                     }
                 });
 
-                $(document).on("keydown", function(event) {
-                    if ($(".select2-search__field:focus").length > 0) {
-                        return; // Ignore shortcut keys when Select2 is open
-                    }
+                return isValid;
+            }
 
-                    if (event.key === "F1") {
-                        event.preventDefault();
-                        $('#addReceivingModal').modal('show');
-                    } else if (event.key === "ArrowRight") {
-                        updateProgress(currentStep + 1);
-                    } else if (event.key === "ArrowLeft") {
-                        if (currentStep > 1) updateProgress(currentStep - 1);
-                    } else if (event.key === "Enter" && currentStep === 3) {
-                        event.preventDefault();
-                        $("#submitReceiving").trigger("click");
-                    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                        const activeStepContent = $(".step-content.active");
-                        const inputs = activeStepContent.find("input, select, textarea")
-                            .toArray();
-                        const currentIndex = inputs.indexOf(document.activeElement);
+            function updateProgress(step) {
+                if (validateStep(currentStep)) {
+                    currentStep = step;
+                    showStep(currentStep);
+                }
+            }
 
-                        if (event.key === "ArrowUp" && currentIndex > 0) {
-                            inputs[currentIndex - 1].focus();
-                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length -
-                            1) {
-                            inputs[currentIndex + 1].focus();
-                        }
-                    }
-                });
+            function activateSegment(segment) {
+                activeSegment = segment;
+                dateInput.css("caretColor", segment === 'month' ? 'blue' : 'green');
+                setCaretPosition(dateInput[0], segment === 'month' ? 0 : 3, segment === 'month' ?
+                    2 :
+                    7);
+            }
 
-                dateInput.on('focus', function() {
-                    activateSegment('month');
-                });
+            function deactivateSegment() {
+                activeSegment = null;
+                dateInput.css("caretColor", 'black');
+            }
 
-                dateInput.on('click', function() {
-                    const caretPos = getCaretPosition(dateInput[0]);
-                    if (caretPos <= 2) activateSegment('month');
-                    else activateSegment('year');
-                });
+            function handleKeydown(e) {
+                let value = dateInput.val();
 
-                dateInput.on('keydown', handleKeydown);
+                if (activeSegment === 'month' && e.key.toUpperCase() in monthMap) {
+                    const month = monthMap[e.key.toUpperCase()];
+                    value = month + value.slice(2);
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 3);
+                    activateSegment('year');
+                    enteredMonthLetter = e.key.toUpperCase();
+                    updateColorCode(enteredMonthLetter, enteredYearLetter);
+                    e.preventDefault();
+                } else if (activeSegment === 'year' && e.key.toUpperCase() in yearMap) {
+                    const year = yearMap[e.key.toUpperCase()];
+                    value = value.slice(0, 3) + year;
+                    dateInput.val(value);
+                    setCaretPosition(dateInput[0], 7);
+                    deactivateSegment();
+                    enteredYearLetter = e.key.toUpperCase();
+                    updateColorCode(enteredMonthLetter, enteredYearLetter);
+                    e.preventDefault();
+                }
 
+                if (!/[A-Za-z0-9]/.test(e.key)) e.preventDefault();
+
+                if (e.key === "Enter") {
+                    deactivateSegment();
+                    $(document.activeElement).blur();
+                    e.preventDefault();
+                }
+            }
+
+            function updateColorCode(monthKey, yearKey) {
+                if (monthKey in colorMap) {
+                    colorCodeH1.css("backgroundColor", colorMap[monthKey]);
+                    colorCodeH1.text(`${monthKey}${yearKey}`);
+                }
+            }
+
+            function getCaretPosition(input) {
+                return input.selectionStart;
+            }
+
+            function setCaretPosition(input, start, end = start) {
+                input.setSelectionRange(start, end);
+            }
+
+            // Event Handlers
+            nextButtons.on("click", function() {
+                updateProgress(currentStep + 1);
             });
+
+            prevButtons.on("click", function() {
+                if (currentStep > 1) {
+                    updateProgress(currentStep - 1);
+                }
+            });
+
+            $(document).on("keydown", function(event) {
+                if ($(".select2-search__field:focus").length > 0) {
+                    return; // Ignore shortcut keys when Select2 is open
+                }
+
+                if (event.key === "F1") {
+                    event.preventDefault();
+                    $('#addReceivingModal').modal('show');
+                } else if (event.key === "ArrowRight") {
+                    updateProgress(currentStep + 1);
+                } else if (event.key === "ArrowLeft") {
+                    if (currentStep > 1) updateProgress(currentStep - 1);
+                } else if (event.key === "Enter" && currentStep === 3) {
+                    event.preventDefault();
+                    $("#submitReceiving").trigger("click");
+                } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                    const activeStepContent = $(".step-content.active");
+                    const inputs = activeStepContent.find("input, select, textarea")
+                        .toArray();
+                    const currentIndex = inputs.indexOf(document.activeElement);
+
+                    if (event.key === "ArrowUp" && currentIndex > 0) {
+                        inputs[currentIndex - 1].focus();
+                    } else if (event.key === "ArrowDown" && currentIndex < inputs.length -
+                        1) {
+                        inputs[currentIndex + 1].focus();
+                    }
+                }
+            });
+
+            dateInput.on('focus', function() {
+                activateSegment('month');
+            });
+
+            dateInput.on('click', function() {
+                const caretPos = getCaretPosition(dateInput[0]);
+                if (caretPos <= 2) activateSegment('month');
+                else activateSegment('year');
+            });
+
+            dateInput.on('keydown', handleKeydown);
+
+            receiving_table
         });
     </script>
 @endsection
@@ -577,15 +582,17 @@
             </div>
             <div class="block-content block-content-full">
                 <table id="receiving_table" style="font-size: 12px;"
-                    class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
                             <th style="font-size: 12px;">#</th>
                             <th style="font-size: 12px;">Transaction #</th>
                             <th style="font-size: 12px;">SKU #</th>
-                            <th style="font-size: 12px;">ARRIVAL DATE</th>
+                            <th style="font-size: 12px;">Entry Date</th>
                             <th style="font-size: 12px;">NAME</th>
-                            <th style="font-size: 12px;">PCS</th>
+                            <th style="font-size: 12px;">In</th>
+                            <th style="font-size: 12px;">Out</th>
+                            <th style="font-size: 12px;">Balance</th>
                             <th style="font-size: 12px;">COLOR CODE</th>
                             <th style="font-size: 12px;">CHECKER</th>
                             <th style="font-size: 12px;">REMARKS</th>

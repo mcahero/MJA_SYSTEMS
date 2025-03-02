@@ -15,9 +15,10 @@ class CreateBufferTable extends Migration
     {
         Schema::create('buffer', function (Blueprint $table) {
             $table->id();
-            $table->integer('warehouse_pcs');
             $table->unsignedBigInteger('product_sku');
-            $table->integer('pcs');
+            $table->integer('buffer_pcs_in')->default(0);
+            $table->integer('buffer_pcs_out')->default(0);
+            $table->integer('buffer_balance_pcs')->default(0);;
             $table->string('checker')->nullable();
             $table->string('remarks')->nullable();
             $table->timestamps();

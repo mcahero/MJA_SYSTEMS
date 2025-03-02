@@ -5,6 +5,8 @@ use App\Http\Controllers\ProductsList;
 use App\Http\Controllers\ReceivingController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\BufferController;
+use App\Http\Controllers\SupplierController;
+
 
 
 /*
@@ -40,6 +42,8 @@ Route::delete('/pages/product_lists/delete/{id}', 'ProductsList@deleteproduct')-
 Route::post('/pages/product_lists/edit','ProductsList@editproduct')->name('products.edit');
 Route::get('/pages/product_lists/editform', 'ProductsList@editform')->name('products.editform');
 
+Route::resource('suppliers', 'SupplierController@index');
+
 
 
 Route::get('/pages/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
@@ -58,6 +62,13 @@ Route::post('/warehouse/buffer/add_pcs','BufferController@addToBuffer')->name('w
 Route::get('/pages/buffer/getbuffer', 'BufferController@getbuffer')->name('warehouse.getbuffer');
 
 
-// ✅ Warehouse & Buffer Routes
+// ✅ Buffer Routes
+Route::get('/pages/display/get_buffer_products', 'DisplayController@get_buffer_products');
+Route::get('/pages/display/getbufferpcs', 'DisplayController@getbufferpcs')->name('buffer.getbufferpcs');
+Route::post('/pages/display/addToDisplay','DisplayController@addToDisplay')->name('warehouse.add_to_display');
+Route::get('/pages/display/getdisplay', 'DisplayController@getdisplay');
+Route::post('/pages/display/remove_from_buffer', 'DisplayController@removeFromBuffer');
+
+
 
 

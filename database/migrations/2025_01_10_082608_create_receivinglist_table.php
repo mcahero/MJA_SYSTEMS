@@ -17,8 +17,10 @@ class CreateReceivinglistTable extends Migration
             $table->id();
             $table->unsignedBigInteger('sku_id');
             $table->string('transaction_number');
-            $table->integer('pcs');
-            $table->string('checker');
+            $table->integer('pcs_in')->default(0);
+            $table->integer('pcs_out')->default(0);
+            $table->integer('balance_pcs')->default(0);;
+            $table->string('checker')->nullable();
             $table->string('expiry_date');
             $table->text('remarks')->nullable();
             $table->timestamps();

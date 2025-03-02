@@ -4,30 +4,54 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class BufferController extends Controller
 {
     // ✅ Fetch all warehouse products
     public function getWarehouseProducts()
-    {
-        $receivings = DB::table('receivinglist')
-            ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id') // Ensure correct FK relationship
-            ->select(
-                'receivinglist.sku_id as id', // This is necessary for the JS dropdown
-                'productlist.product_sku', 
-                'productlist.product_fullname', 
-                'productlist.product_shortname'
-            )
-            ->groupBy('receivinglist.sku_id', 'productlist.product_sku', 'productlist.product_fullname', 'productlist.product_shortname') // Avoid duplicates
-            ->get();
+{
+    $receivings = DB::table('receivinglist')
+        ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id')
+        ->select(
+            'receivinglist.id as receiving_id', // Add aliases to avoid column name conflicts
+            'receivinglist.sku_id',
+            'receivinglist.balance_pcs',
+            'receivinglist.created_at', // Assuming you have a created_at or updated_at column
+            'productlist.product_sku',
+            'productlist.product_shortname',
+            'productlist.product_fullname'
+        )
+        ->whereIn('receivinglist.id', function ($query) {
+            $query->select(DB::raw('MAX(receivinglist.id)')) // Get the maximum id for each sku_id
+                ->from('receivinglist')
+                ->groupBy('sku_id');
+        })
+        ->orderBy('receivinglist.sku_id', 'asc')
+        ->get();
 
-        return response()->json($receivings);
-    }
+    return response()->json($receivings);
+}
 
     public function getwareproducts()
     {
-        $getreceivings = DB::table('receivinglist')->get();
-        return response()->json($getreceivings);
+         $getreceivings = DB::table('receivinglist')
+        ->select('id', 'balance_pcs')
+        ->whereIn('id', function ($query) {
+            $query->select('id')
+                ->from('receivinglist')
+                ->groupBy('id');
+        })
+        ->orderBy('id', 'asc')
+        ->orderBy('created_at', 'desc') // Assuming you have a 'created_at' or similar timestamp
+        ->get()
+        ->groupBy('id')
+        ->map(function ($items) {
+            return $items->first();
+        })
+        ->values();
+
+    return response()->json($getreceivings);
     }
 
 
@@ -36,7 +60,6 @@ class BufferController extends Controller
         $products = DB::table('productlist')->get();
         return response()->json($products);
     }
-
     public function getbuffer()
     {
         $buffer = DB::table('buffer')
@@ -49,51 +72,78 @@ class BufferController extends Controller
         // ✅ Add product stock to buffer and update warehouse stock
         public function addToBuffer(Request $request)
     {
-        \Log::info('Received request:', $request->all()); // Log the incoming request
-
         // Validate request
         $request->validate([
-            'warehouse_pcs' => 'required|integer|min:0',
             'sku_id' => 'required|exists:productlist,id|integer',
-            'pcs' => 'required|integer|min:1',
+            'buffer_pcs_in' => 'required|integer|min:1',
             'remarks' => 'nullable|string',
             'checker' => 'nullable|string',
         ]);
+        $sku_id = $request->sku_id;
+        $buffer_pcs_in = $request->buffer_pcs_in;
 
-        // Retrieve the current warehouse stock
-        $warehouseStock = DB::table('receivinglist')
-            ->where('sku_id', $request->sku_id)
-            ->value('pcs');
+        // 1. Find the most recent "in" transaction for this SKU
+        $lastReceiving = DB::table('receivinglist')
+            ->where('sku_id', $sku_id)
+            ->orderBy('id', 'desc')
+            ->first();
 
-        if ($warehouseStock === null) {
-            return response()->json(['error' => 'Warehouse stock not found.'], 404);
+        if (!$lastReceiving) {
+            return response()->json(['error' => 'No receiving history found for this SKU.'], 404);
         }
 
-        if ($warehouseStock < $request->pcs) {
-            return response()->json(['error' => 'Not enough stock in warehouse.'], 400);
+        // Get the current balance for the specified SKU
+        $currentBalance = DB::table('receivinglist')
+            ->where('sku_id', $sku_id)
+            ->select(DB::raw('SUM(pcs_in) - SUM(pcs_out) as balance'))
+            ->first()->balance ?? 0;
+
+        // Check if there are enough balance_pcs to deduct
+        if ($currentBalance < $buffer_pcs_in) {
+            return response()->json(['error' => 'Insufficient balance in receiving list.'], 400);
         }
+        
+        // Calculate the new balance
+        $newBalance = $currentBalance - $buffer_pcs_in;
+        $now = Carbon::now('Asia/Manila');
+        // 2. Create a new "out" record in receivinglist (copy details from the last "in")
+        $receivingId = DB::table('receivinglist')->insertGetId([
+            'sku_id' => $lastReceiving->sku_id,
+            'transaction_number' => 'TRN-BUFFER-OUT-' . $now->format('YmdHis'), // New transaction number
+            'pcs_in' => 0, // It's an "out" transaction
+            'pcs_out' => $buffer_pcs_in,
+            'balance_pcs' => $newBalance, // the new balance.
+            'checker' => $lastReceiving->checker, // Copy checker
+            'expiry_date' => $lastReceiving->expiry_date, // Copy expiry date
+            'remarks' => "• Moved {$buffer_pcs_in} pcs to Buffer. ({$now}) <br> -" . $request->remarks, // New remark
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
 
-        // Subtract the pcs from warehouse_pcs
-        $newStock = $warehouseStock - $request->pcs;
+        // Get the buffer balance before inserting the new record
+        $bufferBalance = DB::table('buffer')
+            ->where('product_sku', $sku_id)
+            ->select(DB::raw('SUM(buffer_pcs_in) - SUM(buffer_pcs_out) as balance'))
+            ->first()->balance ?? 0;
 
-        // Update warehouse stock
-        DB::table('receivinglist')
-            ->where('sku_id', $request->sku_id)
-            ->update(['pcs' => $newStock]);
-
-        // Insert into buffer
+        // Calculate the new buffer balance after adding to buffer
+        $newBufferBalance = $bufferBalance + $buffer_pcs_in;
+        
+        $now = Carbon::now('Asia/Manila');
+        // Insert into buffer table
         $bufferId = DB::table('buffer')->insertGetId([
-            'warehouse_pcs' => $newStock, // Updated stock value
-            'product_sku' => $request->sku_id,
-            'pcs' => $request->pcs,
+            'product_sku' => $sku_id,
+            'buffer_pcs_in' => $buffer_pcs_in,
+            'buffer_pcs_out' => 0, // Assuming this is an "in" transaction
+            'buffer_balance_pcs' => $newBufferBalance,
             'checker' => $request->checker,
             'remarks' => $request->remarks,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return response()->json(['success' => 'Stock added to buffer successfully.', 'buffer_id' => $bufferId, 'new_stock' => $newStock]);
-    }
+        return response()->json(['success' => 'Stock added to buffer successfully.', 'buffer_id' => $bufferId]);
+    }   
 
 }
 

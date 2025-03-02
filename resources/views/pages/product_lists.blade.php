@@ -102,11 +102,15 @@
                     data-target="#product_modal">
                     <i class="fa fa-plus mr-1"></i> Add Product (F1)
                 </button>
+                {{-- <button type="button" class="btn btn-primary" id="add-supplier-btn" data-toggle="modal"
+                    data-target="#supplier_modal">
+                    <i class="fa fa-plus mr-1"></i> Add Supplier (F2)
+                </button> --}}
             </div>
             <div class="block-content block-content-full">
                 <div class="col-12 table-responsive">
                     <table style="font-size: 12px;" id="product_table"
-                        class="table table-bordered table-striped table-vcenter">
+                        class="table table-bordered table-striped table-vcenter w-100">
                         <thead>
                             <tr>
                                 <th style="font-size: 12px;"> </th>
@@ -314,6 +318,9 @@
                                             <input type="text" class="form-control" id="jda_systemname"
                                                 name="jda_systemname" placeholder="Enter JDA system name (if any)">
                                         </div>
+                                        <button type="submit" id="save_editproduct" class="btn btn-alt-primary">
+                                            <i class="fa fa-plus mr-1"></i> Save Changes
+                                        </button>
                                         <button type="button" class="btn btn-alt-primary step-next">
                                             Next <i class="fa fa-arrow-right ml-1"></i>
                                         </button>
@@ -390,431 +397,466 @@
             </div>
             <!-- END Add New Product Modal -->
         </div>
-        <!-- END Page Content -->
-    @section('js_after')
-        <!-- Page JS Plugins -->
-        <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
-        <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+
+        <!-- Add New Supplier Modal -->
+        <div class="modal fade supplier_modal" id="supplier_modal" tabindex="-1" role="dialog"
+            aria-labelledby="modal-block-small" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="block block-themed block-transparent mb-0">
+                        <div class="block-header bg-primary text-white">
+                            <h3 class="block-title">Add New Product</h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                    <i class="fa fa-fw fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="block-content mb-3">
+                            <form id="createSupplierForm">
+                                <div class="mb-3">
+                                    <label for="supplierName" class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-control" id="supplierName" name="supplier_name"
+                                        required>
+                                    <div class="invalid-feedback">
+                                        Please provide a valid supplier name
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create</button>
+                            </form>
+                        </div>
+
+                    </div>
+                    <!-- END Add New Supplier Modal -->
+                </div>
+                <!-- END Page Content -->
+            @section('js_after')
+                <!-- Page JS Plugins -->
+                <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/buttons/dataTables.buttons.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/buttons/buttons.print.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/buttons/buttons.html5.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/buttons/buttons.flash.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/datatables/buttons/buttons.colVis.min.js') }}"></script>
+                <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
 
-        <!-- Page JS Code -->
-        <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+                <!-- Page JS Code -->
+                <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
 
-        <!-- Add JavaScript for Stepper -->
+                <!-- Add JavaScript for Stepper -->
 
-        <script>
-            $(document).ready(function() {
-                csrf_token = $('meta[name="csrf-token"]').attr('content');
+                <script>
+                    $(document).ready(function() {
+                        csrf_token = $('meta[name="csrf-token"]').attr('content');
 
-                $('#add_product').click(function() {
-                    let formData = new FormData();
+                        $('#add_product').click(function() {
+                            let formData = new FormData();
 
-                    formData.append('product_fullname', $('#product_fullname').val().trim());
-                    formData.append('product_shortname', $('#product_shortname').val().trim());
-                    formData.append('jda_systemname', $('#jda_systemname').val().trim());
-                    formData.append('product_sku', $('#product_sku').val().trim());
-                    formData.append('product_barcode', $('#product_barcode').val().trim());
-                    formData.append('product_type', $('#product_type').val());
-                    formData.append('product_warehouse', $('#product_warehouse').val().trim());
-                    formData.append('product_entryperson', $('#product_entryperson').val().trim());
-                    formData.append('product_remarks', $('#product_remarks').val().trim());
+                            formData.append('product_fullname', $('#product_fullname').val().trim());
+                            formData.append('product_shortname', $('#product_shortname').val().trim());
+                            formData.append('jda_systemname', $('#jda_systemname').val().trim());
+                            formData.append('product_sku', $('#product_sku').val().trim());
+                            formData.append('product_barcode', $('#product_barcode').val().trim());
+                            formData.append('product_type', $('#product_type').val());
+                            formData.append('product_warehouse', $('#product_warehouse').val().trim());
+                            formData.append('product_entryperson', $('#product_entryperson').val().trim());
+                            formData.append('product_remarks', $('#product_remarks').val().trim());
 
-                    // Fetch CSRF token dynamically from meta tag
-                    let csrfToken = $('meta[name="csrf-token"]').attr('content');
+                            // Fetch CSRF token dynamically from meta tag
+                            let csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-                    $.ajax({
-                        url: "/product_lists",
-                        type: "POST",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        success: function(response) {
-                            $('#product_modal').modal('hide');
-                            if (response.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: response.message,
-                                    text: `SKU: ${response.data.product_sku} added successfully`,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                });
-                                getproductlists();
-                                console.log($('#product_form'));
-                                console.log($('#product_form')[0]);
-                                $('#product_form')[0].reset();
-                                resetStepper();
-                            }
-                        },
-                        error: function(xhr) {
-                            const toast = Swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
-
-                            if (xhr.status === 422) {
-                                const errors = xhr.responseJSON.errors;
-                                // Get the first error message
-                                const firstError = Object.values(errors)[0][0];
-                                toast.fire({
-                                    icon: 'error',
-                                    title: firstError
-                                });
-                            } else {
-                                console.error('Error:', xhr.responseText);
-                                toast.fire({
-                                    icon: 'error',
-                                    title: 'Failed to add product. Please try again.',
-                                });
-                            }
-                        }
-                    });
-                });
-
-                function resetStepper() {
-                    currentStep = 1;
-                    showStep(currentStep);
-
-                    // Reset progress bar
-                    progressBar.style.width = "0%";
-
-                    // Remove validation errors
-                    document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
-                }
-                $(document).on('click', '.edit_productlist', function() {
-                    let product_id = $(this).data('product_id');
-                    $.ajax({
-                        url: "/pages/product_lists/editform",
-                        type: "GET",
-                        dataType: "json",
-                        headers: {
-                            'X-CSRF-TOKEN': csrf_token
-                        },
-                        data: {
-                            id: product_id
-                        },
-                        success: function(data) {
-                            $('#edit_product_form #product_id').val(product_id);
-                            $("#edit_product_form #product_fullname").val(data.product_fullname);
-                            $("#edit_product_form #product_shortname").val(data.product_shortname);
-                            $("#edit_product_form #jda_systemname").val(data.jda_systemname);
-                            $("#edit_product_form #product_sku").val(data.product_sku);
-                            $("#edit_product_form #product_barcode").val(data.product_barcode);
-                            $("#edit_product_form #product_type").val(data.product_type);
-                            $("#edit_product_form #product_warehouse").val(data.product_warehouse);
-                            $("#edit_product_form #product_entryperson").val(data
-                                .product_entryperson);
-                            $("#edit_product_form #product_remarks").val(data.product_remarks);
-                            $("#edit_product_form #updated_at").val(data.updated_at);
-                        }
-                    });
-                });
-
-                $(document).on('click', '#save_editproduct', function() {
-                    $.ajax({
-                        url: "/pages/product_lists/edit",
-                        type: "post",
-                        dataType: "json",
-                        headers: {
-                            'X-CSRF-TOKEN': csrf_token
-                        },
-                        data: $('#edit_product_form').serialize(),
-                        success: function(data) {
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Product Updated Successfully'
-                            });
-                            $('#edit_product_form')[0].reset();
-                            getproductlists();
-                        }
-                    })
-                });
-
-                $(document).on('click', '.delete_productlist', function() {
-                    let product_id = $(this).data('product_id');
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: 'This action cannot be undone!',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, delete it!',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
                             $.ajax({
-                                url: "/pages/product_lists/delete/" + product_id,
-                                type: "DELETE",
+                                url: "/product_lists",
+                                type: "POST",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfToken
+                                },
+                                success: function(response) {
+                                    $('#product_modal').modal('hide');
+                                    if (response.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: response.message,
+                                            text: `SKU: ${response.data.product_sku} added successfully`,
+                                            showConfirmButton: false,
+                                            timer: 1500
+                                        });
+                                        getproductlists();
+                                        console.log($('#product_form'));
+                                        console.log($('#product_form')[0]);
+                                        $('#product_form')[0].reset();
+                                        resetStepper();
+                                    }
+                                },
+                                error: function(xhr) {
+                                    const toast = Swal.mixin({
+                                        toast: true,
+                                        position: 'top-end',
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        timerProgressBar: true,
+                                    });
+
+                                    if (xhr.status === 422) {
+                                        const errors = xhr.responseJSON.errors;
+                                        // Get the first error message
+                                        const firstError = Object.values(errors)[0][0];
+                                        toast.fire({
+                                            icon: 'error',
+                                            title: firstError
+                                        });
+                                    } else {
+                                        console.error('Error:', xhr.responseText);
+                                        toast.fire({
+                                            icon: 'error',
+                                            title: 'Failed to add product. Please try again.',
+                                        });
+                                    }
+                                }
+                            });
+                        });
+
+                        function resetStepper() {
+                            currentStep = 1;
+                            showStep(currentStep);
+
+                            // Reset progress bar
+                            progressBar.style.width = "0%";
+
+                            // Remove validation errors
+                            document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+                        }
+                        $(document).on('click', '.edit_productlist', function() {
+                            let product_id = $(this).data('product_id');
+                            $.ajax({
+                                url: "/pages/product_lists/editform",
+                                type: "GET",
                                 dataType: "json",
                                 headers: {
                                     'X-CSRF-TOKEN': csrf_token
                                 },
-                                success: function(response) {
-                                    Swal.fire({
-                                        icon: response.status,
-                                        title: 'Deleted!',
-                                        text: response.message,
-                                        showConfirmButton: false,
-                                        timer: 3500
-                                    });
-
-                                    getproductlists(); // Refresh product list
+                                data: {
+                                    id: product_id
                                 },
-                                error: function(xhr) {
-                                    let response = xhr.responseJSON;
+                                success: function(data) {
+                                    $('#edit_product_form #product_id').val(product_id);
+                                    $("#edit_product_form #product_fullname").val(data.product_fullname);
+                                    $("#edit_product_form #product_shortname").val(data.product_shortname);
+                                    $("#edit_product_form #jda_systemname").val(data.jda_systemname);
+                                    $("#edit_product_form #product_sku").val(data.product_sku);
+                                    $("#edit_product_form #product_barcode").val(data.product_barcode);
+                                    $("#edit_product_form #product_type").val(data.product_type);
+                                    $("#edit_product_form #product_warehouse").val(data.product_warehouse);
+                                    $("#edit_product_form #product_entryperson").val(data
+                                        .product_entryperson);
+                                    $("#edit_product_form #product_remarks").val(data.product_remarks);
+                                    $("#edit_product_form #updated_at").val(data.updated_at);
+                                }
+                            });
+                        });
 
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error!',
-                                        text: response ? response.message :
-                                            'Something went wrong.',
+                        $(document).on('click', '#save_editproduct', function() {
+                            $.ajax({
+                                url: "/pages/product_lists/edit",
+                                type: "post",
+                                dataType: "json",
+                                headers: {
+                                    'X-CSRF-TOKEN': csrf_token
+                                },
+                                data: $('#edit_product_form').serialize(),
+                                success: function(data) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: 'Product Updated Successfully'
+                                    });
+                                    $('#edit_product_form')[0].reset();
+                                    getproductlists();
+                                }
+                            })
+                        });
+
+                        $(document).on('click', '.delete_productlist', function() {
+                            let product_id = $(this).data('product_id');
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: 'This action cannot be undone!',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!',
+                                cancelButtonText: 'Cancel'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "/pages/product_lists/delete/" + product_id,
+                                        type: "DELETE",
+                                        dataType: "json",
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrf_token
+                                        },
+                                        success: function(response) {
+                                            Swal.fire({
+                                                icon: response.status,
+                                                title: 'Deleted!',
+                                                text: response.message,
+                                                showConfirmButton: false,
+                                                timer: 3500
+                                            });
+
+                                            getproductlists(); // Refresh product list
+                                        },
+                                        error: function(xhr) {
+                                            let response = xhr.responseJSON;
+
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'Error!',
+                                                text: response ? response.message :
+                                                    'Something went wrong.',
+                                            });
+                                        }
                                     });
                                 }
                             });
-                        }
-                    });
-                });
+                        });
 
 
-                getproductlists();
+                        getproductlists();
 
-                function getproductlists() {
-                    $.ajax({
-                        url: "/product_display",
-                        type: "GET",
-                        dataType: "json",
-                        headers: {
-                            'X-CSRF-TOKEN': csrf_token
-                        },
-                        success: function(productlists) {
-                            console.log(productlists);
-                            display_productlist(productlists);
-                        }
-                    });
-                }
-
-                function display_productlist(productlists) {
-                    $('#product_table').DataTable({
-                        destroy: true,
-                        data: productlists,
-                        columns: [{
-                                data: null
-                            },
-                            {
-                                data: 'product_sku'
-                            },
-                            {
-                                data: 'product_barcode'
-                            },
-                            {
-                                data: null
-                            },
-                            {
-                                data: 'product_type'
-                            },
-                            {
-                                data: 'product_warehouse'
-                            },
-                            {
-                                data: 'product_entryperson'
-                            },
-                            {
-                                data: 'created_at'
-                            },
-                            {
-                                data: 'updated_at'
-                            },
-                            {
-                                data: 'product_remarks'
-                            },
-                            {
-                                data: null
-                            },
-                        ],
-                        columnDefs: [{
-                                targets: 0,
-                                orderable: false,
-                                createdCell: function(td, cellData, rowData) {
-                                    $(td).html(`${productlists.indexOf(rowData) + 1}`)
-                                    $(td).addClass('align-middle')
+                        function getproductlists() {
+                            $.ajax({
+                                url: "/product_display",
+                                type: "GET",
+                                dataType: "json",
+                                headers: {
+                                    'X-CSRF-TOKEN': csrf_token
+                                },
+                                success: function(productlists) {
+                                    console.log(productlists);
+                                    display_productlist(productlists);
                                 }
-                            },
-                            {
-                                targets: 3,
-                                width: '15%',
-                                orderable: false,
-                                createdCell: function(td, cellData, rowData) {
-                                    $(td).html(
-                                        `${rowData.product_fullname} ${rowData.jda_systemname} <small class="text-muted mb-0 d-block">${rowData.product_shortname}</small>`
-                                    )
-                                    $(td).addClass('align-middle')
+                            });
+                        }
+
+                        function display_productlist(productlists) {
+                            $('#product_table').DataTable({
+                                order: [
+                                    [8, 'desc']
+                                ],
+                                destroy: true,
+                                data: productlists,
+                                columns: [{
+                                        data: 'id',
+                                        render: function(data, type, row) {
+                                            const paddedId = String(data).padStart(3, '0');
+                                            return `${paddedId}-${data}`;
+                                        }
+                                    },
+                                    {
+                                        data: 'product_sku'
+                                    },
+                                    {
+                                        data: 'product_barcode'
+                                    },
+                                    {
+                                        data: null
+                                    },
+                                    {
+                                        data: 'product_type'
+                                    },
+                                    {
+                                        data: 'product_warehouse'
+                                    },
+                                    {
+                                        data: 'product_entryperson'
+                                    },
+                                    {
+                                        data: 'created_at'
+                                    },
+                                    {
+                                        data: 'updated_at'
+                                    },
+                                    {
+                                        data: 'product_remarks'
+                                    },
+                                    {
+                                        data: null
+                                    },
+                                ],
+
+                                columnDefs: [{
+                                        targets: 3,
+                                        width: '15%',
+                                        orderable: false,
+                                        createdCell: function(td, cellData, rowData) {
+                                            $(td).html(
+                                                `${rowData.product_fullname} ${rowData.jda_systemname} <small class="text-muted mb-0 d-block">${rowData.product_shortname}</small>`
+                                            )
+                                            $(td).addClass('align-middle')
+                                        }
+                                    },
+                                    {
+                                        targets: 4,
+                                        orderable: false,
+                                        createdCell: function(td, cellData, rowData) {
+                                            if (rowData.product_type == 1) {
+                                                $(td).html(
+                                                    `<span class="badge badge-success">Returnable</span>`)
+                                            } else if (rowData.product_type == 2) {
+                                                $(td).html(
+                                                    `<span class="badge badge-danger">Non Returnable</span>`
+                                                )
+                                            }
+                                            $(td).addClass('align-middle')
+                                        }
+                                    },
+                                    {
+                                        targets: 10,
+                                        orderable: false,
+                                        createdCell: function(td, cellData, rowData) {
+                                            $(td).html(
+                                                '<div class="d-flex justify-content-center"><button type="button" class="btn btn-sm btn-danger delete_productlist" data-product_id="' +
+                                                rowData.id + '"><i class="fa fa-trash mr-1"></i></button>' +
+                                                '<button type="button" class="btn btn-sm btn-primary ml-2 edit_productlist"  data-toggle="modal" data-target="#edit_product" data-product_id="' +
+                                                rowData.id +
+                                                '" id="edit_product_btn"><i class="fas fa-pen mr-1"></i></button></div>'
+                                            )
+                                            $(td).addClass('align-middle')
+                                        }
+                                    },
+
+                                ],
+                                language: {
+                                    lengthMenu: "Show _MENU_ entries",
+                                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
                                 }
-                            },
-                            {
-                                targets: 4,
-                                orderable: false,
-                                createdCell: function(td, cellData, rowData) {
-                                    if (rowData.product_type == 1) {
-                                        $(td).html(
-                                            `<span class="badge badge-success">Returnable</span>`)
-                                    } else if (rowData.product_type == 2) {
-                                        $(td).html(
-                                            `<span class="badge badge-danger">Non Returnable</span>`
-                                        )
-                                    }
-                                    $(td).addClass('align-middle')
+                            })
+                        }
+                        document.getElementById("add_product").addEventListener("click", function() {
+                            console.log("Button clicked!");
+                        });
+                        document.addEventListener("keydown", (event) => {
+                            console.log("Key Pressed: ", event.key);
+                        });
+
+
+                        const steps = document.querySelectorAll(".step");
+                        const stepContents = document.querySelectorAll(".step-content");
+                        const progressBar = document.getElementById("step-progress");
+                        const nextButtons = document.querySelectorAll(".step-next");
+                        const prevButtons = document.querySelectorAll(".step-prev");
+
+                        let currentStep = 1;
+
+                        function showStep(step) {
+                            steps.forEach(s => s.classList.toggle("active", s.dataset.step == step));
+                            stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
+
+                            // Update progress bar
+                            progressBar.style.width = `${(step / 4) * 100}%`;
+                        }
+
+                        function validateStep(step) {
+                            const activeStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
+                            const inputs = activeStepContent.querySelectorAll("[required]");
+                            let isValid = true;
+
+                            inputs.forEach(input => {
+                                if (!input.value.trim()) {
+                                    input.classList.add("is-invalid");
+                                    isValid = false;
+                                } else {
+                                    input.classList.remove("is-invalid");
                                 }
-                            },
-                            {
-                                targets: 10,
-                                orderable: false,
-                                createdCell: function(td, cellData, rowData) {
-                                    $(td).html(
-                                        '<div class="d-flex justify-content-center"><button type="button" class="btn btn-sm btn-danger delete_productlist" data-product_id="' +
-                                        rowData.id + '"><i class="fa fa-trash mr-1"></i></button>' +
-                                        '<button type="button" class="btn btn-sm btn-primary ml-2 edit_productlist"  data-toggle="modal" data-target="#edit_product" data-product_id="' +
-                                        rowData.id +
-                                        '" id="edit_product_btn"><i class="fas fa-pen mr-1"></i></button></div>'
-                                    )
-                                    $(td).addClass('align-middle')
+                            });
+
+                            return isValid;
+                        }
+
+                        nextButtons.forEach(button => {
+                            button.addEventListener("click", () => {
+                                if (validateStep(currentStep) && currentStep < steps.length) {
+                                    currentStep++;
+                                    showStep(currentStep);
                                 }
-                            },
+                            });
+                        });
 
-                        ]
+                        prevButtons.forEach(button => {
+                            button.addEventListener("click", () => {
+                                if (currentStep > 1) {
+                                    currentStep--;
+                                    showStep(currentStep);
+                                }
+                            });
+                        });
 
-                    })
-                }
-                document.getElementById("add_product").addEventListener("click", function() {
-                    console.log("Button clicked!");
-                });
-                document.addEventListener("keydown", (event) => {
-                    console.log("Key Pressed: ", event.key);
-                });
+                        // Handle selection change
+                        const dropdown = document.getElementById('product_type');
+                        dropdown.addEventListener('change', function() {
+                            const selectedValue = dropdown.value;
+                        });
 
-
-                const steps = document.querySelectorAll(".step");
-                const stepContents = document.querySelectorAll(".step-content");
-                const progressBar = document.getElementById("step-progress");
-                const nextButtons = document.querySelectorAll(".step-next");
-                const prevButtons = document.querySelectorAll(".step-prev");
-
-                let currentStep = 1;
-
-                function showStep(step) {
-                    steps.forEach(s => s.classList.toggle("active", s.dataset.step == step));
-                    stepContents.forEach(content => content.classList.toggle("active", content.dataset.step == step));
-
-                    // Update progress bar
-                    progressBar.style.width = `${(step / 4) * 100}%`;
-                }
-
-                function validateStep(step) {
-                    const activeStepContent = document.querySelector(`.step-content[data-step="${step}"]`);
-                    const inputs = activeStepContent.querySelectorAll("[required]");
-                    let isValid = true;
-
-                    inputs.forEach(input => {
-                        if (!input.value.trim()) {
-                            input.classList.add("is-invalid");
-                            isValid = false;
-                        } else {
-                            input.classList.remove("is-invalid");
-                        }
-                    });
-
-                    return isValid;
-                }
-
-                nextButtons.forEach(button => {
-                    button.addEventListener("click", () => {
-                        if (validateStep(currentStep) && currentStep < steps.length) {
-                            currentStep++;
-                            showStep(currentStep);
-                        }
-                    });
-                });
-
-                prevButtons.forEach(button => {
-                    button.addEventListener("click", () => {
-                        if (currentStep > 1) {
-                            currentStep--;
-                            showStep(currentStep);
-                        }
-                    });
-                });
-
-                // Handle selection change
-                const dropdown = document.getElementById('product_type');
-                dropdown.addEventListener('change', function() {
-                    const selectedValue = dropdown.value;
-                });
-
-                // Allow selection using R and N keys
-                document.addEventListener('keydown', function(event) {
-                    if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
-                        if (event.key.toUpperCase() === 'R') {
-                            dropdown.value = '1';
-                            dropdown.dispatchEvent(new Event('change'));
-                        } else if (event.key.toUpperCase() === 'N') {
-                            dropdown.value = '2';
-                            dropdown.dispatchEvent(new Event('change'));
-                        }
-                    }
-                });
-                showStep(currentStep);
-
-                // Add event listener for keyboard shortcuts
-                document.addEventListener("keydown", (event) => {
-                    if (event.key === "F1") {
-                        event.preventDefault();
-                        $('#product_modal').modal('show');
-                    } else if (event.key === "ArrowRight") {
-                        // Right Arrow to go to next step
-                        if (validateStep(currentStep) && currentStep < 4) {
-                            currentStep++;
-                            showStep(currentStep);
-                        }
-                    } else if (event.key === "ArrowLeft") {
-                        // Left Arrow to go to previous step
-                        if (currentStep > 1) {
-                            currentStep--;
-                            showStep(currentStep);
-                        }
-                    } else if (event.key === "Enter") {
-                        event.preventDefault();
-                        if (currentStep === 4) {
-                            // Validate the final step before triggering submission
-                            if (validateStep(currentStep)) {
-                                $('#add_product').trigger('click');
+                        // Allow selection using R and N keys
+                        document.addEventListener('keydown', function(event) {
+                            if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+                                if (event.key.toUpperCase() === 'R') {
+                                    dropdown.value = '1';
+                                    dropdown.dispatchEvent(new Event('change'));
+                                } else if (event.key.toUpperCase() === 'N') {
+                                    dropdown.value = '2';
+                                    dropdown.dispatchEvent(new Event('change'));
+                                }
                             }
-                        }
-                    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                        // Up and Down Arrow to navigate between input fields
-                        const activeStepContent = document.querySelector(`.step-content.active`);
-                        const inputs = Array.from(activeStepContent.querySelectorAll(
-                            "input, select, textarea"));
-                        const currentIndex = inputs.indexOf(document.activeElement);
+                        });
+                        showStep(currentStep);
 
-                        if (event.key === "ArrowUp" && currentIndex > 0) {
-                            inputs[currentIndex - 1].focus();
-                        } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
-                            inputs[currentIndex + 1].focus();
-                        }
-                    }
-                });
-            });
-        </script>
-    @endsection
-@endsection
+                        // Add event listener for keyboard shortcuts
+                        document.addEventListener("keydown", (event) => {
+                            if (event.key === "F1") {
+                                event.preventDefault();
+                                $('#product_modal').modal('show');
+                            } else if (event.key === "ArrowRight") {
+                                // Right Arrow to go to next step
+                                if (validateStep(currentStep) && currentStep < 4) {
+                                    currentStep++;
+                                    showStep(currentStep);
+                                }
+                            } else if (event.key === "ArrowLeft") {
+                                // Left Arrow to go to previous step
+                                if (currentStep > 1) {
+                                    currentStep--;
+                                    showStep(currentStep);
+                                }
+                            } else if (event.key === "Enter") {
+                                event.preventDefault();
+                                if (currentStep === 4) {
+                                    // Validate the final step before triggering submission
+                                    if (validateStep(currentStep)) {
+                                        $('#add_product').trigger('click');
+                                    }
+                                }
+                            } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                                // Up and Down Arrow to navigate between input fields
+                                const activeStepContent = document.querySelector(`.step-content.active`);
+                                const inputs = Array.from(activeStepContent.querySelectorAll(
+                                    "input, select, textarea"));
+                                const currentIndex = inputs.indexOf(document.activeElement);
+
+                                if (event.key === "ArrowUp" && currentIndex > 0) {
+                                    inputs[currentIndex - 1].focus();
+                                } else if (event.key === "ArrowDown" && currentIndex < inputs.length - 1) {
+                                    inputs[currentIndex + 1].focus();
+                                }
+                            }
+                        });
+                    });
+                </script>
+            @endsection
+        @endsection

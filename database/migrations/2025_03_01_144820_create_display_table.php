@@ -15,9 +15,10 @@ class CreateDisplayTable extends Migration
     {
         Schema::create('display', function (Blueprint $table) {
             $table->id();
-            $table->integer('buffer_pcs');
             $table->unsignedBigInteger('product_sku');
-            $table->integer('pcs');
+            $table->integer('display_pcs_in')->default(0);
+            $table->integer('display_pcs_out')->default(0);
+            $table->integer('display_balance_pcs')->default(0);;
             $table->string('checker')->nullable();
             $table->string('remarks')->nullable();
             $table->timestamps();

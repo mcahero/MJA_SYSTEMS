@@ -51,8 +51,10 @@
                             <th class="text-center">#</th>
                             <th>SKU #</th>
                             <th>Name</th>
-                            <th>Date Added</th>
-                            <th>PCS</th>
+                            <th>Entry Date</th>
+                            <th>In</th>
+                            <th>Out</th>
+                            <th>Balance</th>
                             <th>Remarks</th>
                         </tr>
                     </thead>
@@ -280,14 +282,14 @@
                             let selectedProduct = response.find(sku => sku.id == selectedSku);
 
                             if (selectedProduct) {
-                                let warehouse_pcs = selectedProduct.pcs;
-                                $('#warehouse_pcs').text(warehouse_pcs);
+                                let balance_pcs = selectedProduct.pcs;
+                                $('#warehouse_pcs').text(balance_pcs);
                             } else {
                                 $('#warehouse_pcs').text('N/A');
                             }
 
                             console.log('Selected SKU:', selectedSku);
-                            console.log('Selected Product:', selectedProduct);
+                            console.log('Selected getwareproducts:', selectedProduct);
                         });
                     },
                     error: function(xhr, status, error) {
@@ -345,7 +347,13 @@
                             data: 'created_at'
                         },
                         {
-                            data: 'pcs'
+                            data: 'buffer_pcs_in'
+                        },
+                        {
+                            data: 'null'
+                        },
+                        {
+                            data: 'buffer_pcs_'
                         },
                         {
                             data: 'remarks'
