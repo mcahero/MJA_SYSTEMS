@@ -33,6 +33,7 @@ Route::view('/pages/display', 'pages.display');
 Route::view('/pages/displaylogs', 'pages.displaylogs');
 Route::view('/pages/buffer', 'pages.buffer');
 Route::view('/pages/audit', 'pages.audit');
+Route::view('/pages/bo', 'pages.bo');
 
 
 Route::get('/pages/product_lists','ProductsList@getproducts')->name('product_lists');

@@ -333,8 +333,8 @@
                             </li>
                             <li class="nav-main-item">
                                 <a id="nav-audit"
-                                    class="nav-main-link{{ request()->is('pages/badorder') ? ' active' : '' }}"
-                                    href="/pages/audit">
+                                    class="nav-main-link{{ request()->is('pages/bo') ? ' active' : '' }}"
+                                    href="/pages/bo">
                                     <i class="nav-main-link-icon fas fa-times-circle"></i>
                                     <span class="nav-main-link-name">[ 6 ] B.O</span>
                                 </a>
