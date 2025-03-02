@@ -21,7 +21,7 @@ class CreateProductlistTable extends Migration
             $table->string('product_sku')->unique();
             $table->string('product_barcode');
             $table->string('product_type');
-            $table->string('product_warehouse');
+            $table->string('product_warehouse')->nullable();
             $table->string('product_entryperson');
             $table->string('product_remarks')->nullable();
             $table->timestamps();

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBoTable extends Migration
+class CreateSoldTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateBoTable extends Migration
      */
     public function up()
     {
-        Schema::create('bo', function (Blueprint $table) {
-           $table->id();
+        Schema::create('sold', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('product_sku');
-            $table->integer('bo_pcs_in')->default(0);
-            $table->integer('bo_pcs_out')->default(0);
-            $table->integer('bo_balance_pcs')->default(0);;
+            $table->integer('sold_pcs_in')->default(0);
+            $table->integer('sold_pcs_out')->default(0);
+            $table->integer('sold_balance_pcs')->default(0);;
             $table->string('checker')->nullable();
             $table->string('remarks')->nullable();
             $table->timestamps();
@@ -34,6 +34,6 @@ class CreateBoTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bo');
+        Schema::dropIfExists('sold');
     }
 }

@@ -49,7 +49,8 @@
                     data-target="#Addbuffermodal">
                     <i class="fa fa-plus mr-2"></i>Add Pcs to Buffer
                 </button>
-                <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
+                <table id="buffer_table" style="font-size: 12px;"
+                    class="table table-bordered table-striped table-vcenter w-100">
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -140,7 +141,8 @@
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center"
                                     style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">0
+                                    <p id="current_display_pcs" class="mb-0"
+                                        style="font-size: 24px; font-weight: bold; line-height: 80px;">0
                                     </p>
                                     <b class="mb-0 text-nowrap" style="font-size: 12px; color: #6c757d;">Current
                                         Buffer
@@ -184,6 +186,7 @@
     <script>
         $(document).ready(function() {
             csrf_token = $('meta[name="csrf-token"]').attr('content');
+            fetchWarehouseProducts();
 
             $('#addToBuffer').click(function() {
                 let formData = new FormData();
@@ -216,6 +219,9 @@
                     success: function(response) {
                         $('#Addbuffermodal').modal('hide');
                         console.log('Response:', response);
+                        if (response.new_buffer_balance !== undefined) {
+                            $('#current_buffer_pcs').text(response.new_buffer_balance);
+                        }
                         Swal.fire({
                             icon: 'success',
                             title: 'PCS added to buffer successfully.',
@@ -225,9 +231,10 @@
                         });
                         $('#buffer_form')[0].reset();
                         $('#balance_pcs').text('0');
+                        $('#current_display_pcs').text('0');
 
-                        getbuffer()
-                        getpcs()
+                        getbuffer();
+                        fetchWarehouseProducts();
 
                     },
                     error: function(xhr, status, error) {
@@ -245,48 +252,75 @@
                 });
             });
 
-            $.ajax({
-                url: '/pages/buffer/getwarehouseproducts',
-                type: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrf_token
-                },
-                success: function(response) {
-                    console.log('Received product lists:', response);
+            function fetchWarehouseProducts() {
+                $.ajax({
+                    url: '/pages/buffer/getwarehouseproducts',
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(response) {
+                        console.log('Received product lists:', response);
 
-                    $('#sku_id').empty().append(
-                        '<option value="" disabled selected>Select SKU</option>');
+                        // Clear and populate SKU dropdown
+                        $('#sku_id').empty().append(
+                            '<option value="" disabled selected>Select SKU</option>'
+                        );
 
-                    $.each(response, function(index, sku) {
-                        $('#sku_id').append('<option value="' + sku.sku_id +
-                            '" data-balance="' + sku.balance_pcs + '">' + sku.product_sku +
-                            '</option>');
-                    });
+                        $.each(response, function(index, sku) {
+                            $('#sku_id').append(
+                                `<option value="${sku.sku_id}" 
+                     data-balance="${sku.balance_pcs}">
+                     ${sku.product_sku}</option>`
+                            );
+                        });
 
-                    $('#sku_id').on('change', function() {
-                        let selectedSkuId = $(this).val();
-                        let selectedProduct = response.find(sku => sku.sku_id == selectedSkuId);
+                        // SKU change handler
+                        $('#sku_id').off('change').on('change', function() {
+                            const selectedSkuId = $(this).val();
+                            const selectedProduct = response.find(sku => sku.sku_id ==
+                                selectedSkuId);
 
-                        if (selectedProduct) {
-                            let productName = selectedProduct.product_shortname ?
-                                `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
-                                selectedProduct.product_fullname;
+                            // Update basic product info
+                            if (selectedProduct) {
+                                const productName = selectedProduct.product_shortname ?
+                                    `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
+                                    selectedProduct.product_fullname;
 
-                            $('#product_name').val(productName);
-                            $('#selected_sku').val(selectedProduct.product_sku);
-                            $('#balance_pcs').text(selectedProduct.balance_pcs);
-                        } else {
-                            $('#product_name').val('');
-                            $('#selected_sku').val('');
-                            $('#balance_pcs').text('0');
-                        }
-                        console.log('Selected sku_id:', selectedSkuId);
-                    });
-                },
-                error: function(xhr) {
-                    console.error('Error fetching warehouse products:', xhr.responseText);
-                }
-            });
+                                $('#product_name').val(productName);
+                                $('#selected_sku').val(selectedProduct.product_sku);
+                                $('#balance_pcs').text(selectedProduct.balance_pcs);
+                            } else {
+                                $('#product_name').val('');
+                                $('#selected_sku').val('');
+                                $('#balance_pcs').text('0');
+
+                            }
+
+                            // Fetch and update buffer balance
+                            $.ajax({
+                                url: `/pages/buffer/get_buffer_balance/${selectedSkuId}`,
+                                type: 'GET',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrf_token
+                                },
+                                success: function(bufferResponse) {
+                                    $('#current_display_pcs').text(bufferResponse
+                                        .buffer_balance);
+                                },
+                                error: function(xhr) {
+                                    console.error('Error fetching buffer balance:',
+                                        xhr.responseText);
+                                    $('#current_display_pcs').text('0');
+                                }
+                            });
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching warehouse products:', xhr.responseText);
+                    }
+                });
+            }
 
             getpcs()
 

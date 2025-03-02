@@ -144,6 +144,17 @@ class BufferController extends Controller
 
         return response()->json(['success' => 'Stock added to buffer successfully.', 'buffer_id' => $bufferId]);
     }   
+    public function get_buffer_balance($sku_id)
+    {
+        $latestBuffer = DB::table('buffer')
+            ->where('product_sku', $sku_id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return response()->json([
+            'buffer_balance' => $latestBuffer ? $latestBuffer->buffer_balance_pcs : 0
+        ]);
+    }
 
 }
 

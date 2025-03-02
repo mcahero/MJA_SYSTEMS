@@ -50,7 +50,8 @@
                         '3': 'nav-receiving',
                         '4': 'nav-buffer',
                         '5': 'nav-display',
-                        '6': 'nav-audit',
+                        '6': 'nav-bo',
+                        '7': 'nav-sold',
                     };
 
                     if (navKeys[event.key]) {
@@ -332,7 +333,7 @@
                                 </a>
                             </li>
                             <li class="nav-main-item">
-                                <a id="nav-audit"
+                                <a id="nav-bo"
                                     class="nav-main-link{{ request()->is('pages/bo') ? ' active' : '' }}"
                                     href="/pages/bo">
                                     <i class="nav-main-link-icon fas fa-times-circle"></i>
@@ -340,9 +341,9 @@
                                 </a>
                             </li>
                             <li class="nav-main-item">
-                                <a id="nav-audit"
+                                <a id="nav-sold"
                                     class="nav-main-link{{ request()->is('pages/sold') ? ' active' : '' }}"
-                                    href="/pages/audit">
+                                    href="/pages/sold">
                                     <i class="nav-main-link-icon fas fa-cash-register"></i>
                                     <span class="nav-main-link-name">[ 7 ] Sold</span>
                                 </a>
@@ -357,7 +358,7 @@
                                     class="nav-main-link{{ request()->is('pages/audit') ? ' active' : '' }}"
                                     href="/pages/audit">
                                     <i class="nav-main-link-icon si si-cursor"></i>
-                                    <span class="nav-main-link-name">[ 6 ] Missing Items</span>
+                                    <span class="nav-main-link-name">[ 8 ] Missing Items</span>
                                 </a>
                             </li>
                         </ul>

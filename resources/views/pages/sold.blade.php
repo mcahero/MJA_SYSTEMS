@@ -30,7 +30,7 @@
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill h3 my-2">
-                    B.O
+                    Sold
                 </h1>
             </div>
         </div>
@@ -38,16 +38,16 @@
     <div class="content">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="display"> [ F1 ] B.O</a>
+                <a class="nav-link active" href="display"> [ F1 ] Sold</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="display"> [ F2 ] B.O Logs</a>
+                <a class="nav-link" href="display"> [ F2 ] Sold Logs</a>
         </ul>
         <div class="block block-rounded">
             <div class="block-content ">
                 <button type="button" class="btn btn-sm btn-primary mb-3" data-toggle="modal"
                     data-target="#Addbuffermodal">
-                    <i class="fa fa-plus mr-2"></i>Add Pcs to B.O
+                    <i class="fa fa-plus mr-2"></i>Add Pcs to Sold
                 </button>
                 <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
                     <thead>
@@ -90,7 +90,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Pcs to B.O</h5>
+                    <h5 class="modal-title">Add Pcs to Sold</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span>&times;</span>
                     </button>
@@ -129,20 +129,22 @@
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center" id="dynamic_container"
                                     style="width: 130px; height: 80px; border: 2px solid #000; border-radius: 8px;">
-                                    <input type="number" class="form-control text-center" id="bo_pcs_in" name="bo_pcs_in"
+                                    <input type="number" class="form-control text-center" id="sold_pcs_in"
+                                        name="sold_pcs_in"
                                         style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
                                         placeholder="0" required>
-                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to B.O</b>
+                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Add to Sold</b>
                                 </div>
 
 
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center"
                                     style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">0
+                                    <p id="current_display_pcs" class="mb-0"
+                                        style="font-size: 24px; font-weight: bold; line-height: 80px;">0
                                     </p>
                                     <b class="mb-0 text-nowrap" style="font-size: 12px; color: #6c757d;">Current
-                                        B.O
+                                        Display
                                         Pcs</b>
                                 </div>
                             </div>
@@ -153,7 +155,7 @@
                             </div>
                         </div>
                         <div class="modal-footer border-0 d-flex justify-content-center">
-                            <button type="button" id="addToDisplay" class="btn btn-primary btn-sm btn-block"
+                            <button type="button" id="addToSold" class="btn btn-primary btn-sm btn-block"
                                 style="background-color: #00AEEF; border-color: #00AEEF;">Add PCS</button>
                         </div>
                     </form>
@@ -187,7 +189,7 @@
 
             function fetchWarehouseProducts() {
                 $.ajax({
-                    url: '/pages/get_display_products',
+                    url: '/pages/sold/get_display_products',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrf_token
@@ -200,18 +202,18 @@
 
                         $.each(response, function(index, sku) {
                             $('#sku_id').append('<option value="' + sku.sku_id +
-                                '" data-balance="' + sku.display_balance_pcs + '">' + sku
-                                .product_sku +
-                                '</option>');
+                                '" data-balance="' + sku.display_balance_pcs + '">' +
+                                sku.product_sku + '</option>');
                         });
 
-                        $('#sku_id').on('change', function() {
-                            let selectedSkuId = $(this).val();
-                            let selectedProduct = response.find(sku => sku.sku_id ==
+                        $('#sku_id').off('change').on('change', function() {
+                            const selectedSkuId = $(this).val();
+                            const selectedProduct = response.find(sku => sku.sku_id ==
                                 selectedSkuId);
 
+                            // Update display balance
                             if (selectedProduct) {
-                                let productName = selectedProduct.product_shortname ?
+                                const productName = selectedProduct.product_shortname ?
                                     `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
                                     selectedProduct.product_fullname;
 
@@ -224,19 +226,37 @@
                                 $('#selected_sku').val('');
                                 $('#display_balance_pcs').text('0');
                             }
-                            console.log('Selected sku_id:', selectedSkuId);
+
+                            // Fetch and update sold balance
+                            $.ajax({
+                                url: `/pages/sold/get_sold_balance/${selectedSkuId}`,
+                                type: 'GET',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrf_token
+                                },
+                                success: function(soldResponse) {
+                                    $('#current_display_pcs').text(soldResponse
+                                        .sold_balance);
+                                },
+                                error: function(xhr) {
+                                    console.error('Error fetching sold balance:',
+                                        xhr.responseText);
+                                    $('#current_display_pcs').text('0');
+                                }
+                            });
                         });
                     },
                     error: function(xhr) {
-                        console.error('Error fetching warehouse products:', xhr.responseText);
+                        console.error('Error fetching products:', xhr.responseText);
                     }
                 });
             }
+
             getpcs()
 
             function getpcs() {
                 $.ajax({
-                    url: '/pages/display/get_display_pcs',
+                    url: '/pages/sold/get_display_pcs',
                     type: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrf_token
@@ -269,28 +289,27 @@
 
             }
 
-            // in your #addToDisplay click handler:
-            $('#addToDisplay').click(function() {
+            $('#addToSold').click(function() {
                 let formData = new FormData();
                 let product_sku = $('#sku_id').val().trim();
-                let bo_pcs_in = $('#bo_pcs_in').val().trim(); // Changed name
+                let sold_pcs_in = $('#sold_pcs_in').val().trim();
                 let remarks = $('#remarks').val().trim();
                 let display_balance_pcs = $('#display_balance_pcs').text().trim();
 
                 console.log('Adding PCS to display:', {
                     product_sku,
-                    bo_pcs_in, // Changed name
+                    sold_pcs_in,
                     remarks,
                     display_balance_pcs
                 });
 
                 formData.append('sku_id', parseInt(product_sku, 10));
                 formData.append('display_balance_pcs', display_balance_pcs);
-                formData.append('bo_pcs_in', bo_pcs_in); // Changed name
+                formData.append('sold_pcs_in', sold_pcs_in);
                 formData.append('remarks', remarks);
 
                 $.ajax({
-                    url: '/pages/display/addToBO',
+                    url: '/pages/display/addToSold',
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -310,8 +329,9 @@
                         });
                         $('#buffer_form')[0].reset();
                         $('#display_balance_pcs').text('0');
+                        $('#current_display_pcs').text('0');
                         fetchWarehouseProducts()
-                        getBO();
+                        getpcs();
                     },
                     error: function(xhr, status, error) {
                         console.error('Error adding to display:', error);
@@ -347,28 +367,28 @@
                     },
                     success: function(products) {
                         productList = products;
-                        getBO();
+                        getsold();
                     }
                 });
             });
 
-            function getBO() {
-                console.log('get B.O ...');
+            function getsold() {
+                console.log('get Sold ...');
                 $.ajax({
-                    url: '/pages/BO/getBO',
+                    url: '/pages/sold/getsold',
                     type: 'GET',
                     dataType: 'json',
                     headers: {
                         'X-CSRF-TOKEN': csrf_token
                     },
                     success: function(data) {
-                        console.log('Received B.O list:', data);
-                        displayBOlist(data);
+                        console.log('Received Sold list:', data);
+                        displaySoldlist(data);
                     }
                 });
             }
 
-            function displayBOlist(data) {
+            function displaySoldlist(data) {
                 $('#buffer_table').DataTable({
                     destroy: true,
                     data: data,
@@ -389,13 +409,13 @@
                             data: 'created_at'
                         },
                         {
-                            data: 'bo_pcs_in'
+                            data: 'sold_pcs_in'
                         },
                         {
-                            data: 'bo_pcs_out'
+                            data: 'sold_pcs_out'
                         },
                         {
-                            data: 'bo_balance_pcs'
+                            data: 'sold_balance_pcs'
                         },
                         {
                             data: 'remarks'
@@ -455,7 +475,7 @@
                     parentDiv.style.width = newWidth + 'px';
                 });
             }
-            adjustWidthBasedOnInput('bo_pcs_in', 'dynamic_container');
+            adjustWidthBasedOnInput('sold_pcs_in', 'dynamic_container');
 
             document.addEventListener('DOMContentLoaded', function() {
                 const table = document.querySelector('table');

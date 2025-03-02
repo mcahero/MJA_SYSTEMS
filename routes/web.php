@@ -6,6 +6,13 @@ use App\Http\Controllers\ReceivingController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\BufferController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\BO_Controller;
+use App\Http\Controllers\DisplayController;
+use App\Http\Controllers\Sold_Controller;
+use App\Http\Controllers\Dashboard_Controller;
+use App\Http\Controllers\Display_Controller;
+
+
 
 
 
@@ -34,6 +41,7 @@ Route::view('/pages/displaylogs', 'pages.displaylogs');
 Route::view('/pages/buffer', 'pages.buffer');
 Route::view('/pages/audit', 'pages.audit');
 Route::view('/pages/bo', 'pages.bo');
+Route::view('/pages/sold', 'pages.sold');
 
 
 Route::get('/pages/product_lists','ProductsList@getproducts')->name('product_lists');
@@ -55,21 +63,40 @@ Route::get('/pages/receiving', [ReceivingController::class, 'index'])->name('rec
 Route::post('/pages/receivings/add','ReceivingController@addreceiving')->name('receivings.store');
 Route::get('/pages/receivings/getproducts', 'ReceivingController@getproducts')->name('receivings.getproducts');
 
+
 // ✅ Warehouse & Buffer Routes
 Route::get('/pages/buffer/getproducts', 'BufferController@getproducts')->name('warehouse.products');
 Route::get('/pages/buffer/getwarehouseproducts', 'BufferController@getWarehouseProducts')->name('warehouse.warehouse_products');
 Route::get('/pages/buffer/getwareproducts', 'BufferController@getwareproducts')->name('warehouse.getwareproducts');
 Route::post('/warehouse/buffer/add_pcs','BufferController@addToBuffer')->name('warehouse.add_to_buffer');
 Route::get('/pages/buffer/getbuffer', 'BufferController@getbuffer')->name('warehouse.getbuffer');
+Route::get('/pages/buffer/get_buffer_balance/{sku_id}', 'BufferController@get_buffer_balance');
 
 
-// ✅ Buffer Routes
+// ✅ Display Routes
 Route::get('/pages/display/get_buffer_products', 'DisplayController@get_buffer_products');
 Route::get('/pages/display/getbufferpcs', 'DisplayController@getbufferpcs')->name('buffer.getbufferpcs');
 Route::post('/pages/display/addToDisplay','DisplayController@addToDisplay')->name('warehouse.add_to_display');
 Route::get('/pages/display/getdisplay', 'DisplayController@getdisplay');
 Route::post('/pages/display/remove_from_buffer', 'DisplayController@removeFromBuffer');
+Route::get('/pages/display/get_display_balance/{sku_id}', 'DisplayController@get_display_balance');
+
+
+// ✅ BO Routes 
+Route::get('/pages/get_display_products', 'BO_Controller@get_display_products');
+Route::get('/pages/display/get_display_pcs', 'BO_Controller@get_display_pcs')->name('buffer.getbufferpcs');
+Route::post('/pages/display/addToBO','BO_Controller@addToBO')->name('warehouse.addToBO');
+Route::get('/pages/BO/getBO', 'BO_Controller@getBO');
+
+
+// ✅ Sold Routes
+Route::get('/pages/sold/get_display_products', 'Sold_Controller@get_display_products');
+Route::get('/pages/sold/get_display_pcs', 'Sold_Controller@get_display_pcs')->name('buffer.get_display_pcs');
+Route::post('/pages/display/addToSold','Sold_Controller@addToSold')->name('warehouse.addToSold');
+Route::get('/pages/sold/getsold', 'Sold_Controller@getsold');
+Route::get('/pages/sold/get_sold_balance/{sku_id}', 'Sold_Controller@get_sold_balance');
 
 
 
-
+// // Dashboard Routes
+// Route::get('/dashboard', [Dashboard_Controller::class, 'index'])->name('dashboard');

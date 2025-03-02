@@ -44,6 +44,18 @@
     <!-- Page Content -->
     <main id="container">
         <div class="content">
+            <div class="row align-items-center">
+                <div class="col-6 p-3">
+                    <h4 class="fw-semibold mb-0">
+                        <span class="fs-2 fw-semibold text-primary">Today's Transactions</span>
+                    </h4>
+                </div>
+                <div class="col-6 p-3 text-right">
+                    <h6 class="fw-semibold mb-0">
+                        {{ \Carbon\Carbon::now('Asia/Manila')->isoFormat('dddd, MMMM D, YYYY h:mm') }}
+                    </h6>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-6 col-lg-3">
                     <a class="block block-rounded block-link-shadow text-center">
@@ -52,43 +64,31 @@
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
-                                SKU stocks
+                                Warehouse Total In
                             </p>
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-lg-3">
+                <div class="col-6 col-lg-4">
                     <a class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-dark">120</div>
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
-                                Today
+                                Warehouse Total Out
                             </p>
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-lg-3">
-                    <a class="block block-rounded block-link-shadow text-center">
-                        <div class="block-content block-content-full">
-                            <div class="fs-2 fw-semibold text-dark">260</div>
-                        </div>
-                        <div class="block-content py-2 bg-body-light">
-                            <p class="fw-medium fs-sm text-muted mb-0">
-                                Yesterday
-                            </p>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-lg-3">
+                <div class="col-6 col-lg-4">
                     <a class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-dark">69,841</div>
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
-                                This Month
+                                Total B.O
                             </p>
                         </div>
                     </a>

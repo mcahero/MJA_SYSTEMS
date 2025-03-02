@@ -68,6 +68,9 @@ class DisplayController extends Controller
             $sku_id = $request->sku_id;
             $display_pcs_in = $request->display_pcs_in; // Changed variable name
 
+            $skuId = $request->input('sku_id');
+            
+
             // 1. Find the most recent "in" transaction for this SKU in the buffer table
             $lastBufferEntry = DB::table('buffer')
                 ->where('product_sku', $sku_id)
@@ -114,6 +117,7 @@ class DisplayController extends Controller
             $newDisplayBalance = $displayBalance + $display_pcs_in;
             
             // 3. Add a record to the display table
+            $now = Carbon::now('Asia/Manila');
             $displayId = DB::table('display')->insertGetId([
                 'product_sku' => $sku_id,
                 'display_pcs_in' => $display_pcs_in,
@@ -121,8 +125,8 @@ class DisplayController extends Controller
                 'display_balance_pcs' => $newDisplayBalance,
                 'checker' => $request->checker,
                 'remarks' => $request->remarks,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
 
             return response()->json(['success' => 'Stock added to display successfully.', 'display_id' => $displayId]); //return diplay id
@@ -135,7 +139,17 @@ class DisplayController extends Controller
             
             return response()->json($display);
         }
-    
+    public function get_display_balance($sku_id)
+{
+    $latestDisplay = DB::table('display')
+        ->where('product_sku', $sku_id)
+        ->orderBy('id', 'desc')
+        ->first();
+
+    return response()->json([
+        'display_balance' => $latestDisplay ? $latestDisplay->display_balance_pcs : 0
+    ]);
+}
 
 }
 
