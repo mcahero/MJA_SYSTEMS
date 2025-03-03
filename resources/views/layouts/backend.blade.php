@@ -36,44 +36,52 @@
             window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
 
             document.addEventListener('keydown', function(event) {
-                // Check if the modal is active
-                const activeModal = document.querySelector(
-                    '.modal.show'); // Adjust selector based on your modal's active class
-                const searchInput = document.getElementById('one-ecom-orders-search');
+                // Check if we are on the audit page
+                const isAuditPage = window.location.pathname.includes('/pages/audit');
 
-                if (!activeModal && document.activeElement !== searchInput && !document.querySelector(
-                        '.dataTables_filter input:focus'
-                    )) { // Proceed only if no modal is active, search input is not focused, and DataTables search input is not focused
-                    const navKeys = {
-                        '1': 'nav-dashboard',
-                        '2': 'nav-product-lists',
-                        '3': 'nav-receiving',
-                        '4': 'nav-buffer',
-                        '5': 'nav-display',
-                        '6': 'nav-bo',
-                        '7': 'nav-sold',
-                    };
+                // Only process the navigation keys if we are NOT on the audit page
+                if (!isAuditPage) {
+                    // Check if the modal is active
+                    const activeModal = document.querySelector('.modal.show');
+                    const searchInput = document.getElementById('one-ecom-orders-search');
 
-                    if (navKeys[event.key]) {
-                        const targetElement = document.getElementById(navKeys[event.key]);
-                        if (targetElement) {
-                            targetElement.click();
+                    if (!activeModal && document.activeElement !== searchInput && !document.querySelector(
+                            '.dataTables_filter input:focus')) {
+                        const navKeys = {
+                            '1': 'nav-dashboard',
+                            '2': 'nav-product-lists',
+                            '3': 'nav-receiving',
+                            '4': 'nav-buffer',
+                            '5': 'nav-display',
+                            '6': 'nav-bo',
+                            '7': 'nav-sold',
+                        };
+
+                        if (navKeys[event.key]) {
+                            const targetElement = document.getElementById(navKeys[event.key]);
+                            if (targetElement) {
+                                targetElement.click();
+                            }
                         }
                     }
                 }
-                // Focus on DataTables search input when Shift + F key is pressed
+
+                // These key combinations should work on all pages
+                // Focus on DataTables search input when Ctrl + F key is pressed
                 if (event.ctrlKey && (event.key === 'f' || event.key === 'F')) {
                     const dataTableSearchInput = document.querySelector('.dataTables_filter input');
                     if (dataTableSearchInput) {
                         dataTableSearchInput.focus();
-                        event.preventDefault(); // Prevent default action to avoid any unintended behavior
+                        event.preventDefault();
                     }
                 }
+
+                // Escape should work on all pages
                 if (event.key === 'Escape') {
                     const dataTableSearchInput = document.querySelector('.dataTables_filter input');
                     if (dataTableSearchInput && document.activeElement === dataTableSearchInput) {
                         dataTableSearchInput.blur();
-                        event.preventDefault(); // Prevent default action to avoid any unintended behavior
+                        event.preventDefault();
                     }
                 }
             });

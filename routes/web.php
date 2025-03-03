@@ -11,6 +11,8 @@ use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\Sold_Controller;
 use App\Http\Controllers\Dashboard_Controller;
 use App\Http\Controllers\Display_Controller;
+use App\Http\Controllers\Audit_Controller;
+
 
 
 
@@ -100,3 +102,8 @@ Route::get('/pages/sold/get_sold_balance/{sku_id}', 'Sold_Controller@get_sold_ba
 
 
 Route::get('/dashboard', [Dashboard_Controller::class, 'index'])->name('dashboard');
+
+Route::get('/sku/search', 'Audit_Controller@search')->name('sku.search');
+Route::get('/sku/system-counts', 'Audit_Controller@getSystemCounts')->name('sku.system-counts');
+
+
