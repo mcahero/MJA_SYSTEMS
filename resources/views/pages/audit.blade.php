@@ -26,19 +26,68 @@
         <!-- Your Block -->
         <div class="block block-rounded">
             <div class="block-header">
-                <h3 class="block-title">Missing Count</h3>
+                <div class="form-group col-12 p-3">
+                    <label for="sku_id">SKU #</label>
+                    <select class="form-control select2" style="width: 100%;" id="sku_id" name="sku_id">
+                        <option value="">Search SKU #</option>
+                    </select>
+                </div>
             </div>
             <div class="block-content">
-                <table class="table table-borderless table-vcenter">
+                <table class="table table-borderless table-vcenter table-striped">
                     <tbody>
                         <tr>
+                            <td></td>
                             <td>Warehouse</td>
                             <td>Buffer</td>
                             <td>Selling</td>
-                            <td>Unresolved</td>
+                            <td>Display</td>
+                            <td>Sold</td>
                             <td>Total Items</td>
                         </tr>
                         <tr>
+                            <td> System Count </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td> Physical Count </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                            <td> = </td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td> </td>
+                            <td> </td>
+                        </tr>
+                        <tr>
+                            <td> Missing Count </td>
+                            <td> = </td>
                             <td> = </td>
                             <td> = </td>
                             <td> = </td>

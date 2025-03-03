@@ -332,6 +332,7 @@
                         $('#current_display_pcs').text('0');
                         fetchWarehouseProducts()
                         getpcs();
+                        getsold();
                     },
                     error: function(xhr, status, error) {
                         console.error('Error adding to display:', error);

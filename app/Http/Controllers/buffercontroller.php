@@ -138,8 +138,8 @@ class BufferController extends Controller
             'buffer_balance_pcs' => $newBufferBalance,
             'checker' => $request->checker,
             'remarks' => $request->remarks,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         return response()->json(['success' => 'Stock added to buffer successfully.', 'buffer_id' => $bufferId]);

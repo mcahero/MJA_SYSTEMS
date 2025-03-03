@@ -87,6 +87,7 @@ Route::get('/pages/get_display_products', 'BO_Controller@get_display_products');
 Route::get('/pages/display/get_display_pcs', 'BO_Controller@get_display_pcs')->name('buffer.getbufferpcs');
 Route::post('/pages/display/addToBO','BO_Controller@addToBO')->name('warehouse.addToBO');
 Route::get('/pages/BO/getBO', 'BO_Controller@getBO');
+Route::get('/pages/bo/get_bo_balance/{sku_id}', 'BO_Controller@get_bo_balance');
 
 
 // ✅ Sold Routes
@@ -98,5 +99,4 @@ Route::get('/pages/sold/get_sold_balance/{sku_id}', 'Sold_Controller@get_sold_ba
 
 
 
-// // Dashboard Routes
-// Route::get('/dashboard', [Dashboard_Controller::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [Dashboard_Controller::class, 'index'])->name('dashboard');

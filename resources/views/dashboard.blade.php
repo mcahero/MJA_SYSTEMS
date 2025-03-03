@@ -19,7 +19,21 @@
     <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
 
     <!-- Page JS Code -->
-    <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
+    <script>
+        jQuery(function() {
+                    Dashmix.helpers(['dt-buttons']);
+                    $('.js-dataTable-full').dataTable({
+                            pageLength: 10,
+                            lengthMenu: [
+                                [5, 10, 20, 50],
+                                [5, 10, 20, 50]
+                            ],
+                            autoWidth: false,
+                            order: [
+                                [0, 'asc'],
+                            });
+                    });
+    </script>
 @endsection
 
 @section('content')
@@ -27,7 +41,7 @@
     <div class="bg-body-light">
         <div class="content content-full">
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
-                <h1 class="flex-sm-fill h3 my-2">Dashboard</h1>
+                <h1 class="flex-sm-fill h3 my-2">Inventory Dashboard</h1>
                 <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-alt">
                         <li class="breadcrumb-item">App</li>
@@ -44,129 +58,157 @@
     <!-- Page Content -->
     <main id="container">
         <div class="content">
+            <!-- Today's Header -->
             <div class="row align-items-center">
                 <div class="col-6 p-3">
                     <h4 class="fw-semibold mb-0">
-                        <span class="fs-2 fw-semibold text-primary">Today's Transactions</span>
+                        <span class="fs-2 fw-semibold text-primary">Today's Summary</span>
                     </h4>
                 </div>
                 <div class="col-6 p-3 text-right">
                     <h6 class="fw-semibold mb-0">
-                        {{ \Carbon\Carbon::now('Asia/Manila')->isoFormat('dddd, MMMM D, YYYY h:mm') }}
+                        {{ $today->isoFormat('dddd, MMMM D, YYYY h:mm A') }}
                     </h6>
                 </div>
             </div>
+
+            <!-- Metrics Blocks -->
             <div class="row">
-                <div class="col-6 col-lg-3">
-                    <a class="block block-rounded block-link-shadow text-center">
+                <!-- Warehouse Total In -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
-                            <div class="fs-2 fw-semibold text-primary">35</div>
+                            <div class="fs-2 fw-semibold text-primary">
+                                {{ number_format($warehouseTotalIn) }}
+                            </div>
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
-                                Warehouse Total In
+                                Warehouse In
                             </p>
                         </div>
-                    </a>
+                    </div>
                 </div>
-                <div class="col-6 col-lg-4">
-                    <a class="block block-rounded block-link-shadow text-center">
+
+                <!-- Warehouse Total Out -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
-                            <div class="fs-2 fw-semibold text-dark">120</div>
+                            <div class="fs-2 fw-semibold text-danger">
+                                {{ number_format($warehouseTotalOut) }}
+                            </div>
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
-                                Warehouse Total Out
+                                Warehouse Out
                             </p>
                         </div>
-                    </a>
+                    </div>
                 </div>
-                <div class="col-6 col-lg-4">
-                    <a class="block block-rounded block-link-shadow text-center">
+
+                <!-- Buffer Total In -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
-                            <div class="fs-2 fw-semibold text-dark">69,841</div>
+                            <div class="fs-2 fw-semibold text-info">
+                                {{ number_format($bufferTotalIn) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Buffer In
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buffer Total Out -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-warning">
+                                {{ number_format($bufferTotalOut) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Buffer Out
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total B.O -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-dark">
+                                {{ number_format($totalBO) }}
+                            </div>
                         </div>
                         <div class="block-content py-2 bg-body-light">
                             <p class="fw-medium fs-sm text-muted mb-0">
                                 Total B.O
                             </p>
                         </div>
-                    </a>
+                    </div>
                 </div>
-            </div>
-            <div class="block block-rounded">
-                <div class="block-header block-header-default">
-                    <h3 class="block-title">SKU Count</h3>
-                    <div class="block-options">
-                        <div class="dropdown">
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-ecom-filters">
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    Pending..
-                                    <span class="badge bg-black-50 rounded-pill">35</span>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    Processing
-                                    <span class="badge bg-warning rounded-pill">15</span>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    For Delivery
-                                    <span class="badge bg-info rounded-pill">20</span>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    Canceled
-                                    <span class="badge bg-danger rounded-pill">72</span>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    Delivered
-                                    <span class="badge bg-success rounded-pill">890</span>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center justify-content-between"
-                                    href="javascript:void(0)">
-                                    All
-                                    <span class="badge bg-primary rounded-pill">997</span>
-                                </a>
+
+                <!-- Total Transactions -->
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-success">
+                                {{ number_format($totalTransactions) }}
                             </div>
                         </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Total Stock
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SKU Inventory Table -->
+            <div class="block block-rounded">
+                <div class="block-header block-header-default">
+                    <h3 class="block-title">SKU Inventory Summary</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-toggle="block-option"
+                            data-action="fullscreen_toggle"></button>
+                        <button type="button" class="btn-block-option" data-toggle="block-option"
+                            data-action="content_toggle"></button>
                     </div>
                 </div>
                 <div class="block-content">
                     <div class="table-responsive">
-                        <table class="table table-borderless table-vcenter js-dataTable-full" id="one-ecom-orders">
-                            <thead>
+                        <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                            <thead class="thead-light">
                                 <tr>
                                     <th>SKU</th>
                                     <th>Warehouse</th>
                                     <th>Buffer</th>
-                                    <th>Selling</th>
+                                    <th>Display</th>
                                     <th>Sold</th>
                                     <th>B.O</th>
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @for ($i = 0; $i < 10; $i++)
+                                @foreach ($inventoryData as $product)
                                     <tr>
-                                        <td><a href="javascript:void(0)">SKU-{{ sprintf('%08d', rand(1, 99999999)) }}</a>
-                                        </td>
-                                        <td>{{ rand(100, 999) }}</td>
-                                        <td>{{ rand(100, 999) }}</td>
-                                        <td>
-                                            <span>{{ rand(100, 999) }}</span>
-                                        </td>
-                                        <td>{{ rand(100, 999) }}</td>
-                                        <td>
-                                            <span>{{ rand(100, 999) }}</span>
-                                        </td>
-                                        <td>
-                                            <span>{{ rand(100, 999) }}</span>
-                                        </td>
+                                        <td class="fw-semibold">{{ $product->product_sku }}</td>
+                                        <td>{{ number_format($product->warehouse_qty) }}</td>
+                                        <td>{{ number_format($product->buffer_qty) }}</td>
+                                        <td>{{ number_format($product->display_qty) }}</td>
+                                        <td>{{ number_format($product->sold_qty) }}</td>
+                                        <td>{{ number_format($product->bo_qty) }}</td>
+                                        <td class="fw-bold text-primary">{{ number_format($product->total) }}</td>
                                     </tr>
-                                @endfor
+                                @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>

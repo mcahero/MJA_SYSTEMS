@@ -139,7 +139,8 @@
                                 <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
                                 <div class="text-center"
                                     style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
-                                    <p class="mb-0" style="font-size: 24px; font-weight: bold; line-height: 80px;">0
+                                    <p id="current_display_pcs" class="mb-0"
+                                        style="font-size: 24px; font-weight: bold; line-height: 80px;">0
                                     </p>
                                     <b class="mb-0 text-nowrap" style="font-size: 12px; color: #6c757d;">Current
                                         B.O
@@ -201,17 +202,17 @@
                         $.each(response, function(index, sku) {
                             $('#sku_id').append('<option value="' + sku.sku_id +
                                 '" data-balance="' + sku.display_balance_pcs + '">' + sku
-                                .product_sku +
-                                '</option>');
+                                .product_sku + '</option>');
                         });
 
-                        $('#sku_id').on('change', function() {
-                            let selectedSkuId = $(this).val();
-                            let selectedProduct = response.find(sku => sku.sku_id ==
+                        $('#sku_id').off('change').on('change', function() {
+                            const selectedSkuId = $(this).val();
+                            const selectedProduct = response.find(sku => sku.sku_id ==
                                 selectedSkuId);
 
+                            // Update display balance
                             if (selectedProduct) {
-                                let productName = selectedProduct.product_shortname ?
+                                const productName = selectedProduct.product_shortname ?
                                     `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
                                     selectedProduct.product_fullname;
 
@@ -224,7 +225,26 @@
                                 $('#selected_sku').val('');
                                 $('#display_balance_pcs').text('0');
                             }
-                            console.log('Selected sku_id:', selectedSkuId);
+
+                            // Fetch and update BO balance
+                            if (selectedSkuId) {
+                                $.ajax({
+                                    url: `/pages/bo/get_bo_balance/${selectedSkuId}`,
+                                    type: 'GET',
+                                    headers: {
+                                        'X-CSRF-TOKEN': csrf_token
+                                    },
+                                    success: function(boResponse) {
+                                        $('#current_display_pcs').text(boResponse
+                                            .bo_balance);
+                                    },
+                                    error: function(xhr) {
+                                        console.error('Error fetching BO balance:',
+                                            xhr.responseText);
+                                        $('#current_display_pcs').text('0');
+                                    }
+                                });
+                            }
                         });
                     },
                     error: function(xhr) {

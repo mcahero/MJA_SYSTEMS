@@ -135,6 +135,17 @@ class BO_Controller extends Controller
             
             return response()->json($bo);
         }
+        public function get_bo_balance($sku_id)
+        {
+            $latestBO = DB::table('bo')
+                ->where('product_sku', $sku_id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            return response()->json([
+                'bo_balance' => $latestBO ? $latestBO->bo_balance_pcs : 0
+            ]);
+        }
     
 
 }
