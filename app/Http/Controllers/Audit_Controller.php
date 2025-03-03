@@ -11,8 +11,8 @@ class Audit_Controller extends Controller
     public function search(Request $request)
     {
         $term = $request->input('term');
-        $page = $request->input('page', 1); // Get the page number, default to 1
-        $perPage = 10; // Number of results per page
+        $page = $request->input('page', 1);
+        $perPage = 10;
 
         $query = DB::table('receivinglist')
             ->join('productlist', 'receivinglist.sku_id', '=', 'productlist.id')
@@ -23,7 +23,7 @@ class Audit_Controller extends Controller
             $query->where('product_sku', 'LIKE', "%$term%");
         }
 
-        $results = $query->paginate($perPage, ['*'], 'page', $page); // Paginate the results
+        $results = $query->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json($results);
     }
@@ -32,16 +32,18 @@ class Audit_Controller extends Controller
     {
         $skuId = $request->input('sku_id');
 
-        // Check if skuId is provided, otherwise return an error or default response
         if (!$skuId) {
             return response()->json(['error' => 'SKU ID is required.'], 400);
         }
 
         $counts = [
-            'warehouse' => DB::table('receivinglist')
+            //since receiving and warehouse are the same, you can just get it from here.
+            'receivinglist' => DB::table('receivinglist')
                 ->where('sku_id', $skuId)
-                ->orderByDesc('id')
-                ->value('balance_pcs') ?? 0,
+                ->select(DB::raw('SUM(pcs_in) - SUM(pcs_out) as balance'))
+                ->first()->balance ?? 0,
+
+            //now remove the warehouse and combine it to receiving list.
 
             'buffer' => DB::table('buffer')
                 ->where('product_sku', $skuId)
@@ -53,6 +55,11 @@ class Audit_Controller extends Controller
                 ->orderByDesc('id')
                 ->value('display_balance_pcs') ?? 0,
 
+            'bo' => DB::table('bo')
+                ->where('product_sku', $skuId)
+                ->orderByDesc('id')
+                ->value('bo_balance_pcs') ?? 0,
+
             'sold' => DB::table('sold')
                 ->where('product_sku', $skuId)
                 ->orderByDesc('id')
@@ -60,9 +67,11 @@ class Audit_Controller extends Controller
         ];
 
         return response()->json([
-            'warehouse' => number_format($counts['warehouse']),
+            'receivinglist' => number_format($counts['receivinglist']), //this is now receiving list + warehouse.
+            //'warehouse' => number_format($counts['warehouse']), //remove the warehouse since its the same as receivinglist.
             'buffer' => number_format($counts['buffer']),
             'display' => number_format($counts['display']),
+            'bo' => number_format($counts['bo']),
             'sold' => number_format($counts['sold'])
         ]);
     }

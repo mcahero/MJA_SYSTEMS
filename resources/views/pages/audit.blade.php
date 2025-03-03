@@ -2,6 +2,22 @@
 
 @section('css_before')
     <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
+    <style>
+        .table-fixed thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f5f5f5;
+            /* Optional: Add a background color for better visibility */
+            z-index: 1;
+            /* Ensure the header is above the table body */
+        }
+
+        .table-fixed tbody {
+            height: 300px;
+            overflow-y: auto;
+
+        }
+    </style>
 @endsection
 
 @section('js_after')
@@ -75,9 +91,11 @@
                     }
 
                     // Update system counts
-                    $('#system-warehouse').text(response.warehouse);
+                    $('#system-receivinglist').text(response.receivinglist); //only receiving list
+                    //$('#system-warehouse').text(response.warehouse); //remove
                     $('#system-buffer').text(response.buffer);
                     $('#system-display').text(response.display);
+                    $('#system-bo').text(response.bo);
                     $('#system-sold').text(response.sold);
 
                     // Store system counts in data attributes
@@ -176,46 +194,52 @@
                 </div>
             </div>
             <div class="block-content">
-                <table class="table table-borderless table-vcenter ">
+                <table class="table table-borderless table-vcenter table-fixed">
                     <thead class="thead-light">
-                        <th></th>
-                        <th class="text-right">Warehouse</th>
-                        <th class="text-right">Buffer</th>
-                        <th class="text-right">Display</th>
-                        <th class="text-right">Sold</th>
-                        <th class="text-right">Total Items</th>
-                        <thead>
-                            <tr>
-                                <td>System Count</td>
-                                <td class="text-right" id="system-warehouse">0</td>
-                                <td class="text-right" id="system-buffer">0</td>
-                                <td class="text-right" id="system-display">0</td>
-                                <td class="text-right" id="system-sold">0</td>
-                                <td class="text-right" id="system-total">0</td>
-                            </tr>
-                            </tbody>
-                        <tbody>
-                            <tr>
-                                <td>Physical Count</td>
-                                <td><input type="number" class="form-control text-right physical-count"
-                                        data-location="warehouse"></td>
-                                <td><input type="number" class="form-control text-right physical-count"
-                                        data-location="buffer">
-                                </td>
-                                <td><input type="number" class="form-control text-right physical-count"
-                                        data-location="display"></td>
-                                <td><input type="number" class="form-control text-right physical-count"
-                                        data-location="sold">
-                                </td>
-                                <td><input type="text" class="form-control text-right" id="physical-total" readonly></td>
-                            </tr>
-                        </tbody>
+                        <tr>
+                            <th></th>
+                            <th class="text-right">Receiving List/Warehouse</th> <!-- combine header -->
+
+                            <th class="text-right">Buffer</th>
+                            <th class="text-right">Display</th>
+                            <th class="text-right">BO</th>
+                            <th class="text-right">Sold</th>
+                            <th class="text-right">Total Items</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         <tr>
+                            <td>System Count</td>
+                            <td class="text-right" id="system-receivinglist">0</td> <!-- only receiving list -->
+
+                            <td class="text-right" id="system-buffer">0</td>
+                            <td class="text-right" id="system-display">0</td>
+                            <td class="text-right" id="system-bo">0</td>
+                            <td class="text-right" id="system-sold">0</td>
+                            <td class="text-right" id="system-total">0</td>
+                        </tr>
+                        <tr>
+                            <td>Physical Count</td>
+                            <td><input type="number" class="form-control text-right physical-count"
+                                    data-location="receivinglist"></td> <!-- only receiving list -->
+
+                            <td><input type="number" class="form-control text-right physical-count" data-location="buffer">
+                            </td>
+                            <td><input type="number" class="form-control text-right physical-count"
+                                    data-location="display"></td>
+                            <td><input type="number" class="form-control text-right physical-count" data-location="bo">
+                            </td>
+                            <td><input type="number" class="form-control text-right physical-count" data-location="sold">
+                            </td>
+                            <td><input type="text" class="form-control text-right" id="physical-total" readonly></td>
+                        </tr>
+                        <tr>
                             <td>Missing Count</td>
-                            <td class="text-right" id="missing-warehouse">0</td>
+                            <td class="text-right" id="missing-receivinglist">0</td> <!-- only receiving list -->
+
                             <td class="text-right" id="missing-buffer">0</td>
                             <td class="text-right" id="missing-display">0</td>
+                            <td class="text-right" id="missing-bo">0</td>
                             <td class="text-right" id="missing-sold">0</td>
                             <td class="text-right" id="missing-total">0</td>
                         </tr>
