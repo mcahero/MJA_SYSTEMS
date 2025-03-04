@@ -25,15 +25,74 @@
         <link rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
         <link rel="stylesheet" id="css-main" href="{{ mix('/css/oneui.css') }}">
-
+        <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
 
         <!-- You can include a specific file from public/css/themes/ folder to alter the default color theme of the template. eg: -->
         <!-- <link rel="stylesheet" id="css-theme" href="{{ mix('/css/themes/amethyst.css') }}"> -->
         @yield('css_after')
-
+        <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
         <!-- Scripts -->
         <script>
             window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
+            async function launchImageToTextExe() {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                try {
+                    const response = await fetch('/launch-image-to-text', {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        if (errorData && errorData.error) {
+                            const toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: false,
+                            });
+                            toast.fire({
+                                icon: 'error',
+                                title: `Error launching Image to Text: ${errorData.error}`
+                            });
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    } else {
+                        const responseData = await response.json();
+                        if (responseData.success) {
+                            const toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: false,
+                            });
+                            toast.fire({
+                                icon: 'success',
+                                title: 'Image to Text is Now Ready to Use!'
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    const toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: false,
+                    });
+                    toast.fire({
+                        icon: 'error',
+                        title: 'Failed to launch Image to Text. Please check the console for more details.'
+                    });
+                }
+            }
+
 
             document.addEventListener('keydown', function(event) {
                 // Check if we are on the audit page
@@ -84,6 +143,7 @@
                         event.preventDefault();
                     }
                 }
+
             });
         </script>
 
@@ -479,6 +539,12 @@
                                 </div>
                             </div>
                         </div>
+                        <button type="button" class="btn btn-sm btn-dual ml-2 btn-primary"
+                            onclick="launchImageToTextExe()">
+                            <i class="fas fa-print mr-2"></i> Image to Text
+                        </button>
+
+
                         <!-- END User Dropdown -->
 
                         <!-- Notifications Dropdown -->

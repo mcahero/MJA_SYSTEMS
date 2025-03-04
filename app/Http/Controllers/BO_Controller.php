@@ -8,6 +8,79 @@ use Carbon\Carbon;
 
 class BO_Controller extends Controller
 {
+        public function subtractFromBO(Request $request)
+        {
+            $request->validate([
+                'sku_id' => 'required|exists:productlist,id',
+                'bo_pcs_out' => 'required|integer|min:1',
+                'remarks' => 'nullable|string'
+            ]);
+
+            $skuId = $request->sku_id;
+            $boPcsOut = $request->bo_pcs_out;
+
+            // Get current balance
+            $currentBalance = DB::table('bo')
+                ->where('product_sku', $skuId)
+                ->selectRaw('SUM(bo_pcs_in) - SUM(bo_pcs_out) as balance')
+                ->first()->balance ?? 0;
+
+            if ($currentBalance < $boPcsOut) {
+                return response()->json(['message' => 'Insufficient B.O balance'], 400);
+            }
+
+            $newBalance = $currentBalance - $boPcsOut;
+
+            DB::table('bo')->insert([
+                'product_sku' => $skuId,
+                'bo_pcs_out' => $boPcsOut,
+                'bo_balance_pcs' => $newBalance,
+                'remarks' => $request->remarks,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json(['success' => true]);
+        }
+        public function takeOutFromBO(Request $request)
+        {
+            // Validate request
+            $request->validate([
+                'sku_id' => 'required|exists:productlist,id|integer',
+                'bo_pcs_out' => 'required|integer|min:1',
+                'remarks' => 'nullable|string',
+            ]);
+
+            $sku_id = $request->sku_id;
+            $bo_pcs_out = $request->bo_pcs_out;
+
+            // Get the current BO balance
+            $currentBOBalance = DB::table('bo')
+                ->where('product_sku', $sku_id)
+                ->select(DB::raw('SUM(bo_pcs_in) - SUM(bo_pcs_out) as balance'))
+                ->first()->balance ?? 0;
+
+            // Check if there are enough PCS to take out
+            if ($currentBOBalance < $bo_pcs_out) {
+                return response()->json(['error' => 'Insufficient balance in B.O.'], 400);
+            }
+
+            // Calculate the new BO balance
+            $newBOBalance = $currentBOBalance - $bo_pcs_out;
+
+            // Create a new "out" record in the bo table
+            $now = Carbon::now('Asia/Manila');
+            DB::table('bo')->insert([
+                'product_sku' => $sku_id,
+                'bo_pcs_in' => 0,
+                'bo_pcs_out' => $bo_pcs_out,
+                'bo_balance_pcs' => $newBOBalance,
+                'remarks' =>  "• Moved {$bo_pcs_out} pcs taken out from B.O.({$now}) <br> -" . $request->remarks,
+                'updated_at' => $now,
+            ]);
+
+            return response()->json(['success' => 'PCS taken out from B.O. successfully.']);
+        }
         public function get_display_products()
         {
             $bos = DB::table('display')

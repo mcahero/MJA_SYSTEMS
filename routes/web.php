@@ -12,11 +12,7 @@ use App\Http\Controllers\Sold_Controller;
 use App\Http\Controllers\Dashboard_Controller;
 use App\Http\Controllers\Display_Controller;
 use App\Http\Controllers\Audit_Controller;
-
-
-
-
-
+use App\Http\Controllers\ExeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +86,9 @@ Route::get('/pages/display/get_display_pcs', 'BO_Controller@get_display_pcs')->n
 Route::post('/pages/display/addToBO','BO_Controller@addToBO')->name('warehouse.addToBO');
 Route::get('/pages/BO/getBO', 'BO_Controller@getBO');
 Route::get('/pages/bo/get_bo_balance/{sku_id}', 'BO_Controller@get_bo_balance');
+Route::post('/pages/display/takeOutFromBO', [BO_Controller::class, 'takeOutFromBO']);
+Route::post('/pages/bo/subtractFromBO', [BO_Controller::class, 'takeOutFromBO']);
+
 
 
 // ✅ Sold Routes
@@ -106,4 +105,4 @@ Route::get('/dashboard', [Dashboard_Controller::class, 'index'])->name('dashboar
 Route::get('/sku/search', 'Audit_Controller@search')->name('sku.search');
 Route::get('/sku/system-counts', 'Audit_Controller@getSystemCounts')->name('sku.system-counts');
 
-
+Route::get('/launch-image-to-text', 'ExeController@runCapture')->name('launch.exe');

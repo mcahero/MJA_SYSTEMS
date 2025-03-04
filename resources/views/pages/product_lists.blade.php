@@ -555,7 +555,6 @@
                                     $("#edit_product_form #product_entryperson").val(data
                                         .product_entryperson);
                                     $("#edit_product_form #product_remarks").val(data.product_remarks);
-                                    $("#edit_product_form #updated_at").val(data.updated_at);
                                 }
                             });
                         });

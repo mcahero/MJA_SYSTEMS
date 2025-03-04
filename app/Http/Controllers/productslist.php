@@ -139,5 +139,6 @@ class ProductsList extends Controller
         $product = DB::table('productlist')->where('id', $id)->first();
         return response()->json($product);
     }
+    
 
 }

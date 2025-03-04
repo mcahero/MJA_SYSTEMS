@@ -109,11 +109,22 @@
                             });
 
                             getReceivingList();
-                            console.log($('#product_form'));
-                            console.log($('#product_form')[0]);
-                            $('#product_form')[0].reset();
-                            resetStepper();
 
+
+                            // Selectively reset form fields, excluding transaction_number
+                            $('#sku_id').val('');
+                            $('#pcs').val('');
+                            $('#expiry_date').val('MM/YYYY'); // Reset to default placeholder
+                            $('#checker').val('');
+                            $('#remarks').val('');
+                            $('#product_name').val('');
+                            $('#product_barcode').val('');
+                            $('#product_type').val('');
+                            $('#color_code_h1').text('AE');
+                            $('#color_code_h1').css('background-color', '#ccc')
+
+
+                            resetStepper();
                         }
                     },
                     error: function(xhr) {
@@ -157,7 +168,19 @@
             // Reset stepper when modal is closed
             $('#addReceivingModal').on('hidden.bs.modal', function() {
                 resetStepper(); // Reset the stepper to Step 1
-                $('#product_form')[0].reset();
+
+                // Selectively reset form fields, excluding transaction_number
+                $('#sku_id').val('');
+                $('#pcs').val('');
+                $('#expiry_date').val('MM/YYYY'); // Reset to default placeholder
+                $('#checker').val('');
+                $('#remarks').val('');
+                $('#product_name').val('');
+                $('#product_barcode').val('');
+                $('#product_type').val('');
+                $('#color_code_h1').text('AE');
+                $('#color_code_h1').css('background-color', '#ccc')
+
             });
 
             $.ajax({

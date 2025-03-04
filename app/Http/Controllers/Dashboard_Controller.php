@@ -18,6 +18,10 @@ class Dashboard_Controller extends Controller
             ->whereDate('created_at', $today)
             ->sum('pcs_in');
 
+            $displayTotalOut = DB::table('display')
+            ->whereDate('created_at', $today)
+            ->sum('display_pcs_out');
+
         $warehouseTotalOut = DB::table('receivinglist')
             ->whereDate('created_at', $today)
             ->sum('pcs_out');
@@ -106,8 +110,19 @@ class Dashboard_Controller extends Controller
             ->orderBy('p.product_sku')
             ->get();
 
-        // Calculate total transactions (sum of all inventory totals)
         $totalTransactions = $inventoryData->sum('total');
+
+        $displayTotalIn = DB::table('display')
+            ->whereDate('created_at', $today)
+            ->sum('display_pcs_in');
+
+        $boTotalIn = DB::table('bo')
+            ->whereDate('created_at', $today)
+            ->sum('bo_pcs_in');
+
+        $boTotalOut = DB::table('bo')
+            ->whereDate('created_at', $today)
+            ->sum('bo_pcs_out');
 
         return view('dashboard', compact(
             'today',
@@ -117,7 +132,11 @@ class Dashboard_Controller extends Controller
             'bufferTotalOut',
             'totalBO',
             'totalTransactions',
-            'inventoryData'
+            'inventoryData',
+            'displayTotalIn',
+            'boTotalIn',
+            'boTotalOut',
+            'displayTotalOut',
         ));
     }
 }

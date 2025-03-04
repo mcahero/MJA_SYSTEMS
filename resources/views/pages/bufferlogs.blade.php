@@ -350,10 +350,10 @@
                             data: 'buffer_pcs_in'
                         },
                         {
-                            data: 'null'
+                            data: 'buffer_pcs_out'
                         },
                         {
-                            data: 'buffer_pcs_'
+                            data: 'buffer_balance_pcs'
                         },
                         {
                             data: 'remarks'

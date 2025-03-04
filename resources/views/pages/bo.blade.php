@@ -49,6 +49,10 @@
                     data-target="#Addbuffermodal">
                     <i class="fa fa-plus mr-2"></i>Add Pcs to B.O
                 </button>
+                <button type="button" class="btn btn-sm btn-primary mb-3" data-toggle="modal"
+                    data-target="#SubtractBOmodal">
+                    <i class="fa fa-plus mr-2"></i>Subtract Pcs to B.O
+                </button>
                 <table id="buffer_table" style="font-size: 12px;" class="table table-bordered table-striped table-vcenter">
                     <thead>
                         <tr>
@@ -164,6 +168,75 @@
     </div>
     </div>
     </div>
+    <div class="modal fade" id="SubtractBOmodal" tabindex="-1" aria-labelledby="SubtractBOmodalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Subtract Pcs from B.O</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="subtract_bo_form">
+                        @csrf
+                        <input type="hidden" name="id" id="subtract_id">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="subtract_sku_id">SKU #</label>
+                                <select class="form-control select2" style="width: 100%;" id="subtract_sku_id"
+                                    name="sku_id">
+                                    <option value="">Search SKU #</option>
+                                </select>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <p class="mb-0" style="font-size: 16px; font-weight: bold;">Selected SKU:
+                                        <input type="text" class="form-control" id="subtract_selected_sku"
+                                            name="product_name" placeholder="No Selected SKU..." readonly>
+                                    </p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="mb-0" style="font-size: 16px; font-weight: bold;">Product Name:
+                                        <input type="text" placeholder="No Selected SKU..." class="form-control"
+                                            id="subtract_product_name" name="product_name" readonly>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center mb-4">
+                                <div class="text-center"
+                                    style="width: 130px; height: 80px; background-color: #E0E0E0; border-radius: 8px;">
+                                    <p id="current_bo_balance" class="mb-0"
+                                        style="font-size: 24px; font-weight: bold; line-height: 80px;">0</p>
+                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Current B.O Balance</b>
+                                </div>
+                                <span class="mx-3" style="font-size: 40px; font-weight: bold;">&rarr;</span>
+                                <div class="text-center" id="subtract_dynamic_container"
+                                    style="width: 130px; height: 80px; border: 2px solid #000; border-radius: 8px;">
+                                    <input type="number" class="form-control text-center" id="bo_pcs_out"
+                                        name="bo_pcs_out"
+                                        style="height: 100%; border: none; font-size: 24px; font-weight: bold;"
+                                        placeholder="0" required>
+                                    <b class="mb-0" style="font-size: 12px; color: #6c757d;">Subtract from B.O</b>
+                                </div>
+                            </div>
+                            <div class="form-group text-left mb-0 mt-2">
+                                <label for="subtract_remarks">Remarks</label>
+                                <textarea class="form-control" style="font-size: 12px;" id="subtract_remarks" name="remarks" rows="3"
+                                    placeholder="Enter remarks here..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 d-flex justify-content-center">
+                            <button type="button" id="subtractFromBO" class="btn btn-danger btn-sm btn-block">
+                                Subtract PCS
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- END Page Content -->
 @section('js_after')
@@ -183,8 +256,129 @@
     <script src="{{ asset('js/pages/tables_datatables.js') }}"></script>
     <script>
         $(document).ready(function() {
+            fetchBOProducts();
             fetchWarehouseProducts()
             var csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+            // Handle SKU Change in Subtract Modal
+            $('#subtract_sku_id').on('change', function() {
+                const skuId = $(this).val();
+                if (skuId) {
+                    $.ajax({
+                        url: `/pages/bo/get_bo_balance/${skuId}`,
+                        success: function(response) {
+                            $('#current_bo_balance').text(response.bo_balance);
+                        }
+                    });
+                }
+            });
+
+            // Subtract from BO Handler
+            $('#subtractFromBO').click(function() {
+                const formData = new FormData();
+                const skuId = $('#subtract_sku_id').val();
+                const boPcsOut = $('#bo_pcs_out').val();
+                const remarks = $('#subtract_remarks').val();
+                const currentBalance = parseInt($('#current_bo_balance').text());
+
+                if (currentBalance < boPcsOut) {
+                    Swal.fire('Error!', 'Insufficient B.O balance', 'error');
+                    return;
+                }
+
+                formData.append('sku_id', skuId);
+                formData.append('bo_pcs_out', boPcsOut);
+                formData.append('remarks', remarks);
+
+                $.ajax({
+                    url: '/pages/bo/subtractFromBO',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(response) {
+                        getBO();
+                        $('#SubtractBOmodal').modal('hide');
+                        Swal.fire('Success!', 'PCS subtracted from B.O', 'success');
+                        $('#subtract_bo_form')[0].reset();
+                        $('#current_bo_balance')[0].reset();
+                        fetchWarehouseProducts()
+                        fetchBOProducts();
+
+
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error!', xhr.responseJSON.message || 'Error occurred',
+                            'error');
+                    }
+                });
+            });
+
+            function fetchBOProducts() {
+                $.ajax({
+                    url: '/pages/get_display_products', // Assuming this endpoint returns product information needed for BO as well
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf_token
+                    },
+                    success: function(response) {
+                        console.log('Received BO product lists:', response);
+
+                        // Populate the #subtract_sku_id select element
+                        $('#subtract_sku_id').empty().append(
+                            '<option value="" disabled selected>Select SKU</option>');
+                        $.each(response, function(index, sku) {
+                            $('#subtract_sku_id').append('<option value="' + sku.sku_id + '">' +
+                                sku.product_sku + '</option>');
+                        });
+
+                        // Handle change event for #subtract_sku_id
+                        $('#subtract_sku_id').off('change').on('change', function() {
+                            const selectedSkuId = $(this).val();
+                            const selectedProduct = response.find(sku => sku.sku_id ==
+                                selectedSkuId);
+                            if (selectedProduct) {
+                                const productName = selectedProduct.product_shortname ?
+                                    `${selectedProduct.product_fullname} (${selectedProduct.product_shortname})` :
+                                    selectedProduct.product_fullname;
+                                $('#subtract_product_name').val(productName);
+                                $('#subtract_selected_sku').val(selectedProduct.product_sku);
+
+                                // Fetch and update BO balance
+                                if (selectedSkuId) {
+                                    $.ajax({
+                                        url: `/pages/bo/get_bo_balance/${selectedSkuId}`,
+                                        type: 'GET',
+                                        headers: {
+                                            'X-CSRF-TOKEN': csrf_token
+                                        },
+                                        success: function(boResponse) {
+                                            $('#current_bo_balance').text(boResponse
+                                                .bo_balance);
+                                        },
+                                        error: function(xhr) {
+                                            console.error(
+                                                'Error fetching BO balance:',
+                                                xhr.responseText);
+                                            $('#current_bo_balance').text('0');
+                                        }
+                                    });
+                                }
+                            } else {
+                                $('#subtract_product_name').val('');
+                                $('#subtract_selected_sku').val('');
+                                $('#current_bo_balance').text('0');
+                            }
+                        });
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching BO products:', xhr.responseText);
+                    }
+                });
+            }
 
             function fetchWarehouseProducts() {
                 $.ajax({
@@ -463,7 +657,20 @@
                         placeholder: "Search or select an option",
                     });
                 });
+                $('#SubtractBOmodal').on('shown.bs.modal', function() {
+                    // Destroy existing instance (if any) to prevent duplicates
+                    if ($.fn.select2 && $('#subtract_sku_id').data('select2')) {
+                        $('#subtract_sku_id').select2('destroy');
+                    }
+                    $('#subtract_sku_id').select2({
+                        dropdownParent: $('#SubtractBOmodal'),
+                        selectOnClose: true,
+                        width: '100%',
+                        placeholder: "Search or select an option",
+                    });
+                });
             });
+
 
             function adjustWidthBasedOnInput(inputId, containerId) {
                 document.getElementById(inputId).addEventListener('input', function() {

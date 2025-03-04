@@ -21,18 +21,24 @@
     <!-- Page JS Code -->
     <script>
         jQuery(function() {
-                    Dashmix.helpers(['dt-buttons']);
-                    $('.js-dataTable-full').dataTable({
-                            pageLength: 10,
-                            lengthMenu: [
-                                [5, 10, 20, 50],
-                                [5, 10, 20, 50]
-                            ],
-                            autoWidth: false,
-                            order: [
-                                [0, 'asc'],
-                            });
-                    });
+            $('.js-dataTable-full').dataTable({
+                pageLength: 10,
+                lengthMenu: [
+                    [5, 10, 20, 50],
+                    [5, 10, 20, 50]
+                ],
+                autoWidth: false,
+                order: [
+                    [0, 'asc'],
+                ],
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ]
+            });
+        });
     </script>
 @endsection
 
@@ -75,7 +81,7 @@
             <!-- Metrics Blocks -->
             <div class="row">
                 <!-- Warehouse Total In -->
-                <div class="col-6 col-lg-2">
+                <div class="col-6 col-lg-3">
                     <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-primary">
@@ -91,7 +97,7 @@
                 </div>
 
                 <!-- Warehouse Total Out -->
-                <div class="col-6 col-lg-2">
+                <div class="col-6 col-lg-3">
                     <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-danger">
@@ -107,7 +113,7 @@
                 </div>
 
                 <!-- Buffer Total In -->
-                <div class="col-6 col-lg-2">
+                <div class="col-6 col-lg-3">
                     <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-info">
@@ -123,7 +129,7 @@
                 </div>
 
                 <!-- Buffer Total Out -->
-                <div class="col-6 col-lg-2">
+                <div class="col-6 col-lg-3">
                     <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-warning">
@@ -138,11 +144,66 @@
                     </div>
                 </div>
 
-                <!-- Total B.O -->
                 <div class="col-6 col-lg-2">
                     <div class="block block-rounded block-link-shadow text-center">
                         <div class="block-content block-content-full">
                             <div class="fs-2 fw-semibold text-dark">
+                                {{ number_format($displayTotalIn) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Display In
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-dark">
+                                {{ number_format($displayTotalOut) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                Display Out
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-success">
+                                {{ number_format($boTotalIn) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                BO In
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-success">
+                                {{ number_format($boTotalOut) }}
+                            </div>
+                        </div>
+                        <div class="block-content py-2 bg-body-light">
+                            <p class="fw-medium fs-sm text-muted mb-0">
+                                BO Out
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <div class="block block-rounded block-link-shadow text-center">
+                        <div class="block-content block-content-full">
+                            <div class="fs-2 fw-semibold text-success">
                                 {{ number_format($totalBO) }}
                             </div>
                         </div>
@@ -153,7 +214,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Total Transactions -->
                 <div class="col-6 col-lg-2">
                     <div class="block block-rounded block-link-shadow text-center">
