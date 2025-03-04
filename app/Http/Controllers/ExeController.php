@@ -9,7 +9,7 @@ class ExeController extends Controller
     public function runCapture(Request $request)
     {
         // Full path to your executable
-        $exePath = 'C:\laragon\www\INVENTORY_MJA\public\executable\Capture2TextPortable-20250302T162754Z-001\Capture2TextPortable\Capture2TextPortable.exe';
+        $exePath = public_path('executable/Capture2TextPortable-20250302T162754Z-001/Capture2TextPortable/Capture2TextPortable.exe');
 
         // Get the argument from the AJAX request
         $argument = $request->input('argument');

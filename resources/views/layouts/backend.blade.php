@@ -33,6 +33,7 @@
         <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
         <!-- Scripts -->
         <script>
+
             window.Laravel = {!! json_encode(['csrfToken' => csrf_token()]) !!};
             async function launchImageToTextExe() {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -45,6 +46,7 @@
                         },
                     });
                     if (!response.ok) {
+                        launchImageToTextExe()
                         const errorData = await response.json();
                         if (errorData && errorData.error) {
                             const toast = Swal.mixin({
@@ -540,7 +542,7 @@
                             </div>
                         </div>
                         <button type="button" class="btn btn-sm btn-dual ml-2 btn-primary"
-                            onclick="launchImageToTextExe()">
+                            onclick="launchImageToTextExe(); location.reload();">
                             <i class="fas fa-print mr-2"></i> Image to Text
                         </button>
 
