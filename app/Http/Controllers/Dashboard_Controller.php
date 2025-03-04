@@ -16,27 +16,34 @@ class Dashboard_Controller extends Controller
         // Warehouse Metrics (From receivinglist)
         $warehouseTotalIn = DB::table('receivinglist')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('pcs_in');
 
             $displayTotalOut = DB::table('display')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('display_pcs_out');
 
         $warehouseTotalOut = DB::table('receivinglist')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('pcs_out');
 
         // Buffer Metrics
         $bufferTotalIn = DB::table('buffer')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('buffer_pcs_in');
 
         $bufferTotalOut = DB::table('buffer')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('buffer_pcs_out');
 
         // BO (Back Order) Metric
         $totalBO = DB::table('bo')
+            ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('bo_balance_pcs');
 
         // Get inventory data with latest balances
@@ -114,14 +121,17 @@ class Dashboard_Controller extends Controller
 
         $displayTotalIn = DB::table('display')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('display_pcs_in');
 
         $boTotalIn = DB::table('bo')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('bo_pcs_in');
 
         $boTotalOut = DB::table('bo')
             ->whereDate('created_at', $today)
+            ->orWhereDate('updated_at', $today)
             ->sum('bo_pcs_out');
 
         return view('dashboard', compact(

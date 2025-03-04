@@ -600,7 +600,9 @@
                             data: null
                         },
                         {
-                            data: 'created_at'
+                            data: 'created_at',
+                            render: (data, type, row) => row.updated_at ? row.updated_at : row
+                                .created_at
                         },
                         {
                             data: 'bo_pcs_in'

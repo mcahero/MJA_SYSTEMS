@@ -13,7 +13,8 @@ class BO_Controller extends Controller
             $request->validate([
                 'sku_id' => 'required|exists:productlist,id',
                 'bo_pcs_out' => 'required|integer|min:1',
-                'remarks' => 'nullable|string'
+                'remarks' => 'nullable|string',
+                'checker' => 'nullable|string',
             ]);
 
             $skuId = $request->sku_id;
@@ -31,13 +32,14 @@ class BO_Controller extends Controller
 
             $newBalance = $currentBalance - $boPcsOut;
 
+            $now = Carbon::now('Asia/Manila');
             DB::table('bo')->insert([
                 'product_sku' => $skuId,
                 'bo_pcs_out' => $boPcsOut,
                 'bo_balance_pcs' => $newBalance,
                 'remarks' => $request->remarks,
-                'created_at' => now(),
-                'updated_at' => now()
+                'created_at' => $now,
+                'updated_at' => $now,
             ]);
 
             return response()->json(['success' => true]);

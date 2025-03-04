@@ -186,6 +186,7 @@
     <script>
         $(document).ready(function() {
             fetchWarehouseProducts();
+            getpcs()
             var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
             function fetchWarehouseProducts() {
@@ -369,6 +370,7 @@
                     success: function(data) {
                         console.log('Received display list:', data);
                         displaybufferlist(data);
+                        getpcs()
                     }
                 });
             }
